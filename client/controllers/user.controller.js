@@ -1,7 +1,7 @@
-import { now } from "mongoose"
 import User from "../models/user.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import Token from "../models/token.model.js"
+import Address from "../models/address.model.js"
 
 
 //! register
@@ -80,6 +80,62 @@ export const userData = async (req, res, next)=>{
         res.status(200).json(user)
     } catch (error) {
         console.log("get user m h error", error)
+        next(error)
+    }
+}
+
+//! update userData
+
+export const updateUserData = async (req, res, next)=>{
+    try {
+        const {name, email, phone} =  req.body
+        const newUserData = await User.findByIdAndUpdate(req.user._id,{
+            name,
+            email,
+            phone
+        },{new : true})
+
+        res.status(200).json({msg : "update successfullyy"})
+
+    } catch (error) {
+        console.log("update user m h error", error)
+        next(error)
+    }
+}
+
+//! user address
+
+export const userAddress = async (req, res, next)=>{
+    
+    const {address, state, city, pincode, phone} = req.body
+    const id = req.user._id
+
+    if(phone.toString().length > 10) return next(errorHandler(400, "phone no. length must me less than 11 values"))
+
+    const newAddress = new Address({
+        userId : id,
+        address,
+        state,
+        city,
+        pincode,
+        phone
+    })
+    try {
+        await newAddress.save()        
+        res.status(200).json(newAddress)
+    } catch (error) {
+        console.log("user address m h error", error)
+    }
+}
+
+//! get user address
+
+export const getUserAddress = async (req, res, next)=>{
+    try {
+        const address = await Address.find({userId : {$in : req.user._id}})
+        res.status(200).json(address)
+    } catch (error) {
+        console.log("get user data m h error", error)
         next(error)
     }
 }
