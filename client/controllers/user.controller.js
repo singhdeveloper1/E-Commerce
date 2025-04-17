@@ -72,6 +72,49 @@ export const userLogin = async (req, res, next)=>{
     }
 }
 
+//! google Login
+
+export const google = async (req, res)=>{
+    const {name, email} = req.body
+
+    try {
+        const existingUser = await User.findOne({email})
+        
+        if(existingUser){
+            const token = await existingUser.generateToken()
+
+            //! storing token in token model
+
+            const newToken = new Token({
+                userId : existingUser._id,
+                token : token
+            })
+            await newToken.save()
+
+        }
+            else{
+                const generatePassword = Math.Random().toString(36).slice(-8)
+                const hashedPassword = await bcrypt.hash(generatePassword,10)                
+
+                const newUser = new User({
+                    name,
+                    email,
+                    password : hashedPassword
+                })
+
+                await newUser.save()
+
+                res.status(200).json(newUser)
+            }
+
+
+    } catch (error) {
+        console.log("google sign-up , login m h error", error)
+        next(error)
+    }
+    
+}
+
 //! get user data
 
 export const userData = async (req, res, next)=>{
