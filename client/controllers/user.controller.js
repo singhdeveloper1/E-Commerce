@@ -2,6 +2,7 @@ import User from "../models/user.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import Token from "../models/token.model.js"
 import Address from "../models/address.model.js"
+import bcrypt from "bcryptjs"
 
 
 //! register
@@ -103,6 +104,34 @@ export const updateUserData = async (req, res, next)=>{
     }
 }
 
+//! update user Password
+
+export const updateUserPassword = async (req, res, next) =>{
+    try {
+        const {oldPassword, newPassword} = req.body
+
+        const user = await User.findById(req.user._id)
+
+        const checkPassword = await user.isPasswordCorrect(oldPassword)
+
+        if(!checkPassword) return next(errorHandler(401, "password is incorrect"))
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+
+         const updatedPassword = await User.findByIdAndUpdate(req.user._id,{
+            password : hashedPassword
+         },{new : true})   
+
+         res.status(200).json({msg : "password updated successfully!!!"})
+
+
+    } catch (error) {
+        console.log("update user password m h error" , error)
+        next(error)
+    }
+}
+
 //! user address
 
 export const userAddress = async (req, res, next)=>{
@@ -136,6 +165,28 @@ export const getUserAddress = async (req, res, next)=>{
         res.status(200).json(address)
     } catch (error) {
         console.log("get user data m h error", error)
+        next(error)
+    }
+}
+
+//! update user Address
+
+export const updateUserAddress = async (req, res, next)=>{
+
+    try {
+        const {address, state, city, pincode, phone} = req.body
+        const updatedAddress = await Address.findByIdAndUpdate(req.params.id,{
+            address,
+            state,
+            city,
+            pincode,
+            phone
+        },{new : true})
+
+        res.status(200).json({msg : "address updated Successfully!!!!"})
+
+    } catch (error) {
+        console.log("update user address m h error", error)
         next(error)
     }
 }
