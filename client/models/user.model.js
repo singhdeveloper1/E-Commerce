@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     },
 
     phone : {
-        type : String
+        type : Number
     },
 
     password : {
@@ -40,7 +40,7 @@ userSchema.methods.isPasswordCorrect = async function(password){
 }
 
 userSchema.methods.generateToken = function(){
-    return jwt.sign({id : _this._id}, process.env.JWT_SECRET)
+    return jwt.sign({id : this._id}, process.env.JWT_SECRET)
 }
 
 const User = mongoose.model("User", userSchema)
