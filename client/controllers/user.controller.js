@@ -3,6 +3,7 @@ import { errorHandler } from "../utils/errorHandler.js"
 import Token from "../models/token.model.js"
 import Address from "../models/address.model.js"
 import bcrypt from "bcryptjs"
+import OTP from "../models/otp.model.js"
 
 
 //! register
@@ -10,8 +11,11 @@ export const userRegister = async (req, res, next)=>{
     
     try {
         const {name, email, phone, password} = req.body
-        // console.log(phone.toString().length)
-        // console.log(typeof phone)
+
+        const verification = await OTP.findOne({$or : [{email, phone}]})
+
+        if(!verification || !verification.verified) return next(errorHandler(401,"please verify your email or phone first"))
+
         if(!email && !phone) return next(errorHandler(400, "email or phone number is required"))
             if(phone && phone.toString().length > 10) return next(errorHandler(400, "phone no. length must be less than 11 numbers"))
 
@@ -40,7 +44,7 @@ export const userRegister = async (req, res, next)=>{
 export const userLogin = async (req, res, next)=>{
 
     try {
-        const {name, phone, email, password} = req.body
+        const { phone, email, password} = req.body
 
         const existingUser = await User.findOne({$or : [{email, phone}]})
 
