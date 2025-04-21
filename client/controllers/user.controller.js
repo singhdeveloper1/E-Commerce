@@ -303,3 +303,20 @@ export const userLogout = async (req, res)=>{
         next(error)
     }
 }
+
+
+//! switch to seller
+
+export const switchToSeller = async (req, res, next)=>{
+    try {
+
+        await User.findByIdAndUpdate(req.user._id,{
+            isSeller : true
+        },{new : true})
+
+        res.status(200).json("switched to seller successfully")
+    } catch (error) {
+        console.log("switch to seller m h error", error)
+        next(error)
+    }
+}
