@@ -4,6 +4,7 @@ import Token from "../models/token.model.js"
 import Address from "../models/address.model.js"
 import bcrypt from "bcryptjs"
 import OTP from "../models/otp.model.js"
+import sendMail from "../mailsender/mailsender.js"
 
 
 //! register
@@ -117,6 +118,36 @@ export const google = async (req, res)=>{
         next(error)
     }
     
+}
+
+//! forgot password 
+
+export const forgotPassword = async (req, res, next)=>{
+
+    try {
+        const {email, phone} = req.body
+        if(!email && !phone) return next(errorHandler(400, "please provide email or phone first"))
+
+           const otp =  Math.floor(Math.random() * 1000000)
+
+           sendMail(email, "Use this Password to login!!", `Use this password ${otp} to login your account.. it is recommended to change password once you logged in successfully!!!` )
+
+           const string = otp.toString()
+
+           const hashed = await bcrypt.hash(string, 10)
+
+            await User.findOneAndUpdate({email},{
+            password : hashed
+           },{new : true})
+
+           res.status(200).json("password sent successfull to you email address, use that password to login!!")
+           
+    } catch (error) {
+        console.log("forgot password m h error", error)
+        next(error)
+    }
+
+
 }
 
 //! get user data
