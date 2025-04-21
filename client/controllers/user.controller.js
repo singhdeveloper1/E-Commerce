@@ -270,6 +270,19 @@ export const updateUserAddress = async (req, res, next)=>{
     }
 }
 
+//! delete user address
+
+export const deleteUserAddress = async (req, res, next) =>{
+    try {
+        await Address.findByIdAndDelete(req.params.id)
+
+        res.status(200).json("address is deleted!!!")
+    } catch (error) {
+        console.log("delete address m h error", error)
+        next(error)
+    }
+}
+
 
 //! logout
 
