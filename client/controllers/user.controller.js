@@ -5,6 +5,7 @@ import Address from "../models/address.model.js"
 import bcrypt from "bcryptjs"
 import OTP from "../models/otp.model.js"
 import sendMail from "../mailsender/mailsender.js"
+import BlackListToken from "../models/blacklistToken.model.js"
 
 
 //! register
@@ -265,6 +266,27 @@ export const updateUserAddress = async (req, res, next)=>{
 
     } catch (error) {
         console.log("update user address m h error", error)
+        next(error)
+    }
+}
+
+
+//! logout
+
+export const userLogout = async (req, res)=>{
+    const token = req.cookies.token
+
+    const blacklisted = new BlackListToken({
+        token
+    })
+
+    try {
+        await blacklisted.save()
+        res.clearCookie("token")
+
+        res.status(200).json("logged out successfully!!!")
+    } catch (error) {
+        console.log("logout m h error", error)
         next(error)
     }
 }
