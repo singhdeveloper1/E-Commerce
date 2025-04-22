@@ -64,3 +64,56 @@ export const addproduct = async (req, res, next)=>{
 
 }
 
+//! get product
+
+export const getProduct = async (req, res, next)=>{
+    if(!req.user.isSeller) return next(errorHandler(401, "You are not a seller"))
+
+        try {
+            const products = await Product.find({seller : req.user._id})
+
+            res.status(200).json(products)
+        } catch (error) {
+            console.log("get product m h error", error)
+            next(error)
+        }
+}
+
+//! updateProduct
+
+export const updateProduct = async (req, res, next)=>{
+    const {productName, productPrice, discountPercentage} = req.body
+
+    try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+
+        let imageUrl = ""
+
+        if(req.file){
+            const result = await uploadToClodinary(req, "Product_Image", next)
+            imageUrl = result.secure_url
+
+            await Product.findByIdAndUpdate(req.params.id,{
+                productName,
+                productPrice,
+                discountPercentage,
+                productImage : imageUrl
+            },{new : true})
+        }
+
+        else{
+        await Product.findByIdAndUpdate(req.params.id,{
+            productName,
+            productPrice,
+            discountPercentage,
+        },{new : true})
+    }
+
+        res.status(200).json("product updated successfully!!!")
+    
+        
+        } catch (error) {
+            console.log("update product m h error", error)            
+            next(error)
+        }
+}
