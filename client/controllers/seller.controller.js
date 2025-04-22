@@ -110,10 +110,39 @@ export const updateProduct = async (req, res, next)=>{
     }
 
         res.status(200).json("product updated successfully!!!")
-    
-        
+ 
         } catch (error) {
             console.log("update product m h error", error)            
             next(error)
         }
+}
+
+//! delete Product
+
+export const deleteProduct = async (req, res, next)=>{
+    try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+            await Product.findByIdAndDelete(req.params.id)
+
+        res.status(200).json("product successfully deleted!!!")
+    } catch (error) {
+        console.log("delete product m h error", error)
+        next(error)
+    }
+}
+
+//! delete all product
+
+export const deleteAllProduct = async (req, res, next)=>{
+    try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+
+            await Product.deleteMany({seller : req.user._id})
+
+            res.status(200).json("successfully deleted all products!!")
+        
+    } catch (error) {
+        console.log("delete all product m h error", error)
+        next(error)
+    }
 }
