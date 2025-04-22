@@ -50,7 +50,7 @@ export const verifyOTP = async (req, res, next)=>{
         try {
             await OTP.findByIdAndUpdate(existingOTP._id,{
                 verified : true,
-                expiry : new Date(Date.now() + 10 * 60 * 1000)
+                createdAt : new Date(Date.now() + 10 * 60 * 1000)
             },{new : true})
             res.status(200).json("verifieddd !!!")
         } catch (error) {
