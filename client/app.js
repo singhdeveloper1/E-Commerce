@@ -2,6 +2,7 @@ import express from "express"
 import userRouter from "./routes/user.route.js"
 import cookieParser from "cookie-parser"
 import otpRouter from "./routes/otp.routes.js"
+import sellerRouter from "./routes/seller.route.js"
 
 const app = express()
 
@@ -10,6 +11,7 @@ app.use(cookieParser())
 
 app.use("/api/user", userRouter)
 app.use("/api/otp", otpRouter)
+app.use("/api/seller", sellerRouter)
 
 //! for error
 app.use((err, req, res, next)=>{

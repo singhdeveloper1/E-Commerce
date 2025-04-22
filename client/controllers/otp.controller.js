@@ -12,7 +12,7 @@ export const getOTP = async (req, res, next) =>{
 
         const otp =  Math.floor(Math.random() * 10000)
 
-        sendMail(email, "OTP for verification!!" , `this is the OTP <h2>${otp}</h2 to verify your email and its only valid for <h3>5 Min</h3>`)
+        sendMail(email, "One Time Password!!" , `this is the OTP <h2>${otp}</h2 for your email and its only valid for <h3>5 Min</h3>`)
 
         const newOTP = new OTP({
             email,
@@ -50,7 +50,7 @@ export const verifyOTP = async (req, res, next)=>{
         try {
             await OTP.findByIdAndUpdate(existingOTP._id,{
                 verified : true,
-                expiry : new Date(Date.now() + 5 * 60 * 1000)
+                expiry : new Date(Date.now() + 10 * 60 * 1000)
             },{new : true})
             res.status(200).json("verifieddd !!!")
         } catch (error) {
