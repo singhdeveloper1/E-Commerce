@@ -403,11 +403,11 @@ export const updateCartQuantity = async (req, res, next)=>{
     const {quantity} = req.body
 
     try {
-        const user = await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
+        const product = await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
           $set :{ "products.$.quantity" : quantity }
         }, {new : true}).populate("products.productId")
 
-        res.status(200).json(user)
+        res.status(200).json(product)
     
     } catch (error) {
         console.log("update quantity m h error", error)
