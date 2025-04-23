@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 import OTP from "../models/otp.model.js"
 import sendMail from "../mailsender/mailsender.js"
 import BlackListToken from "../models/blacklistToken.model.js"
+import AddToCart from "../models/addToCart.model.js"
 
 
 //! register
@@ -319,4 +320,37 @@ export const switchToSeller = async (req, res, next)=>{
         console.log("switch to seller m h error", error)
         next(error)
     }
+}
+
+//! add to cart
+
+export const addToCart = async (req, res, next)=>{
+
+    let quantity = 1
+
+    const added = new AddToCart({
+        userId : req.user._id,
+        products : [
+            {
+                productId : req.params.id,
+                quantity
+            }
+        ]
+    })
+    try {
+        await added.save()
+        res.status(201).json("added to cart!!!")
+    } catch (error) {
+        console.log("add to cart m h error", error)
+        next(error)
+    }
+}
+
+//! view cart
+
+export const viewCart = async (req, res, next)=>{
+    
+    const view = await AddToCart.find({userId : req.user._id}).populate("products.productId")
+    res.status(200).json(view)
+   
 }
