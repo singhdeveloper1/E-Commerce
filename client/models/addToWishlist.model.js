@@ -3,14 +3,16 @@ import mongoose, { Schema } from "mongoose";
 const addToWishlistSchema = new mongoose.Schema({
     userId : {
         type : Schema.Types.ObjectId,
-        ref : "User"
+        ref : "User",
+        required : true
     },
 
     products : [
         {
             productId : {
                 type : Schema.Types.ObjectId,
-                ref : "Product"
+                ref : "Product",
+                required : true
             }
         }
     ]
