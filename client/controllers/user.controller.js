@@ -438,3 +438,15 @@ export const deleteOneCart = async (req, res, next)=>{
         next(error)
     }
 }
+
+//! delete full cart
+
+export const deleteFullCart = async (req, res, next)=>{
+    try {
+        await AddToCart.findOneAndDelete({userId : req.user._id})
+        res.status(200).json("Cart deleted succesfully!!!")
+    } catch (error) {
+        console.log("delete all cart m h error", error)
+        next(error)
+    }
+}
