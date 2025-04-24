@@ -39,9 +39,9 @@ export const writeReview = async (req, res, next)=>{
 
 //! view specific review
 
-export const viewSpecificReview = async(req, res, next)=>{
+export const mySeperateReview = async(req, res, next)=>{
     try {
-        const review = await Review.find({userId : req.user._id, productId : req.params.productId})
+        const review = await Review.find({userId : req.user._id, productId : req.params.productId}).populate("productId")
 
         if(!review) return next(errorHandler(400, "no reviews found!"))
 
@@ -49,6 +49,21 @@ export const viewSpecificReview = async(req, res, next)=>{
 
     } catch (error) {
         console.log("view specific review m h error", error)
+        next(error)
+    }
+}
+
+//! my reviews
+
+export const myReviews = async (req, res, next)=>{
+    try {
+        const myReviews = await Review.find({userId : req.user._id}).populate("productId")
+
+        if(!myReviews) return next(errorHandler(400, "no reviews found!!"))
+            
+        res.status(200).json(myReviews)
+    } catch (error) {
+        console.log("my reviews m h error", error)
         next(error)
     }
 }
