@@ -6,7 +6,7 @@ import uploadLocal from "../middlewares/uploadLocal.middleware.js"
 const router = express.Router()
 
 router.patch("/switchToUser", authentication, switchToUser)
-router.post("/addproduct", authentication,uploadLocal.single("file"), addproduct)
+router.post("/addproduct", authentication,uploadLocal.single("image"), addproduct)
 router.get("/getProduct", authentication , getProduct)
 router.patch("/updateProduct/:id", authentication, updateProduct)
 router.delete("/deleteProduct/:id", authentication, deleteProduct)

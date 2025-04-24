@@ -389,7 +389,11 @@ export const viewCart = async (req, res, next)=>{
     
    try {
     const view = await AddToCart.find({userId : req.user._id}).populate("products.productId")
-    res.status(200).json(view)
+
+    if(view.length == 0) return next(errorHandler(404, "No product added in the cart"))
+
+        res.status(200).json(view) 
+
    } catch (error) {
     console.log("view Cart m h error", error)
     next(error)
@@ -403,14 +407,34 @@ export const updateCartQuantity = async (req, res, next)=>{
     const {quantity} = req.body
 
     try {
-        const product = await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
+         await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
           $set :{ "products.$.quantity" : quantity }
         }, {new : true}).populate("products.productId")
 
-        res.status(200).json(product)
+        res.status(200).json("Product qunatity updated successfullyy!!!")
     
     } catch (error) {
         console.log("update quantity m h error", error)
+        next(error)
+    }
+}
+
+//! delete one product from cart
+
+export const deleteOneCart = async (req, res, next)=>{
+    try {
+        const user = await AddToCart.findOneAndUpdate({userId : req.user._id },{
+            $pull : {products : { productId : req.params.productId}}
+        }, {new : true})
+
+        if(user.products.length == 0){
+            await AddToCart.findOneAndDelete({userId : req.user._id})
+        }
+
+        res.status(200).json("product is removed from the cart")
+               
+    } catch (error) {
+        console.log("delete one product m h error", error)
         next(error)
     }
 }

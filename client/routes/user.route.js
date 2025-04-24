@@ -1,5 +1,5 @@
 import express from "express"
-import { addToCart, deleteUserAddress, forgotPassword, getUserAddress, google, switchToSeller, updateCartQuantity, updateUserAddress, updateUserData, updateUserPassword, userAddress, userData, userLogin, userLogout, userRegister, viewCart } from "../controllers/user.controller.js"
+import { addToCart, deleteOneCart, deleteUserAddress, forgotPassword, getUserAddress, google, switchToSeller, updateCartQuantity, updateUserAddress, updateUserData, updateUserPassword, userAddress, userData, userLogin, userLogout, userRegister, viewCart } from "../controllers/user.controller.js"
 import { authentication } from "../middlewares/auth.middleware.js"
 
 const router = express.Router()
@@ -22,6 +22,7 @@ router.patch("/switchToSeller", authentication, switchToSeller)
 router.post("/addToCart/:productId", authentication, addToCart)
 router.get("/viewCart", authentication, viewCart )
 router.patch("/updateCartQuantity/:productId" , authentication, updateCartQuantity)
+router.delete("/deleteOneCart/:productId", authentication, deleteOneCart)
 
 
 export default router
