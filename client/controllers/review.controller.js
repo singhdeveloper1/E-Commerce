@@ -37,7 +37,7 @@ export const writeReview = async (req, res, next)=>{
     }
 }
 
-//! view specific review
+//! view specific/seperate review
 
 export const mySeperateReview = async(req, res, next)=>{
     try {
@@ -60,10 +60,23 @@ export const myReviews = async (req, res, next)=>{
         const myReviews = await Review.find({userId : req.user._id}).populate("productId")
 
         if(!myReviews) return next(errorHandler(400, "no reviews found!!"))
-            
+
         res.status(200).json(myReviews)
     } catch (error) {
         console.log("my reviews m h error", error)
+        next(error)
+    }
+}
+
+//! delete specific/seperate review
+
+export const deleteSeperateReview = async(req, res, next)=>{
+    try {
+        await Review.findOneAndDelete({userId : req.user._id, productId : req.params.productId})
+
+        res.status(200).json("review deleted successfully!!")
+    } catch (error) {
+        console.log("delete seperate review m h error", error)
         next(error)
     }
 }
