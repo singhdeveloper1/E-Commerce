@@ -1,6 +1,6 @@
-//! add to cart
-
 import AddToCart from "../models/addToCart.model.js"
+
+//! add to cart
 
 // export const addToCart = async (req, res, next)=>{
 
