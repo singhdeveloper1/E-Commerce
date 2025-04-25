@@ -226,7 +226,7 @@ paths:
   /api/user/forgotPassword:
     patch:
       summary: Forgot password
-      description: Sends an OTP to the user’s email to reset the password.
+      description: Sends an OTP to the user's email to reset the password.
       tags:
         - User
       requestBody:
@@ -508,3 +508,84 @@ paths:
           description: Unauthorized (invalid or missing token)
         '500':
           description: Internal server error
+
+  /api/otp/getOTP:
+    post:
+      summary: Generate and send OTP
+      description: Sends an OTP to the provided email or phone (at least one required).
+      tags:
+        - OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email to receive OTP (required if phone not provided)
+                  example: "user@example.com"
+                phone:
+                  type: number
+                  description: Phone to receive OTP (required if email not provided)
+                  example: 9876543210
+              anyOf:
+                - required: [email]
+                - required: [phone]
+      responses:
+        '200':
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "OTP send Successfullyy!!!"
+        '400':
+          description: "email or phone is required to send otp"
+        '500':
+          description: Internal server error
+  /api/otp/verifyOTP:
+    post:
+      summary: Verify OTP
+      description: Verifies the OTP sent to email or phone and marks it as verified if correct.
+      tags:
+        - OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email used for OTP (required if phone not provided)
+                  example: "user@example.com"
+                phone:
+                  type: number
+                  description: Phone used for OTP (required if email not provided)
+                  example: 9876543210
+                otp:
+                  type: number
+                  description: OTP to verify
+                  example: 1234
+              anyOf:
+                - required: [email, otp]
+                - required: [phone, otp]
+      responses:
+        '200':
+          description: OTP verified successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "verifieddd !!!"
+        '401':
+          description: "invalid otp"
+        '404':
+          description: "otp is not present"
+        '500':
+          description: Internal server error          
