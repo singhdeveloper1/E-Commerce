@@ -589,3 +589,23 @@ paths:
           description: "otp is not present"
         '500':
           description: Internal server error          
+  /api/seller/switchToUser:
+    patch:
+      summary: Switch seller back to user role
+      description: Updates the authenticated user's role from seller back to regular user (sets `isSeller` to `false`).
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Successfully switched to user role
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "switched to user successfully!!!"
+        '401':
+          description: Unauthorized (invalid or missing token)
+        '500':
+          description: Internal server error          
