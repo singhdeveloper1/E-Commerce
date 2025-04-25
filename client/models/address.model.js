@@ -3,7 +3,8 @@ import mongoose, { Schema } from "mongoose";
 const addressSchema = new mongoose.Schema({
     userId : {
         type : Schema.Types.ObjectId,
-        ref :  "User"
+        ref :  "User",
+        required : true
     },
 
     address : {
