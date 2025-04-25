@@ -1,0 +1,510 @@
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  version: 1.0.0
+  description: API for user registration, login, and other functionalities.
+servers:
+  - url: http://localhost:1200
+    description: Local server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /api/user/register:
+    post:
+      summary: Register a new user
+      description: Registers a new user by providing the user's name, email, phone, and password.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - name
+                    - email
+                    - password
+                  properties:
+                    name:
+                      type: string
+                      description: Full name of the user
+                    email:
+                      type: string
+                      format: email
+                      description: Email address of the user
+                      example: "john.doe@example.com"
+                    phone:
+                      type: number
+                      description: Phone number of the user (optional if email is provided)
+                      example: 9876543210
+                    password:
+                      type: string
+                      description: Password for the new user
+                      example: "strongPassword123"
+                - type: object
+                  required:
+                    - name
+                    - phone
+                    - password
+                  properties:
+                    name:
+                      type: string
+                      description: Full name of the user
+                    email:
+                      type: string
+                      format: email
+                      description: Email address of the user (optional if phone is provided)
+                      example: "john.doe@example.com"
+                    phone:
+                      type: number
+                      description: Phone number of the user
+                      example: 9876543210
+                    password:
+                      type: string
+                      description: Password for the new user
+                      example: "strongPassword123"
+              description: |
+                Either `email` or `phone` must be provided for the user registration.
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      phone:
+                        type: number
+                        example: 9876543210
+        '400':
+          description: Invalid input or user already exists
+        '401':
+          description: Verification required (email/phone not verified)
+
+  /api/user/login:
+    post:
+      summary: Login an existing user
+      description: Logs in an existing user by providing either the user's email or phone along with the password.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required:
+                    - email
+                    - password
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      description: Email address of the user
+                      example: "john.doe@example.com"
+                    phone:
+                      type: number
+                      description: Phone number of the user (optional if email is provided)
+                      example: 9876543210
+                    password:
+                      type: string
+                      description: Password for the user
+                      example: "strongPassword123"
+                - type: object
+                  required:
+                    - phone
+                    - password
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      description: Email address of the user (optional if phone is provided)
+                      example: "john.doe@example.com"
+                    phone:
+                      type: number
+                      description: Phone number of the user
+                      example: 9876543210
+                    password:
+                      type: string
+                      description: Password for the user
+                      example: "strongPassword123"
+              description: |
+                Either `email` or `phone` must be provided for the user to log in.
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  existingUser:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      phone:
+                        type: number
+                  token:
+                    type: string
+                    description: The token generated for the logged-in user
+                    example: "your-jwt-token"
+        '400':
+          description: Bad request due to missing or invalid fields
+        '401':
+          description: Invalid credentials or user does not exist
+
+  /api/user/google:
+    post:
+      summary: Google login/signup
+      description: Login or register a user via Google.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+              properties:
+                name:
+                  type: string
+                  description: Name of the user
+                email:
+                  type: string
+                  format: email
+                  description: Email address of the user
+      responses:
+        '200':
+          description: Successfully logged in or registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  existingUser:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
+                  token:
+                    type: string
+                    description: The token generated for the logged-in user
+                    example: "your-jwt-token"
+        '400':
+          description: Bad request (incorrect parameters)
+
+  /api/user/forgotPassword:
+    patch:
+      summary: Forgot password
+      description: Sends an OTP to the user’s email to reset the password.
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email address of the user
+                  example: "john.doe@example.com"
+      responses:
+        '200':
+          description: OTP sent successfully to the user's email
+        '400':
+          description: Missing email or incorrect email format
+
+  /api/user/getUserData:
+    get:
+      summary: Retrieve user data
+      description: Retrieves the user information of the authenticated user.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      responses:
+        '200':
+          description: Successfully retrieved user data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  phone:
+                    type: string
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/updateUserData:
+    patch:
+      summary: Update user data
+      description: Updates the user's information (name, email, phone).
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: User data updated successfully
+        '400':
+          description: Invalid data provided
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/updateUserPassword:
+    patch:
+      summary: Update user password
+      description: Updates the user's password after verifying the old password.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldPassword
+                - newPassword
+              properties:
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '200':
+          description: Password updated successfully
+        '400':
+          description: Invalid data provided
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/userAddress:
+    post:
+      summary: Add user address
+      description: Adds a new address for the authenticated user.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - address
+                - state
+                - city
+                - pincode
+                - phone
+              properties:
+                address:
+                  type: string
+                state:
+                  type: string
+                city:
+                  type: string
+                pincode:
+                  type: string
+                phone:
+                  type: number
+      responses:
+        '200':
+          description: Address added successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/getUserAddress:
+    get:
+      summary: Get user address
+      description: Retrieves all the addresses of the authenticated user.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      responses:
+        '200':
+          description: Successfully retrieved user address data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                    state:
+                      type: string
+                    city:
+                      type: string
+                    pincode:
+                      type: string
+                    phone:
+                      type: number
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/updateUserAddress/{id}:
+    patch:
+      summary: Update user address
+      description: Update the address of the user based on the provided address ID.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the address to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - address
+                - state
+                - city
+                - pincode
+                - phone
+              properties:
+                address:
+                  type: string
+                state:
+                  type: string
+                city:
+                  type: string
+                pincode:
+                  type: string
+                phone:
+                  type: number
+      responses:
+        '200':
+          description: Address updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized access (invalid token)
+
+  /api/user/deleteUserAddress/{id}:
+    delete:
+      summary: Delete a user address
+      description: Deletes the address of the authenticated user by the provided address ID.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the address to be deleted
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Address successfully deleted
+        '401':
+          description: Unauthorized access (invalid token)
+        '404':
+          description: Address not found
+
+  /api/user/logout:
+    get:
+      summary: User logout
+      description: Logs out the user by blacklisting the JWT token and clearing the cookie.
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # JWT authentication required
+      responses:
+        '200':
+          description: Successfully logged out and token invalidated
+        '401':
+          description: Unauthorized access (invalid or missing token)
+        '500':
+          description: Internal server error
+
+  /api/user/switchToSeller:
+    patch:
+      summary: Switch user to seller role
+      description: Updates the authenticated user's role to a seller (sets `isSeller` to `true`).
+      tags:
+        - User
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Successfully switched to seller role
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "switched to seller successfully"
+        '401':
+          description: Unauthorized (invalid or missing token)
+        '500':
+          description: Internal server error
