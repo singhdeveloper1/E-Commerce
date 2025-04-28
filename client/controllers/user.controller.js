@@ -80,7 +80,7 @@ export const userLogin = async (req, res, next)=>{
 
 //! google Login
 
-export const google = async (req, res)=>{
+export const google = async (req, res,next)=>{
     const {name, email} = req.body
 
     try {
@@ -96,10 +96,12 @@ export const google = async (req, res)=>{
                 token : token
             })
             await newToken.save()
+            res.cookie("token", newToken)
+            res.status(200).json({existingUser, newToken})
 
         }
             else{
-                const generatePassword = Math.Random().toString(36).slice(-8)
+                const generatePassword = Math.random().toString(36).slice(-8)
                 const hashedPassword = await bcrypt.hash(generatePassword,10)                
 
                 const newUser = new User({
@@ -110,7 +112,19 @@ export const google = async (req, res)=>{
 
                 await newUser.save()
 
-                res.status(200).json(newUser)
+                const token = await newUser.generateToken()
+
+            //! storing token in token model
+
+            const newToken = new Token({
+                userId : newUser._id,
+                token : token
+            })
+            await newToken.save()
+            res.cookie("token", newToken)
+            res.status(200).json({newUser, newToken})
+
+                // res.status(200).json(newUser)
             }
 
 
