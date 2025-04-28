@@ -1015,7 +1015,90 @@ paths:
         '401':
           description: Unauthorized (invalid token)
         '500':
-          description: Internal server error                         
+          description: Internal server error 
+          
+  /api/review/myReviews:
+    get:
+      summary: Get all reviews by the authenticated user
+      description: Retrieves all reviews submitted by the currently logged-in user
+      tags:
+        - Review
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: User's reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    userId:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    productId:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        # Other product fields that get populated
+                    rating:
+                      type: number
+                      example: 5
+                    comment:
+                      type: string
+                      example: "Excellent product!"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '400':
+          description: No reviews found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "no reviews found!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error                                  
   
-
+  /api/review/deleteSeperateReview/{productId}:
+    delete:
+      summary: Delete a specific review
+      description: Deletes the authenticated user's review for a specific product
+      tags:
+        - Review
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product whose review should be deleted
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "review deleted successfully!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
     
