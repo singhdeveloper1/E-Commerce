@@ -14,9 +14,9 @@ export const userRegister = async (req, res, next)=>{
     try {
         const {name, email, phone, password} = req.body
 
-        const verification = await OTP.findOne({$or : [{email, phone}]})
+        // const verification = await OTP.findOne({$or : [{email, phone}]})
 
-        if(!verification || !verification.verified) return next(errorHandler(401,"please verify your email or phone first"))
+        // if(!verification || !verification.verified) return next(errorHandler(401,"please verify your email or phone first"))
 
         if(!email && !phone) return next(errorHandler(400, "email or phone number is required"))
             if(phone && phone.toString().length > 10) return next(errorHandler(400, "phone no. length must be less than 11 numbers"))
