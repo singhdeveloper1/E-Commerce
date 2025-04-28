@@ -1278,4 +1278,138 @@ paths:
         '401':
           description: Unauthorized (invalid token)
         '500':
-          description: Internal server error                     
+          description: Internal server error
+
+  /api/cart/addToWishlist/{productId}:
+    post:
+      summary: Add product to wishlist
+      description: |
+        Adds a product to the user's wishlist
+        Creates new wishlist if none exists, or appends to existing wishlist.
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to add to wishlist
+      responses:
+        '201':
+          description: Product added to wishlist successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "added to wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error 
+
+  /api/cart/viewWishlist:
+    get:
+      summary: View user's wishlist
+      description: Retrieves the authenticated user's wishlist with product details
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Wishlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    userId:
+                      type: string
+                    products:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          productId:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '404':
+          description: Wishlist is empty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No product added in the Wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteOneWishlist/{productId}:
+    delete:
+      summary: Remove product from Wishlist
+      description: |
+        Removes a specific product from the user's Wishlist.
+        Deletes the entire wishlist if it becomes empty.
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to remove from wishlist
+      responses:
+        '200':
+          description: Product removed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product is removed from the wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteFullWishlist:
+    delete:
+      summary: Delete entire wishlist
+      description: Completely removes the authenticated user's wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Wishlist deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Wishlist deleted succesfully!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error                                                      
