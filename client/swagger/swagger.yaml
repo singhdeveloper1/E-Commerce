@@ -609,3 +609,240 @@ paths:
           description: Unauthorized (invalid or missing token)
         '500':
           description: Internal server error          
+  /api/seller/addproduct:
+    post:
+      summary: Add a new product
+      description: |
+        Seller-only endpoint to add new products with optional image upload.
+        Requires seller authentication.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # JWT authentication required
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - productName
+                - productPrice
+              properties:
+                productName:
+                  type: string
+                  description: Name of the product
+                  example: "Premium Smartphone"
+                productPrice:
+                  type: number
+                  description: Price of the product
+                  example: 599.99
+                discountPercentage:
+                  type: number
+                  description: Optional discount percentage (0-100)
+                  example: 15
+                image:
+                  type: string
+                  format: binary
+                  description: Product image file
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: Product ID
+                    example: "507f1f77bcf86cd799439011"
+                  productName:
+                    type: string
+                  productImage:
+                    type: string
+                    default: "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
+                  productPrice:
+                    type: number
+                  discountPercentage:
+                    type: number
+                    nullable: true
+                  seller:
+                    type: string
+                    description: Seller's user ID
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!!"
+        '500':
+          description: Internal server error  
+  /api/seller/getProduct:
+    get:
+      summary: Get all products by seller
+      description: Retrieves all products uploaded by the authenticated seller.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # JWT authentication required
+      responses:
+        '200':
+          description: Successfully retrieved all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    productName:
+                      type: string
+                    productImage:
+                      type: string
+                    productPrice:
+                      type: number
+                    discountPercentage:
+                      type: number
+                    seller:
+                      type: string
+        '401':
+          description: Unauthorized access (user is not a seller or invalid token)
+        '500':
+          description: Internal server error
+  /api/seller/updateProduct/{id}:
+    patch:
+      summary: Update a product
+      description: |
+        Seller-only endpoint to update product details.
+        Supports optional image update via file upload.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                productName:
+                  type: string
+                  description: Updated product name
+                  example: "Premium Smartphone Pro"
+                productPrice:
+                  type: number
+                  description: Updated product price
+                  example: 699.99
+                discountPercentage:
+                  type: number
+                  nullable: true
+                  description: Updated discount percentage (0-100)
+                  example: 20
+                image:
+                  type: string
+                  format: binary
+                  description: New product image (optional)
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product updated successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error  
+  /api/seller/deleteProduct/{id}:
+    delete:
+      summary: Delete a product
+      description: Seller-only endpoint to delete a product by ID
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to delete
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product successfully deleted!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error                            
+  /api/seller/deleteAllProduct:
+    delete:
+      summary: Delete all seller's products
+      description: Seller-only endpoint to delete all products belonging to the authenticated seller
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: All products deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "successfully deleted all products!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error          
