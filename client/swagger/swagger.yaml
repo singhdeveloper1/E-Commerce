@@ -1101,4 +1101,181 @@ paths:
           description: Unauthorized (invalid token)
         '500':
           description: Internal server error
-    
+
+  /api/cart/addToCart/{productId}:
+    post:
+      summary: Add product to cart
+      description: |
+        Adds a product to the user's cart with default quantity of 1.
+        Creates new cart if none exists, or appends to existing cart.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to add to cart
+      responses:
+        '201':
+          description: Product added to cart successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "added to cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/viewCart:
+    get:
+      summary: View user's cart
+      description: Retrieves the authenticated user's cart with product details
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    userId:
+                      type: string
+                    products:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          productId:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                              # Other product fields that get populated
+                          quantity:
+                            type: number
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '404':
+          description: Cart is empty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No product added in the cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/updateCartQuantity/{productId}:
+    patch:
+      summary: Update product quantity in cart
+      description: Updates the quantity of a specific product in the user's cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to update quantity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: number
+                  description: New quantity for the product
+                  example: 3
+      responses:
+        '200':
+          description: Quantity updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Product quantity updated successfullyy!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error       
+
+  /api/cart/deleteOneCart/{productId}:
+    delete:
+      summary: Remove product from cart
+      description: |
+        Removes a specific product from the user's cart.
+        Deletes the entire cart if it becomes empty.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to remove from cart
+      responses:
+        '200':
+          description: Product removed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product is removed from the cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteFullCart:
+    delete:
+      summary: Delete entire cart
+      description: Completely removes the authenticated user's shopping cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Cart deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Cart deleted succesfully!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error                     
