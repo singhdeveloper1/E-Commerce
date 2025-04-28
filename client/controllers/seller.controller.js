@@ -21,7 +21,7 @@ export const switchToUser = async (req, res, next)=>{
 //! add product
 
 export const addproduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage} = req.body
+    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize} = req.body
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
@@ -51,6 +51,9 @@ export const addproduct = async (req, res, next)=>{
         productPrice, 
         // discountedPrice,
         discountPercentage,
+        productDescription,
+        productSize,
+        productColor,
         seller : req.user._id
     })
 
@@ -82,7 +85,7 @@ export const getProduct = async (req, res, next)=>{
 //! updateProduct
 
 export const updateProduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage} = req.body
+    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize} = req.body
 
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
@@ -97,6 +100,9 @@ export const updateProduct = async (req, res, next)=>{
                 productName,
                 productPrice,
                 discountPercentage,
+                productColor,
+                productDescription,
+                productSize,
                 productImage : imageUrl
             },{new : true})
         }
@@ -106,6 +112,9 @@ export const updateProduct = async (req, res, next)=>{
             productName,
             productPrice,
             discountPercentage,
+            productDescription,
+            productSize,
+            productColor
         },{new : true})
     }
 

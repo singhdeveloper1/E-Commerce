@@ -33,7 +33,7 @@ export const userRegister = async (req, res, next)=>{
         })
 
         await newUser.save()
-        res.status(201).json(newUser)
+        res.status(201).json({message : "successfully registered!!"})
     } catch (error) {
         console.log("create m h error", error)
         next(error)

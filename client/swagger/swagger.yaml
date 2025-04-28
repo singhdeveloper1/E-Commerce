@@ -631,6 +631,7 @@ paths:
               required:
                 - productName
                 - productPrice
+                - productDescription
               properties:
                 productName:
                   type: string
@@ -644,6 +645,21 @@ paths:
                   type: number
                   description: Optional discount percentage (0-100)
                   example: 15
+                productDescription:
+                  type: string
+                  maxLength: 200
+                  description: Product description
+                  example: "High-quality smartphone with advanced features"
+                productSize:
+                  type: string
+                  enum: ["XS", "S", "M", "L", "XL"]
+                  description: Size of the product
+                  example: "M"
+                productColor:
+                  type: string
+                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                  description: Color of the product
+                  example: "Black"
                 image:
                   type: string
                   format: binary
@@ -670,6 +686,12 @@ paths:
                   discountPercentage:
                     type: number
                     nullable: true
+                  productDescription:
+                    type: string
+                  productSize:
+                    type: string
+                  productColor:
+                    type: string
                   seller:
                     type: string
                     description: Seller's user ID
