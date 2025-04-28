@@ -1412,4 +1412,97 @@ paths:
         '401':
           description: Unauthorized (invalid token)
         '500':
-          description: Internal server error                                                      
+          description: Internal server error     
+
+  /api/common/getAllProduct:
+    get:
+      summary: Get all products
+      description: Retrieves a list of all products
+      tags:
+        - Common
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error       
+
+  /api/common/getSpecificProduct/{productId}:
+    get:
+      summary: Get a specific product
+      description: Retrieves details of a single product by its ID
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to retrieve
+      responses:
+        '200':
+          description: Product details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: "507f1f77bcf86cd799439011"
+                  productName:
+                    type: string
+                    example: "Premium Smartphone"
+                  productImage:
+                    type: string
+                    example: "https://example.com/image.jpg"
+                  productPrice:
+                    type: number
+                    example: 599.99
+                  discountPercentage:
+                    type: number
+                    nullable: true
+                    example: 15
+                  seller:
+                    type: string
+                    example: "507f191e810c19729de860ea"
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '500':
+          description: Internal server error                                                              
