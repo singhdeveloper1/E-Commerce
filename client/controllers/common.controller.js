@@ -22,3 +22,16 @@ export const getSpecificProduct = async (req, res, next)=>{
         next(error)
     }
 }
+
+//! get product by category
+
+export const getProductByCategory = async (req, res, next)=>{
+    try {
+        const product = await Product.find({category : req.params.category})
+
+        res.status(200).json(product)
+    } catch (error) {
+        console.log("get product by category m h error", error)
+        next(error)
+    }
+}
