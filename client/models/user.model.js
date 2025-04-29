@@ -12,12 +12,14 @@ const userSchema = new mongoose.Schema({
     email : {
         type : String,
         match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"],
-        // unique : true
+        unique : true,
+        sparse : true
     },
 
     phone : {
         type : Number,
-        // unique : true
+        unique : true,
+        sparse : true
     },
 
     password : {
