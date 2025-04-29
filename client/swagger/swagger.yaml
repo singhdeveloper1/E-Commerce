@@ -1760,4 +1760,118 @@ paths:
                     type: string
                     format: date-time
         '500':
-          description: Internal server error                                                              
+          description: Internal server error      
+
+  /api/common/getProductByCategory/{category}:
+    get:
+      summary: Get products by category
+      description: Retrieves all products belonging to a specific category
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: category
+          required: true
+          schema:
+            type: string
+          description: Category name to filter products
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    category:
+                      type: string
+                      example: "electronics"
+                    subCategory:
+                      type: string
+                      example: "Phones"  
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error 
+
+  /api/common/getProductBySubCategory/{SubCategory}:
+    get:
+      summary: Get products by sub category
+      description: Retrieves all products belonging to a specific sub category
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: subCategory
+          required: true
+          schema:
+            type: string
+          description: SubCategory name to filter products
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    category:
+                      type: string
+                      example: "electronics"
+                    subCategory:
+                      type: string
+                      example: "Phones"  
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error                                                                           
