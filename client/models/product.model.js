@@ -50,21 +50,21 @@ const productSchema = new mongoose.Schema({
     subCategory : {
         type : String,
         enum : [
-            // Woman's Fashion and Men's Fashion 
+            //? Woman's Fashion and Men's Fashion 
             "T-Shirts", "Jeans", "Shoes", "Jacket",             
-            // Electronics
+            //? Electronics
             "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone",
-            // Home and Life Style
+            //? Home and Life Style
             "Furniture", "Decor", "Cleaner",
-            // Medicine
+            //? Medicine
             "capsule", "syrup",
-            // Sports and Outdoor
+            //? Sports and Outdoor
             "fitness", "Kit",
-            // Baby's And Toy's
+            //? Baby's And Toy's
             "Skates", "Kites",
-            // Grociery and Pets
+            //? Grociery and Pets
             "Dairy", "Bread", "Meat",
-            // Health and Beauty 
+            //? Health and Beauty 
             "Makeup", "SkinCare"
         ]
     },
