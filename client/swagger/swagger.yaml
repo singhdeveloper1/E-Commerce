@@ -546,6 +546,7 @@ paths:
           description: "email or phone is required to send otp"
         '500':
           description: Internal server error
+  
   /api/otp/verifyOTP:
     post:
       summary: Verify OTP
@@ -589,6 +590,7 @@ paths:
           description: "otp is not present"
         '500':
           description: Internal server error          
+  
   /api/seller/switchToUser:
     patch:
       summary: Switch seller back to user role
@@ -609,3 +611,920 @@ paths:
           description: Unauthorized (invalid or missing token)
         '500':
           description: Internal server error          
+  
+  /api/seller/addproduct:
+    post:
+      summary: Add a new product
+      description: |
+        Seller-only endpoint to add new products with optional image upload.
+        Requires seller authentication.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # JWT authentication required
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - productName
+                - productPrice
+                - productDescription
+              properties:
+                productName:
+                  type: string
+                  description: Name of the product
+                  example: "Premium Smartphone"
+                productPrice:
+                  type: number
+                  description: Price of the product
+                  example: 599.99
+                discountPercentage:
+                  type: number
+                  description: Optional discount percentage (0-100)
+                  example: 15
+                productDescription:
+                  type: string
+                  maxLength: 200
+                  description: Product description
+                  example: "High-quality smartphone with advanced features"
+                productSize:
+                  type: string
+                  enum: ["XS", "S", "M", "L", "XL"]
+                  description: Size of the product
+                  example: "M"
+                productColor:
+                  type: string
+                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                  description: Color of the product
+                  example: "Black"
+                image:
+                  type: string
+                  format: binary
+                  description: Product image file
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: Product ID
+                    example: "507f1f77bcf86cd799439011"
+                  productName:
+                    type: string
+                  productImage:
+                    type: string
+                    default: "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
+                  productPrice:
+                    type: number
+                  discountPercentage:
+                    type: number
+                    nullable: true
+                  productDescription:
+                    type: string
+                  productSize:
+                    type: string
+                  productColor:
+                    type: string
+                  seller:
+                    type: string
+                    description: Seller's user ID
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!!"
+        '500':
+          description: Internal server error  
+  
+  /api/seller/getProduct:
+    get:
+      summary: Get all products by seller
+      description: Retrieves all products uploaded by the authenticated seller.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # JWT authentication required
+      responses:
+        '200':
+          description: Successfully retrieved all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    productName:
+                      type: string
+                    productImage:
+                      type: string
+                    productPrice:
+                      type: number
+                    discountPercentage:
+                      type: number
+                    seller:
+                      type: string
+        '401':
+          description: Unauthorized access (user is not a seller or invalid token)
+        '500':
+          description: Internal server error
+  
+  /api/seller/updateProduct/{id}:
+    patch:
+      summary: Update a product
+      description: |
+        Seller-only endpoint to update product details.
+        Supports optional image update via file upload.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                productName:
+                  type: string
+                  description: Updated product name
+                  example: "Premium Smartphone Pro"
+                productPrice:
+                  type: number
+                  description: Updated product price
+                  example: 699.99
+                discountPercentage:
+                  type: number
+                  nullable: true
+                  description: Updated discount percentage (0-100)
+                  example: 20
+                image:
+                  type: string
+                  format: binary
+                  description: New product image (optional)
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product updated successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error  
+  
+  /api/seller/deleteProduct/{id}:
+    delete:
+      summary: Delete a product
+      description: Seller-only endpoint to delete a product by ID
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to delete
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product successfully deleted!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error                            
+  
+  /api/seller/deleteAllProduct:
+    delete:
+      summary: Delete all seller's products
+      description: Seller-only endpoint to delete all products belonging to the authenticated seller
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: All products deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "successfully deleted all products!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error   
+
+  /api/review/writeReview/{productId}:
+    post:
+      summary: Write or update a product review
+      description: Submit or update a review for a specific product
+      tags:
+        - Review
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rating
+              properties:
+                rating:
+                  type: number
+                  minimum: 1
+                  maximum: 5
+                  example: 5
+                comment:
+                  type: string
+                  maxLength: 200
+                  example: "Great product!"
+      responses:
+        '200':
+          description: Review submitted successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      msg:
+                        type: string
+                        example: "review updated successfully!!"
+                      review:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          userId:
+                            type: string
+                          productId:
+                            type: string
+                          rating:
+                            type: number
+                          comment:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                  - type: object
+                    properties:
+                      msg:
+                        type: string
+                        example: "review added successfully"
+                      newReview:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          userId:
+                            type: string
+                          productId:
+                            type: string
+                          rating:
+                            type: number
+                          comment:
+                            type: string
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+        '400':
+          description: Rating is required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "please rate between 1 to 5"
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error  
+          
+  /api/review/mySeperateReview/{productId}:
+    get:
+      summary: Get user's specific review for a product
+      description: Retrieves the authenticated user's review for a specific product
+      tags:
+        - Review
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product to get review for
+      responses:
+        '200':
+          description: Review retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    userId:
+                      type: string
+                    productId:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        # Include other product fields that get populated
+                    rating:
+                      type: number
+                    comment:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '400':
+          description: No reviews found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "no reviews found!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error 
+          
+  /api/review/myReviews:
+    get:
+      summary: Get all reviews by the authenticated user
+      description: Retrieves all reviews submitted by the currently logged-in user
+      tags:
+        - Review
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: User's reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    userId:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    productId:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        # Other product fields that get populated
+                    rating:
+                      type: number
+                      example: 5
+                    comment:
+                      type: string
+                      example: "Excellent product!"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '400':
+          description: No reviews found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "no reviews found!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error                                  
+  
+  /api/review/deleteSeperateReview/{productId}:
+    delete:
+      summary: Delete a specific review
+      description: Deletes the authenticated user's review for a specific product
+      tags:
+        - Review
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: The ID of the product whose review should be deleted
+      responses:
+        '200':
+          description: Review deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "review deleted successfully!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/addToCart/{productId}:
+    post:
+      summary: Add product to cart
+      description: |
+        Adds a product to the user's cart with default quantity of 1.
+        Creates new cart if none exists, or appends to existing cart.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to add to cart
+      responses:
+        '201':
+          description: Product added to cart successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "added to cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/viewCart:
+    get:
+      summary: View user's cart
+      description: Retrieves the authenticated user's cart with product details
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    userId:
+                      type: string
+                    products:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          productId:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                              # Other product fields that get populated
+                          quantity:
+                            type: number
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '404':
+          description: Cart is empty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No product added in the cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/updateCartQuantity/{productId}:
+    patch:
+      summary: Update product quantity in cart
+      description: Updates the quantity of a specific product in the user's cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to update quantity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: number
+                  description: New quantity for the product
+                  example: 3
+      responses:
+        '200':
+          description: Quantity updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Product quantity updated successfullyy!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error       
+
+  /api/cart/deleteOneCart/{productId}:
+    delete:
+      summary: Remove product from cart
+      description: |
+        Removes a specific product from the user's cart.
+        Deletes the entire cart if it becomes empty.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to remove from cart
+      responses:
+        '200':
+          description: Product removed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product is removed from the cart"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteFullCart:
+    delete:
+      summary: Delete entire cart
+      description: Completely removes the authenticated user's shopping cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Cart deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Cart deleted succesfully!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error
+
+  /api/cart/addToWishlist/{productId}:
+    post:
+      summary: Add product to wishlist
+      description: |
+        Adds a product to the user's wishlist
+        Creates new wishlist if none exists, or appends to existing wishlist.
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to add to wishlist
+      responses:
+        '201':
+          description: Product added to wishlist successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "added to wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error 
+
+  /api/cart/viewWishlist:
+    get:
+      summary: View user's wishlist
+      description: Retrieves the authenticated user's wishlist with product details
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Wishlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    userId:
+                      type: string
+                    products:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          productId:
+                            type: object
+                            properties:
+                              _id:
+                                type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '404':
+          description: Wishlist is empty
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No product added in the Wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteOneWishlist/{productId}:
+    delete:
+      summary: Remove product from Wishlist
+      description: |
+        Removes a specific product from the user's Wishlist.
+        Deletes the entire wishlist if it becomes empty.
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to remove from wishlist
+      responses:
+        '200':
+          description: Product removed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product is removed from the wishlist"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error  
+
+  /api/cart/deleteFullWishlist:
+    delete:
+      summary: Delete entire wishlist
+      description: Completely removes the authenticated user's wishlist
+      tags:
+        - Wishlist
+      security:
+        - bearerAuth: []  # Requires JWT authentication
+      responses:
+        '200':
+          description: Wishlist deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Wishlist deleted succesfully!!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error     
+
+  /api/common/getAllProduct:
+    get:
+      summary: Get all products
+      description: Retrieves a list of all products
+      tags:
+        - Common
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error       
+
+  /api/common/getSpecificProduct/{productId}:
+    get:
+      summary: Get a specific product
+      description: Retrieves details of a single product by its ID
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to retrieve
+      responses:
+        '200':
+          description: Product details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: "507f1f77bcf86cd799439011"
+                  productName:
+                    type: string
+                    example: "Premium Smartphone"
+                  productImage:
+                    type: string
+                    example: "https://example.com/image.jpg"
+                  productPrice:
+                    type: number
+                    example: 599.99
+                  discountPercentage:
+                    type: number
+                    nullable: true
+                    example: 15
+                  seller:
+                    type: string
+                    example: "507f191e810c19729de860ea"
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '500':
+          description: Internal server error                                                              

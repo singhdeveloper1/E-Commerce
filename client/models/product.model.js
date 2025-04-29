@@ -26,6 +26,22 @@ const productSchema = new mongoose.Schema({
         type : Number
     },
 
+    productDescription : {
+        type : String,
+        maxlength : 200,
+        required : true
+    },
+
+    productSize : {
+        type : String,
+        enum : ["XS", "S", "M", "L","XL"]
+    },
+
+    productColor : {
+        type : String,
+        enum : ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+    },
+
     seller : {
         type : Schema.Types.ObjectId,
         ref : "User",
