@@ -257,6 +257,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved user data
@@ -282,6 +289,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -341,6 +355,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -380,6 +401,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved user address data
@@ -411,6 +439,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: id
@@ -458,6 +493,13 @@ paths:
       security:
         - bearerAuth: []  # JWT authentication required
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: id
           required: true
@@ -475,16 +517,33 @@ paths:
   /api/user/logout:
     get:
       summary: User logout
-      description: Logs out the user by blacklisting the JWT token and clearing the cookie.
+      description: |
+        Logs out the user by blacklisting the JWT token and clearing the cookie.
+        Requires valid JWT token in Authorization header.
       tags:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
       responses:
         '200':
           description: Successfully logged out and token invalidated
         '401':
           description: Unauthorized access (invalid or missing token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized: Invalid token"
         '500':
           description: Internal server error
 
@@ -496,6 +555,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully switched to seller role
@@ -599,6 +665,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully switched to user role
@@ -622,6 +695,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -722,6 +802,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved all products
@@ -759,6 +846,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: id
@@ -820,6 +914,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: id
           required: true
@@ -855,6 +956,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: All products deleted successfully
@@ -884,6 +992,13 @@ paths:
         - Review
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: productId
@@ -988,6 +1103,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1047,6 +1169,13 @@ paths:
         - Review
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: User's reviews retrieved successfully
@@ -1105,6 +1234,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1135,6 +1271,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1162,6 +1305,13 @@ paths:
         - Cart
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Cart retrieved successfully
@@ -1219,6 +1369,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1262,6 +1419,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1289,6 +1453,13 @@ paths:
         - Cart
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Cart deleted successfully
@@ -1312,6 +1483,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: productId
@@ -1340,6 +1518,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Wishlist retrieved successfully
@@ -1396,6 +1581,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1423,6 +1615,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Wishlist deleted successfully

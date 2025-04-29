@@ -11,11 +11,13 @@ const userSchema = new mongoose.Schema({
 
     email : {
         type : String,
-        match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"]
+        match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"],
+        // unique : true
     },
 
     phone : {
-        type : Number
+        type : Number,
+        // unique : true
     },
 
     password : {

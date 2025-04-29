@@ -52,9 +52,18 @@ export const userLogin = async (req, res, next)=>{
 
         if(!existingUser) return next(errorHandler(401, "Not a existing user"))
 
+            // const existingToken = await Token.findOne({userId : existingUser._id})
+
+            // if(existingToken) return next(errorHandler(403, "user already logged in..."))
+
             const checkPassword = await existingUser.isPasswordCorrect(password)
 
             if(!checkPassword) return next(errorHandler(401, "Not a existing user"))
+
+
+                await Token.findOneAndDelete({userId : existingUser._id})
+
+
 
                 const token = await existingUser.generateToken()
 
@@ -88,6 +97,8 @@ export const google = async (req, res,next)=>{
         
         if(existingUser){
             const token = await existingUser.generateToken()
+
+            await Token.findOneAndDelete({userId : existingUser._id})
 
             //! storing token in token model
 
@@ -301,7 +312,7 @@ export const deleteUserAddress = async (req, res, next) =>{
 //! logout
 
 export const userLogout = async (req, res)=>{
-    const token = req.cookies.token
+    const token = req.cookies.token ||req.headers.authorization && req.headers.authorization.split(' ')[1]
 
     const blacklisted = new BlackListToken({
         token
