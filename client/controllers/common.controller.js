@@ -35,3 +35,15 @@ export const getProductByCategory = async (req, res, next)=>{
         next(error)
     }
 }
+
+//! get product by sub Category
+
+export const getProductBySubCategory = async (req, res, next)=>{
+    try {
+        const product = await Product.find({subCategory : req.params.subCategory})
+        res.status(200).json(product)
+    } catch (error) {
+        console.log("get product by subcategory m h error", error)
+        next(error)
+    }
+}
