@@ -744,6 +744,16 @@ paths:
                   type: string
                   format: binary
                   description: Product image file
+                category:
+                  type: string
+                  enum : ["Woman's Fashion", "Men's Fashiom", "Electronics", "Home and LifeStyle", "Medicine", "Sports & Outdoor", "Baby's & Toys", "Groceries & Pets", "Health & Beauty" ]
+                  description: category of the product
+                  example: Electronics
+                subCategory:
+                  type: String
+                  enum : ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone","Furniture", "Decor", "Cleaner","capsule", "syrup", "fitness", "Kit", "Skates", "Kites","Dairy", "Bread", "Meat","Makeup", "SkinCare" ]
+                  description: subCategory of the Product
+                  example: Camera  
       responses:
         '201':
           description: Product created successfully
@@ -772,6 +782,10 @@ paths:
                     type: string
                   productColor:
                     type: string
+                  category:
+                    type: string
+                  subCategory:
+                    type: string    
                   seller:
                     type: string
                     description: Seller's user ID
@@ -880,6 +894,26 @@ paths:
                   nullable: true
                   description: Updated discount percentage (0-100)
                   example: 20
+                productDescription:
+                  type: string
+                  description: update product description
+                  example : xyz
+                productColor:
+                  type: string
+                  description: update product color
+                  example: Red
+                productSize:
+                  type: string
+                  description: update product size
+                  example: XL
+                category:
+                  type: string
+                  description: update product category
+                  example: Electronics
+                subCategory:
+                  type: string
+                  description: update product subcategory
+                  example: Skates          
                 image:
                   type: string
                   format: binary
