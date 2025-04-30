@@ -445,8 +445,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}") 
         - in: path
           name: id
           required: true
@@ -498,8 +497,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
         - in: path
           name: id
           required: true
@@ -866,8 +864,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}") 
         - in: path
           name: id
           required: true
@@ -953,8 +950,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: id
           required: true
@@ -1032,8 +1028,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: productId
           required: true
@@ -1142,8 +1137,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1273,8 +1267,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1310,8 +1303,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
         - in: path
           name: productId
           required: true
@@ -1408,8 +1400,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")    
         - in: path
           name: productId
           required: true
@@ -1458,8 +1449,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1523,8 +1513,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")    
         - in: path
           name: productId
           required: true
@@ -1620,8 +1609,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: productId
           required: true
