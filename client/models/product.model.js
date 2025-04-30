@@ -44,7 +44,7 @@ const productSchema = new mongoose.Schema({
 
     category : {
         type : String,
-        enum : ["Woman's Fashion", "Men's Fashiom", "Electronics", "Home and LifeStyle", "Medicine", "Sports & Outdoor", "Baby's & Toys", "Groceries & Pets", "Health & Beauty" ]
+        enum : ["Woman's Fashion", "Men's Fashion", "Electronics", "Home and LifeStyle", "Medicine", "Sports & Outdoor", "Baby's & Toys", "Groceries & Pets", "Health & Beauty" ]
     },
 
     subCategory : {
