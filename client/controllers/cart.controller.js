@@ -66,11 +66,26 @@ export const addToCart = async (req, res, next)=>{
 export const viewCart = async (req, res, next)=>{
     
    try {
-    const view = await AddToCart.find({userId : req.user._id}).populate("products.productId")
+    const view = await AddToCart.findOne({userId : req.user._id}).populate("products.productId")
 
     if(view.length == 0) return next(errorHandler(404, "No product added in the cart"))
 
-        res.status(200).json(view) 
+
+        const cart = view.products.map(item=>{
+            const product = item.productId
+            return{
+            productId : product._id,
+            title : product.productName,
+            image : product.productImage,
+            price : product.productPrice,
+            quantity : item.quantity,
+            totalPrice : product.productPrice * item.quantity
+   }})
+
+//    console.log(cart)
+
+           res.status(200).json(cart)
+        // res.status(200).json(view) 
 
    } catch (error) {
     console.log("view Cart m h error", error)
@@ -82,14 +97,30 @@ export const viewCart = async (req, res, next)=>{
 //! update cart product Quantity
 
 export const updateCartQuantity = async (req, res, next)=>{
-    const {quantity} = req.body
+    // const {quantity} = req.body
+
+    const {products} = req.body
 
     try {
-         await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
-          $set :{ "products.$.quantity" : quantity }
-        }, {new : true}).populate("products.productId")
+        //  await AddToCart.findOneAndUpdate({userId : req.user._id, "products.productId" : req.params.productId},{
+        //   $set :{ "products.$.quantity" : quantity }
+        // }, {new : true}).populate("products.productId")
 
-        res.status(200).json("Product qunatity updated successfullyy!!!")
+        // res.status(200).json("Product qunatity updated successfullyy!!!")
+
+        const cart = await AddToCart.findOne({userId : req.user._id})
+
+        products.forEach(item =>{
+            const update = cart.products.find(product => product.productId.toString() == item.productId)
+
+            if(update){
+                update.quantity = item.quantity
+            }
+        })
+
+        await cart.save()
+
+        res.status(200).json("product quantity updated successfully!!!")
     
     } catch (error) {
         console.log("update quantity m h error", error)
