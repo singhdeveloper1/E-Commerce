@@ -5,7 +5,7 @@ import User from "../models/user.model.js"
 import BlackListToken from "../models/blacklistToken.model.js"
 
 export const authentication = async(req, res, next)=>{
-    const token = req.cookies.token
+    const token = req.cookies.token || req.headers.authorization && req.headers.authorization.split(' ')[1]
     
     if(!token) return next(errorHandler(401, "invalid request"))
         

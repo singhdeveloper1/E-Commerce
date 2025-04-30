@@ -257,6 +257,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved user data
@@ -282,6 +289,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -341,6 +355,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -380,6 +401,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved user address data
@@ -411,6 +439,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: id
@@ -458,6 +493,13 @@ paths:
       security:
         - bearerAuth: []  # JWT authentication required
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: id
           required: true
@@ -475,16 +517,33 @@ paths:
   /api/user/logout:
     get:
       summary: User logout
-      description: Logs out the user by blacklisting the JWT token and clearing the cookie.
+      description: |
+        Logs out the user by blacklisting the JWT token and clearing the cookie.
+        Requires valid JWT token in Authorization header.
       tags:
         - User
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
       responses:
         '200':
           description: Successfully logged out and token invalidated
         '401':
           description: Unauthorized access (invalid or missing token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized: Invalid token"
         '500':
           description: Internal server error
 
@@ -496,6 +555,13 @@ paths:
         - User
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully switched to seller role
@@ -599,6 +665,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully switched to user role
@@ -622,6 +695,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -664,6 +744,16 @@ paths:
                   type: string
                   format: binary
                   description: Product image file
+                category:
+                  type: string
+                  enum : ["Woman's Fashion", "Men's Fashiom", "Electronics", "Home and LifeStyle", "Medicine", "Sports & Outdoor", "Baby's & Toys", "Groceries & Pets", "Health & Beauty" ]
+                  description: category of the product
+                  example: Electronics
+                subCategory:
+                  type: String
+                  enum : ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone","Furniture", "Decor", "Cleaner","capsule", "syrup", "fitness", "Kit", "Skates", "Kites","Dairy", "Bread", "Meat","Makeup", "SkinCare" ]
+                  description: subCategory of the Product
+                  example: Camera  
       responses:
         '201':
           description: Product created successfully
@@ -692,6 +782,10 @@ paths:
                     type: string
                   productColor:
                     type: string
+                  category:
+                    type: string
+                  subCategory:
+                    type: string    
                   seller:
                     type: string
                     description: Seller's user ID
@@ -722,6 +816,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Successfully retrieved all products
@@ -760,6 +861,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: id
           required: true
@@ -786,6 +894,26 @@ paths:
                   nullable: true
                   description: Updated discount percentage (0-100)
                   example: 20
+                productDescription:
+                  type: string
+                  description: update product description
+                  example : xyz
+                productColor:
+                  type: string
+                  description: update product color
+                  example: Red
+                productSize:
+                  type: string
+                  description: update product size
+                  example: XL
+                category:
+                  type: string
+                  description: update product category
+                  example: Electronics
+                subCategory:
+                  type: string
+                  description: update product subcategory
+                  example: Skates          
                 image:
                   type: string
                   format: binary
@@ -819,6 +947,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: id
@@ -855,6 +990,13 @@ paths:
         - Seller
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: All products deleted successfully
@@ -884,6 +1026,13 @@ paths:
         - Review
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: productId
@@ -988,6 +1137,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1047,6 +1203,13 @@ paths:
         - Review
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: User's reviews retrieved successfully
@@ -1105,6 +1268,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1135,6 +1305,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1162,6 +1339,13 @@ paths:
         - Cart
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Cart retrieved successfully
@@ -1219,6 +1403,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1262,6 +1453,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1289,6 +1487,13 @@ paths:
         - Cart
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Cart deleted successfully
@@ -1312,6 +1517,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       parameters:
         - in: path
           name: productId
@@ -1340,6 +1552,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Wishlist retrieved successfully
@@ -1396,6 +1615,13 @@ paths:
       security:
         - bearerAuth: []  # Requires JWT authentication
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      parameters:
         - in: path
           name: productId
           required: true
@@ -1423,6 +1649,13 @@ paths:
         - Wishlist
       security:
         - bearerAuth: []  # Requires JWT authentication
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       responses:
         '200':
           description: Wishlist deleted successfully
@@ -1527,4 +1760,118 @@ paths:
                     type: string
                     format: date-time
         '500':
-          description: Internal server error                                                              
+          description: Internal server error      
+
+  /api/common/getProductByCategory/{category}:
+    get:
+      summary: Get products by category
+      description: Retrieves all products belonging to a specific category
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: category
+          required: true
+          schema:
+            type: string
+          description: Category name to filter products
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    category:
+                      type: string
+                      example: "electronics"
+                    subCategory:
+                      type: string
+                      example: "Phones"  
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error 
+
+  /api/common/getProductBySubCategory/{SubCategory}:
+    get:
+      summary: Get products by sub category
+      description: Retrieves all products belonging to a specific sub category
+      tags:
+        - Common
+      parameters:
+        - in: path
+          name: subCategory
+          required: true
+          schema:
+            type: string
+          description: SubCategory name to filter products
+      responses:
+        '200':
+          description: List of products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    category:
+                      type: string
+                      example: "electronics"
+                    subCategory:
+                      type: string
+                      example: "Phones"  
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error                                                                           

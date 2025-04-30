@@ -21,7 +21,7 @@ export const switchToUser = async (req, res, next)=>{
 //! add product
 
 export const addproduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize} = req.body
+    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
@@ -32,7 +32,10 @@ export const addproduct = async (req, res, next)=>{
         const result = await uploadToClodinary(req, "Product_Image",next)
         imageUrl = result.secure_url
     }
-
+   
+    if(imageUrl.length == 0){
+        imageUrl = "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
+    }
     // let discountedPrice = ""
 
     // if(discountPercentage){
@@ -54,6 +57,8 @@ export const addproduct = async (req, res, next)=>{
         productDescription,
         productSize,
         productColor,
+        category,
+        subCategory,
         seller : req.user._id
     })
 
@@ -85,7 +90,7 @@ export const getProduct = async (req, res, next)=>{
 //! updateProduct
 
 export const updateProduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize} = req.body
+    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
 
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
@@ -103,6 +108,8 @@ export const updateProduct = async (req, res, next)=>{
                 productColor,
                 productDescription,
                 productSize,
+                category,
+                subCategory,
                 productImage : imageUrl
             },{new : true})
         }
