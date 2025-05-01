@@ -1864,4 +1864,41 @@ paths:
                       type: string
                       format: date-time
         '500':
-          description: Internal server error                                                                           
+          description: Internal server error   
+
+  /api/common/getNewArrival:
+    get:
+      summary: Get new arrival products
+      description: |
+        Retrieves the 5 most recently added products, sorted by creation date in descending order.
+      tags:
+        - Common
+      responses:
+        '200':
+          description: Successfully retrieved new arrival products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    name:
+                      type: string
+                      example: "Premium Headphones"
+                    category:
+                      type: string
+                      example: "Electronics"
+                    price:
+                      type: number
+                      example: 199.99
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2023-05-15T10:00:00Z"
+                    # Add other product properties as needed
+        '500':
+          description: Internal server error                                                                               
