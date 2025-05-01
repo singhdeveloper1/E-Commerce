@@ -1,6 +1,6 @@
 import express from "express"
 import { authentication } from "../middlewares/auth.middleware.js"
-import { addproduct, deleteAllProduct, deleteProduct, getProduct, switchToUser, updateProduct } from "../controllers/seller.controller.js"
+import { addForSale, addproduct, deleteAllProduct, deleteProduct, getProduct, switchToUser, updateProduct } from "../controllers/seller.controller.js"
 import uploadLocal from "../middlewares/uploadLocal.middleware.js"
 
 const router = express.Router()
@@ -8,8 +8,10 @@ const router = express.Router()
 router.patch("/switchToUser", authentication, switchToUser)
 router.post("/addproduct", authentication,uploadLocal.single("image"), addproduct)
 router.get("/getProduct", authentication , getProduct)
-router.patch("/updateProduct/:id", authentication, updateProduct)
-router.delete("/deleteProduct/:id", authentication, deleteProduct)
+router.patch("/updateProduct/:productId", authentication, updateProduct)
+router.delete("/deleteProduct/:productId", authentication, deleteProduct)
 router.delete("/deleteAllProduct", authentication, deleteAllProduct)
+
+router.patch("/addForSale/:productId", authentication, addForSale)
 
 export default router
