@@ -1014,6 +1014,60 @@ paths:
         '500':
           description: Internal server error   
 
+  /api/seller/addForSale/{productId}:
+    patch:
+      summary: Add product to sale
+      description: |
+        Marks a product as being on sale (seller-only).
+        Requires an active sale period.
+      tags:
+        - Seller
+      security:
+        - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to mark for sale
+      responses:
+        '200':
+          description: Product successfully added to sale
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product added for sale"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!!"
+        '404':
+          description: No active sale found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "sale is no longer exist!!!"
+        '500':
+          description: Internal server error          
+
   /api/review/writeReview/{productId}:
     post:
       summary: Write or update a product review
@@ -1901,4 +1955,122 @@ paths:
                       example: "2023-05-15T10:00:00Z"
                     # Add other product properties as needed
         '500':
-          description: Internal server error                                                                               
+          description: Internal server error
+
+  /api/common/sale:
+    post:
+      summary: Create or update sale
+      description: |
+        Creates a new sale or updates existing sale configuration.
+        Only one active sale can exist at a time.
+      tags:
+        - Common
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - startTime
+                - endTime
+                - discount
+              properties:
+                startTime:
+                  type: string
+                  format: date-time
+                  example: "2024-03-01T00:00:00Z"
+                  description: Sale start time in ISO format
+                endTime:
+                  type: string
+                  format: date-time
+                  example: "2024-03-31T23:59:59Z"
+                  description: Sale end time in ISO format
+                discount:
+                  type: number
+                  example: 20
+                  description: Discount percentage (e.g., 20 for 20%)
+      responses:
+        '200':
+          description: Sale configuration saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    example: "507f1f77bcf86cd799439011"
+                  startTime:
+                    type: string
+                    format: date-time
+                  endTime:
+                    type: string
+                    format: date-time
+                  discount:
+                    type: number
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '500':
+          description: Internal server error  
+
+  /api/common/getSaleProduct:
+    get:
+      summary: Get products on sale
+      description: Retrieves all products currently marked for sale
+      tags:
+        - Common
+      responses:
+        '200':
+          description: List of sale products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    discountPercentage:
+                      type: number
+                      nullable: true
+                      example: 15
+                    sale:
+                      type: boolean
+                      example: true
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '404':
+          description: No active sale found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "sale is no longer exist!!!"
+        '500':
+          description: Internal server error                                                                                                           

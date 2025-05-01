@@ -27,6 +27,7 @@ export const sale = async (req, res, next)=>{
             activeSale.endTime = endTime
             activeSale.discount = discount
 
+            await activeSale.save()
             res.status(200).json(activeSale)
         }
         } catch (error) {
@@ -119,7 +120,7 @@ export const getSaleProduct = async (req, res, next)=>{
 
         const activeForSale = await Product.find({sale : true})
 
-        if(!activeForSale) return next(errorHandler(404, "sale is no longer exist!!!"))
+        if(!activeForSale) return next(errorHandler(404, "no products are there in sale"))
 
             res.status(200).json(activeForSale)
        
