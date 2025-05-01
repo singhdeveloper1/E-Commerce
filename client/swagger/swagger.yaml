@@ -445,8 +445,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}") 
         - in: path
           name: id
           required: true
@@ -498,8 +497,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
         - in: path
           name: id
           required: true
@@ -866,8 +864,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}") 
         - in: path
           name: id
           required: true
@@ -953,8 +950,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: id
           required: true
@@ -1032,8 +1028,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: productId
           required: true
@@ -1142,8 +1137,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1273,8 +1267,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1310,8 +1303,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
         - in: path
           name: productId
           required: true
@@ -1356,29 +1348,24 @@ paths:
                 items:
                   type: object
                   properties:
-                    _id:
+                    productId:
                       type: string
-                    userId:
+                      example: "60d21b4667d0d8992e610c85"
+                    title:
                       type: string
-                    products:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          productId:
-                            type: object
-                            properties:
-                              _id:
-                                type: string
-                              # Other product fields that get populated
-                          quantity:
-                            type: number
-                    createdAt:
+                      example: "Premium Headphones"
+                    image:
                       type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                      example: "https://example.com/images/headphones.jpg"
+                    price:
+                      type: number
+                      example: 199.99
+                    quantity:
+                      type: number
+                      example: 2
+                    totalPrice:
+                      type: number
+                      example: 399.98
         '404':
           description: Cart is empty
           content:
@@ -1394,10 +1381,10 @@ paths:
         '500':
           description: Internal server error
 
-  /api/cart/updateCartQuantity/{productId}:
+  /api/cart/updateCartQuantity:
     patch:
-      summary: Update product quantity in cart
-      description: Updates the quantity of a specific product in the user's cart
+      summary: Update product quantities in cart
+      description: Updates quantities for multiple products in the user's cart
       tags:
         - Cart
       security:
@@ -1408,14 +1395,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
-        - in: path
-          name: productId
-          required: true
-          schema:
-            type: string
-          description: ID of the product to update quantity
+          description: Bearer token for authentication (e.g., "Bearer <token>")
       requestBody:
         required: true
         content:
@@ -1423,20 +1403,33 @@ paths:
             schema:
               type: object
               required:
-                - quantity
+                - products
               properties:
-                quantity:
-                  type: number
-                  description: New quantity for the product
-                  example: 3
+                products:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - quantity
+                    properties:
+                      productId:
+                        type: string
+                        description: ID of the product to update
+                        example: "60d21b4667d0d8992e610c85"
+                      quantity:
+                        type: number
+                        description: New quantity for the product
+                        example: 3
+                  description: Array of products with their updated quantities
       responses:
         '200':
-          description: Quantity updated successfully
+          description: Quantities updated successfully
           content:
             application/json:
               schema:
                 type: string
-                example: "Product quantity updated successfullyy!!!"
+                example: "product quantity updated successfully!!!"
         '401':
           description: Unauthorized (invalid token)
         '500':
@@ -1458,8 +1451,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")   
         - in: path
           name: productId
           required: true
@@ -1523,8 +1515,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")    
         - in: path
           name: productId
           required: true
@@ -1620,8 +1611,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
-      parameters:
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
         - in: path
           name: productId
           required: true

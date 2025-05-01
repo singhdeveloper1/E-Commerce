@@ -6,7 +6,8 @@ const router = express.Router()
 
 router.post("/addToCart/:productId", authentication, addToCart)
 router.get("/viewCart", authentication, viewCart)
-router.patch("/updateCartQuantity/:productId" , authentication, updateCartQuantity)
+// router.patch("/updateCartQuantity/:productId" , authentication, updateCartQuantity)
+router.patch("/updateCartQuantity" , authentication, updateCartQuantity)
 router.delete("/deleteOneCart/:productId", authentication, deleteOneCart)
 router.delete("/deleteFullCart", authentication, deleteFullCart)
 
