@@ -113,14 +113,19 @@ export const getNewArrival = async (req, res, next)=>{
 
 export const getSaleProduct = async (req, res, next)=>{
     try {
-
-        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
-        if(activeSale) return next(errorHandler(404, "sale is no longer exist!!!"))
-
-
         const activeForSale = await Product.find({sale : true})
-
         if(!activeForSale) return next(errorHandler(404, "no products are there in sale"))
+        
+        
+        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
+        if(activeSale) {
+            activeForSale.forEach(async (product)=>{
+                product.sale = false
+
+                await product.save()
+            })
+            return next(errorHandler(404, "sale is no longer exist!!!"))
+        }
 
             res.status(200).json(activeForSale)
        
