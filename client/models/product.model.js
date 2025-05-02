@@ -69,6 +69,11 @@ const productSchema = new mongoose.Schema({
         ]
     },
 
+    sale : {
+        type : Boolean,
+        default : false
+    },
+
     seller : {
         type : Schema.Types.ObjectId,
         ref : "User",

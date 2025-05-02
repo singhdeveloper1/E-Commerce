@@ -1,4 +1,5 @@
 import Product from "../models/product.model.js"
+import Sale from "../models/sale.model.js"
 import User from "../models/user.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import uploadToClodinary from "./clodinary.controller.js"
@@ -7,6 +8,7 @@ import uploadToClodinary from "./clodinary.controller.js"
 
 export const switchToUser = async (req, res, next)=>{
     try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are already a user!!!"))
         await User.findByIdAndUpdate(req.user._id,{
             isSeller : false
         },{new : true})
@@ -101,7 +103,7 @@ export const updateProduct = async (req, res, next)=>{
             const result = await uploadToClodinary(req, "Product_Image", next)
             imageUrl = result.secure_url
 
-            await Product.findByIdAndUpdate(req.params.id,{
+            await Product.findByIdAndUpdate(req.params.productId,{
                 productName,
                 productPrice,
                 discountPercentage,
@@ -115,13 +117,15 @@ export const updateProduct = async (req, res, next)=>{
         }
 
         else{
-        await Product.findByIdAndUpdate(req.params.id,{
+        await Product.findByIdAndUpdate(req.params.productId,{
             productName,
             productPrice,
             discountPercentage,
             productDescription,
             productSize,
-            productColor
+            productColor,
+            category,
+            subCategory,
         },{new : true})
     }
 
@@ -138,7 +142,7 @@ export const updateProduct = async (req, res, next)=>{
 export const deleteProduct = async (req, res, next)=>{
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
-            await Product.findByIdAndDelete(req.params.id)
+            await Product.findByIdAndDelete(req.params.productId)
 
         res.status(200).json("product successfully deleted!!!")
     } catch (error) {
@@ -159,6 +163,30 @@ export const deleteAllProduct = async (req, res, next)=>{
         
     } catch (error) {
         console.log("delete all product m h error", error)
+        next(error)
+    }
+}
+
+
+//! active for sale
+
+export const addForSale = async (req, res, next) =>{
+    try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
+
+            const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
+
+             if(activeSale) return next(errorHandler(404, "sale is no longer exist!!!"))
+
+            await Product.findByIdAndUpdate(req.params.productId,{
+                sale : true
+            },{new : true})
+
+            res.status(200).json("product added for sale")
+
+            
+    } catch (error) {
+        console.log("active for sale", error)
         next(error)
     }
 }
