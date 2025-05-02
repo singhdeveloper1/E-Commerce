@@ -193,11 +193,14 @@ export const userData = async (req, res, next)=>{
 
 export const updateUserData = async (req, res, next)=>{
     try {
-        const {name, email, phone} =  req.body
-        const newUserData = await User.findByIdAndUpdate(req.user._id,{
-            name,
+        const { email, phone, firstName, lastName, address} =  req.body
+        console.log(req.body)
+            await User.findByIdAndUpdate(req.user._id,{
             email,
-            phone
+            phone,
+            firstName,
+            lastName,
+            address
         },{new : true})
 
         res.status(200).json({msg : "update successfullyy"})
@@ -212,18 +215,19 @@ export const updateUserData = async (req, res, next)=>{
 
 export const updateUserPassword = async (req, res, next) =>{
     try {
-        const {oldPassword, newPassword} = req.body
+        const {currentPassword, newPassword} = req.body
+        console.log(req.body)
 
         const user = await User.findById(req.user._id)
 
-        const checkPassword = await user.isPasswordCorrect(oldPassword)
+        const checkPassword = await user.isPasswordCorrect(currentPassword)
 
-        if(!checkPassword) return next(errorHandler(401, "password is incorrect"))
+        if(!checkPassword) return next(errorHandler(401, " current password is incorrect"))
 
             const hashedPassword = await bcrypt.hash(newPassword, 10)
 
 
-         const updatedPassword = await User.findByIdAndUpdate(req.user._id,{
+         await User.findByIdAndUpdate(req.user._id,{
             password : hashedPassword
          },{new : true})   
 

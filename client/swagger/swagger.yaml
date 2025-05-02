@@ -277,7 +277,13 @@ paths:
                   email:
                     type: string
                   phone:
+                    type: Number
+                  firstName:
                     type: string
+                  lastname:
+                    type: string
+                  address:
+                    type: string      
         '401':
           description: Unauthorized access (invalid token)
 
@@ -308,7 +314,13 @@ paths:
                 email:
                   type: string
                 phone:
+                  type: Number
+                firstName:
                   type: string
+                lastName:
+                  type: string
+                address: 
+                  type: string      
       responses:
         '200':
           description: User data updated successfully

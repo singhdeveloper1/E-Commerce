@@ -12,19 +12,30 @@ const userSchema = new mongoose.Schema({
     email : {
         type : String,
         match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"],
-        unique : true,
-        sparse : true
+        unique : true
     },
 
     phone : {
         type : Number,
-        unique : true,
-        sparse : true
+        unique : true
     },
 
     password : {
         type : String,
         required : true
+    },
+
+    firstName : {
+        type : String,
+    },
+
+    lastName : {
+        type : String
+    },
+
+    address : {
+        type : String,
+        maxlength : 200
     },
 
     isSeller : {
