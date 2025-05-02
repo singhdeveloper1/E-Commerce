@@ -9,6 +9,7 @@ import reviewRouter from "./routes/review.route.js"
 import {swaggerUi, swaggerDocument} from "./swagger/swagger.js"
 import cors from "cors"
 import commonRouter from "./routes/common.route.js"
+import orderRoute from "./routes/order.route.js"
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use("/api/cart", cartRouter)
 app.use("/api/wishlist", wishlistRouter)
 app.use("/api/review", reviewRouter)
 app.use("/api/common", commonRouter)
+app.use("/api/order", orderRoute)
 
 
 //! for error

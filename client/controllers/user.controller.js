@@ -193,8 +193,7 @@ export const userData = async (req, res, next)=>{
 
 export const updateUserData = async (req, res, next)=>{
     try {
-        const { email, phone, firstName, lastName, address} =  req.body
-        console.log(req.body)
+        const { email, phone, firstName, lastName, address} =  req.body 
             await User.findByIdAndUpdate(req.user._id,{
             email,
             phone,
@@ -215,8 +214,7 @@ export const updateUserData = async (req, res, next)=>{
 
 export const updateUserPassword = async (req, res, next) =>{
     try {
-        const {currentPassword, newPassword} = req.body
-        console.log(req.body)
+        const {currentPassword, newPassword} = req.body 
 
         const user = await User.findById(req.user._id)
 

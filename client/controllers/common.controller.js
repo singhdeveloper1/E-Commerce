@@ -114,7 +114,7 @@ export const getNewArrival = async (req, res, next)=>{
 export const getSaleProduct = async (req, res, next)=>{
     try {
         const activeForSale = await Product.find({sale : true})
-        if(!activeForSale) return next(errorHandler(404, "no products are there in sale"))
+        if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
         
         
         const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
