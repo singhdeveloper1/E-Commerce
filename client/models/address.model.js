@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { now, Schema } from "mongoose";
 
 const addressSchema = new mongoose.Schema({
     userId : {
@@ -7,7 +7,12 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    address : {
+    houseNumber : {
+        type : String,
+        required : true
+    },
+
+    country : {
         type : String,
         required : true
     },
@@ -22,7 +27,7 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    pincode : {
+    pinCode : {
         type : String,
         required : true
     },
