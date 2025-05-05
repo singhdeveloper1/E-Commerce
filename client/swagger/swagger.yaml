@@ -381,14 +381,16 @@ paths:
             schema:
               type: object
               required:
-                - houseNumber
+                - street
                 - state
                 - city
                 - pinCode
                 - phone
                 - country
+                - firstName
+                - email
               properties:
-                houseNumber:
+                street:
                   type: string
                 state:
                   type: string
@@ -399,7 +401,17 @@ paths:
                 phone:
                   type: number
                 country:
-                  type: string  
+                  type: string 
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                company:
+                  type: string
+                appartment:
+                  type: string
+                email:
+                  type: string           
       responses:
         '200':
           description: Address added successfully
@@ -474,14 +486,16 @@ paths:
             schema:
               type: object
               required:
-                - houseNumber
+                - street
                 - state
                 - city
                 - pinCode
                 - phone
                 - country
+                - firstName
+                - email
               properties:
-                houseNumber:
+                street:
                   type: string
                 state:
                   type: string
@@ -492,6 +506,16 @@ paths:
                 phone:
                   type: number
                 country:
+                  type: string 
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                company:
+                  type: string
+                appartment:
+                  type: string
+                email:
                   type: string  
       responses:
         '200':
@@ -2146,27 +2170,37 @@ paths:
                 address:
                   type: object
                   required:
-                    - firstName
                     - street
+                    - state
                     - city
+                    - pinCode
                     - phone
+                    - country
+                    - firstName
                     - email
                   properties:
-                    firstName:
-                      type: string
-                    company:
-                      type: string
                     street:
                       type: string
-                    appartment:
+                    state:
                       type: string
                     city:
                       type: string
+                    pinCode:
+                      type: string
                     phone:
+                      type: number
+                    country:
+                      type: string 
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    company:
+                      type: string
+                    appartment:
                       type: string
                     email:
                       type: string
-                      format: email
       responses:
         '200':
           description: Order placed successfully
@@ -2208,6 +2242,8 @@ paths:
                     properties:
                       firstName:
                         type: string
+                      lastName:
+                        type: string
                       company:
                         type: string
                       street:
@@ -2220,6 +2256,12 @@ paths:
                         type: string
                       email:
                         type: string
+                      country:
+                        type: string
+                      state:
+                        type: string
+                      pinCode:
+                        type: string      
                   createdAt:
                     type: string
                     format: date-time
@@ -2299,6 +2341,8 @@ paths:
                       properties:
                         firstName:
                           type: string
+                        lastName:
+                          type: string  
                         company:
                           type: string
                         street:
@@ -2310,6 +2354,12 @@ paths:
                         phone:
                           type: string
                         email:
+                          type: string
+                        country:
+                          type: string
+                        state:
+                          type: string
+                        pinCode:
                           type: string
                     createdAt:
                       type: string

@@ -238,23 +238,28 @@ export const updateUserPassword = async (req, res, next) =>{
     }
 }
 
-//!add user address
+//! add user address
 
 export const addUserAddress = async (req, res, next)=>{
     
-    const {streetAddress, state, city, pinCode, phone, country} = req.body
+    const {street, state, city, pinCode, phone, country, firstName, lastName, company, appartment, email } = req.body
     const id = req.user._id
 
     if(phone.toString().length > 10) return next(errorHandler(400, "phone no. length must me less than 11 values"))
 
     const newAddress = new Address({
         userId : id,
-        streetAddress,
+        street,
         country,
         state,
         city,
         pinCode,
-        phone
+        phone,
+        firstName,
+        lastName,
+        company,
+        appartment,
+        email
     })
     try {
         await newAddress.save()        
@@ -282,14 +287,19 @@ export const getUserAddress = async (req, res, next)=>{
 export const updateUserAddress = async (req, res, next)=>{
 
     try {
-        const {streetAddress, state, city, pinCode, phone} = req.body
+        const {street, state, city, pinCode, phone, country, firstName, lastName, company, appartment, email} = req.body
         const updatedAddress = await Address.findByIdAndUpdate(req.params.id,{
-            streetAddress,
+            street,
             state,
             city,
             pinCode,
             phone,
-            country
+            country,
+            firstName,
+            lastName,
+            company,
+            appartment,
+            email
         },{new : true})
 
         res.status(200).json({msg : "address updated Successfully!!!!"})

@@ -7,7 +7,24 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    streetAddress : {
+    firstName : {
+        type : String,
+        required : true
+    },
+
+    lastName : {
+        type : String,
+    },
+
+    company : {
+        type : String
+    },
+
+    appartment : {
+        type : String
+    },
+
+    street : {
         type : String,
         required : true
     },
@@ -35,6 +52,12 @@ const addressSchema = new mongoose.Schema({
     phone : {
         type : Number,
         required : true
+    },
+
+    email : {
+        type : String,
+        required : true,
+        match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"]
     }
 
 })

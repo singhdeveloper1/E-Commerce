@@ -35,12 +35,16 @@ export const placeOrder = async (req, res, next)=>{
             payment : req.body.payment,
             address : {
                 firstName : req.body.firstName,
+                lastName : req.body.lastName,
                 company : req.body.company,
                 street : req.body.street,
                 appartment : req.body.appartment,
                 city : req.body.city,
                 phone : req.body.phone,
-                email : req.body.email
+                email : req.body.email,
+                country : req.body.country,
+                state : req.body.state,
+                pinCode : req.body.pinCode
             }
         })
 
