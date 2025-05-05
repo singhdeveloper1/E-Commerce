@@ -2085,4 +2085,148 @@ paths:
                     type: string
                     example: "sale is no longer exist!!!"
         '500':
-          description: Internal server error                                                                                                           
+          description: Internal server error     
+  /api/order/placeOrder:
+    post:
+      summary: Place a new order
+      description: Creates a new order with products from cart
+      tags:
+        - Order
+      security:
+        - bearerAuth: []  # JWT authentication required
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - products
+                - payment
+                - address
+              properties:
+                products:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - quantity
+                    properties:
+                      productId:
+                        type: string
+                        description: ID of the product to order
+                      size:
+                        type: string
+                        enum: ["XS", "S", "M", "L", "XL"]
+                      color:
+                        type: string
+                        enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                      quantity:
+                        type: number
+                        minimum: 1
+                payment:
+                  type: string
+                  enum: ["COD", "Bank"]
+                  example: "COD"
+                address:
+                  type: object
+                  required:
+                    - firstName
+                    - street
+                    - city
+                    - phone
+                    - email
+                  properties:
+                    firstName:
+                      type: string
+                    company:
+                      type: string
+                    street:
+                      type: string
+                    appartment:
+                      type: string
+                    city:
+                      type: string
+                    phone:
+                      type: string
+                    email:
+                      type: string
+                      format: email
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  userId:
+                    type: string
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        productId:
+                          type: string
+                        name:
+                          type: string
+                        image:
+                          type: string
+                        price:
+                          type: string
+                        variant:
+                          type: object
+                          properties:
+                            size:
+                              type: string
+                            color:
+                              type: string
+                        quantity:
+                          type: number
+                  payment:
+                    type: string
+                  address:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                      company:
+                        type: string
+                      street:
+                        type: string
+                      appartment:
+                        type: string
+                      city:
+                        type: string
+                      phone:
+                        type: string
+                      email:
+                        type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized (invalid token)
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "product not found"
+        '500':
+          description: Internal server error                                                                                                                
