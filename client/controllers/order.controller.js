@@ -53,3 +53,17 @@ export const placeOrder = async (req, res, next)=>{
         next(error)
     }
 }
+
+
+//! my order
+export const myOrder = async (req, res, next)=>{
+    try {
+        const orders = await Order.find({userId : req.user._id})
+        if(!orders) return next(errorHandler(404, "nothing in cart"))
+
+            res.status(200).json(orders)
+    } catch (error) {
+        console.log("my order m h error", error)
+        next(error)
+    }
+}
