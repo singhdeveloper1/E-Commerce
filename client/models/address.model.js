@@ -7,7 +7,7 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    houseNumber : {
+    streetAddress : {
         type : String,
         required : true
     },
