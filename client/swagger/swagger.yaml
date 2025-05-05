@@ -408,7 +408,7 @@ paths:
                   type: string
                 company:
                   type: string
-                appartment:
+                apartment:
                   type: string
                 email:
                   type: string           
@@ -513,7 +513,7 @@ paths:
                   type: string
                 company:
                   type: string
-                appartment:
+                apartment:
                   type: string
                 email:
                   type: string  
@@ -2197,7 +2197,7 @@ paths:
                       type: string
                     company:
                       type: string
-                    appartment:
+                    apartment:
                       type: string
                     email:
                       type: string
@@ -2248,7 +2248,7 @@ paths:
                         type: string
                       street:
                         type: string
-                      appartment:
+                      apartment:
                         type: string
                       city:
                         type: string
@@ -2347,7 +2347,7 @@ paths:
                           type: string
                         street:
                           type: string
-                        appartment:
+                        apartment:
                           type: string
                         city:
                           type: string

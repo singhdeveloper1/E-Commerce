@@ -38,7 +38,7 @@ export const placeOrder = async (req, res, next)=>{
                 lastName : req.body.lastName,
                 company : req.body.company,
                 street : req.body.street,
-                appartment : req.body.appartment,
+                apartment : req.body.apartment,
                 city : req.body.city,
                 phone : req.body.phone,
                 email : req.body.email,
