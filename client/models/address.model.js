@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { now, Schema } from "mongoose";
 
 const addressSchema = new mongoose.Schema({
     userId : {
@@ -7,7 +7,29 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    address : {
+    firstName : {
+        type : String,
+        required : true
+    },
+
+    lastName : {
+        type : String,
+    },
+
+    company : {
+        type : String
+    },
+
+    apartment : {
+        type : String
+    },
+
+    street : {
+        type : String,
+        required : true
+    },
+
+    country : {
         type : String,
         required : true
     },
@@ -22,7 +44,7 @@ const addressSchema = new mongoose.Schema({
         required : true
     },
 
-    pincode : {
+    pinCode : {
         type : String,
         required : true
     },
@@ -30,6 +52,12 @@ const addressSchema = new mongoose.Schema({
     phone : {
         type : Number,
         required : true
+    },
+
+    email : {
+        type : String,
+        required : true,
+        match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"]
     }
 
 })

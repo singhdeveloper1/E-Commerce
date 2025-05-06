@@ -68,7 +68,7 @@ const orderSchema = new mongoose.Schema({
             required : true
         },
 
-        appartment : {
+        apartment : {
             type : String
         },
 
