@@ -458,6 +458,68 @@ paths:
         '401':
           description: Unauthorized access (invalid token)
 
+  /api/user/getSpecificAddress/{id}:
+    get:
+      tags:
+        - User
+      summary: Get a specific address by ID for the authenticated user
+      description: Retrieves a specific address from the user's address book by its ID.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - name: id
+          in: path
+          required: true
+          description: The ID of the address to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved the address
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  userId:
+                    type: string
+                  firstName:
+                    type: string
+                  lastName:
+                    type: string
+                  company:
+                    type: string
+                  apartment:
+                    type: string        
+                  street:
+                    type: string
+                  city:
+                    type: string
+                  state:
+                    type: string
+                  pinCode:
+                    type: string
+                  country:
+                    type: string
+                  phone: 
+                    type: number
+                  email:
+                    type: string    
+        '401':
+          description: Unauthorized - Authentication failed
+        '404':
+          description: Address not found
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []          
+
   /api/user/updateUserAddress/{id}:
     patch:
       summary: Update user address
