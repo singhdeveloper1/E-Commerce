@@ -2186,14 +2186,7 @@ paths:
       tags:
         - Order
       security:
-        - bearerAuth: []  # JWT authentication required
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -2203,7 +2196,11 @@ paths:
               required:
                 - products
                 - payment
-                - address
+                - firstName
+                - street
+                - city
+                - phone
+                - email
               properties:
                 products:
                   type: array
@@ -2216,6 +2213,15 @@ paths:
                       productId:
                         type: string
                         description: ID of the product to order
+                      name:
+                        type: string
+                        description: Name of the product
+                      image:
+                        type: string
+                        description: URL of the product image
+                      price:
+                        type: string
+                        description: Price of the product
                       size:
                         type: string
                         enum: ["XS", "S", "M", "L", "XL"]
@@ -2223,46 +2229,34 @@ paths:
                         type: string
                         enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
                       quantity:
-                        type: number
+                        type: integer
                         minimum: 1
                 payment:
                   type: string
                   enum: ["COD", "Bank"]
-                  example: "COD"
-                address:
-                  type: object
-                  required:
-                    - street
-                    - state
-                    - city
-                    - pinCode
-                    - phone
-                    - country
-                    - firstName
-                    - email
-                  properties:
-                    street:
-                      type: string
-                    state:
-                      type: string
-                    city:
-                      type: string
-                    pinCode:
-                      type: string
-                    phone:
-                      type: number
-                    country:
-                      type: string 
-                    firstName:
-                      type: string
-                    lastName:
-                      type: string
-                    company:
-                      type: string
-                    apartment:
-                      type: string
-                    email:
-                      type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                company:
+                  type: string
+                street:
+                  type: string
+                apartment:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                pinCode:
+                  type: string
+                phone:
+                  type: string
+                country:
+                  type: string
+                email:
+                  type: string
+                  format: email
       responses:
         '200':
           description: Order placed successfully
@@ -2296,7 +2290,7 @@ paths:
                             color:
                               type: string
                         quantity:
-                          type: number
+                          type: integer
                   payment:
                     type: string
                   address:
@@ -2318,29 +2312,23 @@ paths:
                         type: string
                       email:
                         type: string
-                      country:
-                        type: string
                       state:
                         type: string
                       pinCode:
-                        type: string      
+                        type: string
+                      country:
+                        type: string
                   createdAt:
                     type: string
                     format: date-time
+        '400':
+          description: Bad request (invalid data or missing required fields)
         '401':
           description: Unauthorized (invalid token)
         '404':
           description: Product not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "product not found"
         '500':
-          description: Internal server error      
+          description: Internal server error     
 
   /api/order/myOrder:
     get:

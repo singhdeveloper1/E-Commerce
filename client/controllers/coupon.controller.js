@@ -43,7 +43,7 @@ export const applyCoupon = async (req, res, next)=>{
 
         if(!existingCoupon) return next(errorHandler(404, "Coupon does not exist"))
 
-            if(existingCoupon.expiresAt < new Date) return errorHandler(400, "Coupon was expired...")
+            if(existingCoupon.expiresAt < new Date()) return next(errorHandler(400, "Coupon was expired..."))
 
                 if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
 
