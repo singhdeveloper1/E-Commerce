@@ -22,10 +22,21 @@ const couponSchema = new mongoose.Schema({
         required : true
     },
 
+    //! this to make expiry optional only to set welcome coupon permanent
+    // expiresAt : {
+    //     type : Date,
+    //     default : null
+    // },
+
     usedBy : [{
         type : Schema.Types.ObjectId,
         ref : "User"
-    }]
+    }],
+
+    isForNewUser :{
+        type : Boolean,
+        default : false
+    }
 })
 
 const Coupon = mongoose.model("Coupon", couponSchema)

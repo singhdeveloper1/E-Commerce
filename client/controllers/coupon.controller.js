@@ -1,11 +1,12 @@
 import Coupon from "../models/coupon.model.js"
+import Order from "../models/order.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import moment from "moment-timezone"
 
 
 //! create coupon
 export const createCoupon = async (req, res, next)=>{
-    const {coupon, discountType, discountValue, expiresAt} = req.body
+    const {coupon, discountType, discountValue, expiresAt, isForNewUser} = req.body
 
     const istDate = new Date(expiresAt)
     istDate.setHours(istDate.getHours()-5, istDate.getMinutes()- 30)
@@ -20,10 +21,11 @@ export const createCoupon = async (req, res, next)=>{
             coupon,
             discountType,
             discountValue,
-            expiresAt : istDate
+            expiresAt : istDate,
+            isForNewUser
         })
         try {
-            await coupon.save()
+            await newCoupon.save()
             res.status(200).json("coupon created successfully!!!", newCoupon)
         } catch (error) {
             console.log("create coupon m h error", error)
@@ -44,6 +46,10 @@ export const applyCoupon = async (req, res, next)=>{
             if(existingCoupon.expiresAt < new Date) return errorHandler(400, "Coupon was expired...")
 
                 if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
+
+                    const previousOrder = await Order.find({userId : req.user._id})
+                     
+                    if(existingCoupon.isForNewUser && previousOrder.length > 0) return next(errorHandler(400, "This coupon is only valid for first order..."))
 
                     let discountedPrice = ""
 
