@@ -1,4 +1,5 @@
 import AddToCart from "../models/addToCart.model.js"
+import { errorHandler } from "../utils/errorHandler.js"
 
 //! add to cart
 
@@ -31,6 +32,8 @@ export const addToCart = async (req, res, next)=>{
    try {
     const cart = await AddToCart.findOne({userId : req.user._id})
 
+    
+
     if(!cart){
         const added = new AddToCart({
             userId : req.user._id,
@@ -42,11 +45,14 @@ export const addToCart = async (req, res, next)=>{
             ]
         })
         await added.save()
-
+ 
         res.status(201).json("added to cart")
     }
 
     else{
+        cart.products.map(product => {
+            if(product.productId == req.params.productId) return next(errorHandler(400, "already added in cart"))
+        })
         cart.products.push({
             productId : req.params.productId,           
             quantity

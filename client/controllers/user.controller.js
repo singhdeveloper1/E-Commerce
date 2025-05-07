@@ -283,6 +283,20 @@ export const getUserAddress = async (req, res, next)=>{
     }
 }
 
+//! get  a specific address
+
+export const getSpecificAddress = async (req, res, next)=>{
+    try {
+        const address = await Address.findOne({userId : req.user._id, _id : req.params.id})
+        if(!address) return next(errorHandler(404, "address not found"))
+
+            res.status(200).json(address)
+    } catch (error) {
+        console.log("get specific address m h error", error)
+        next(error)
+    }
+} 
+
 //! update user Address
 
 export const updateUserAddress = async (req, res, next)=>{
