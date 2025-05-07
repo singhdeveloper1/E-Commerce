@@ -2439,4 +2439,64 @@ paths:
                     type: string
                     example: "nothing in cart"
         '500':
-          description: Internal server error                                                                                                                    
+          description: Internal server error    
+
+  /api/coupon/createCoupon:
+    post:
+      tags:
+        - Coupon
+      summary: Create a new coupon
+      description: Creates a new discount coupon with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - coupon
+                - discountType
+                - discountValue
+                - expiresAt
+              properties:
+                coupon:
+                  type: string
+                  description: The coupon code
+                discountType:
+                  type: string
+                  enum: ["Percentage", "Fixed"]
+                  description: Type of discount (Percentage or Fixed amount)
+                discountValue:
+                  type: number
+                  description: Value of the discount (percentage or fixed amount)
+                expiresAt:
+                  type: string
+                  format: date-time
+                  description: Expiration date of the coupon (will be converted to IST)
+      responses:
+        '200':
+          description: Coupon created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "coupon created successfully!!!"
+                  coupon:
+                    type: object
+                    properties:
+                      coupon:
+                        type: string
+                      discountType:
+                        type: string
+                      discountValue:
+                        type: number
+                      expiresAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Bad request - Coupon already exists
+        '500':
+          description: Internal server error                                                                                                                          
