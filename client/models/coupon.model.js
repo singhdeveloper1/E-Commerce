@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const couponSchema = new mongoose.Schema({
-    code : {
+    coupon : {
         type : String,
         required : true
     },
@@ -22,10 +22,10 @@ const couponSchema = new mongoose.Schema({
         required : true
     },
 
-    usedBy : {
+    usedBy : [{
         type : Schema.Types.ObjectId,
         ref : "User"
-    }
+    }]
 })
 
 const Coupon = mongoose.model("Coupon", couponSchema)
