@@ -2499,4 +2499,50 @@ paths:
         '400':
           description: Bad request - Coupon already exists
         '500':
-          description: Internal server error                                                                                                                          
+          description: Internal server error
+
+  /api/coupon/applyCoupon:
+    post:
+      tags:
+        - Coupon
+      summary: Apply a coupon to get discount
+      description: Applies a coupon code to calculate discounted price and marks it as used by the current user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - coupon
+                - totalPrice
+              properties:
+                coupon:
+                  type: string
+                  description: The coupon code to apply
+                totalPrice:
+                  type: number
+                  description: Original total price before discount
+      responses:
+        '200':
+          description: Successfully applied coupon
+          content:
+            application/json:
+              schema:
+                type: number
+                description: The discounted price after applying coupon
+        '400':
+          description: Bad request - Coupon expired or already used by this user
+        '404':
+          description: Coupon not found
+        '500':
+          description: Internal server error                                                                                                                                    
