@@ -113,9 +113,11 @@ export const getNewArrival = async (req, res, next)=>{
 
 export const getSaleProduct = async (req, res, next)=>{
     try {
-        const activeForSale = await Product.find({sale : true})
+        const activeForSale = await Product.find({sale : true},{discountPercentage : 0})
         if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
         
+            const discount = await Sale.findOne()
+            const saleDiscount = discount.discount
         
         const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
         if(activeSale) {
@@ -127,11 +129,41 @@ export const getSaleProduct = async (req, res, next)=>{
             return next(errorHandler(404, "sale is no longer exist!!!"))
         }
 
-            res.status(200).json(activeForSale)
+            res.status(200).json({activeForSale, saleDiscount})
        
         
     } catch (error) {
         console.log("get sale product m h error", error)
+        next(error)
+    }
+}
+
+//! get limited sale product
+
+export const getLimitedSaleProduct = async (req, res, next)=>{
+    try {
+
+        const activeForSale = await Product.find({sale : true},{discountPercentage : 0}).skip(0).limit(6)
+        if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
+
+        const discount = await Sale.findOne()
+        const saleDiscount = discount.discount
+
+        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
+
+        if(activeSale){
+            activeForSale.forEach(async (product)=>{
+                product.sale = false
+                await product.save()
+            })
+            return next(errorHandler(404, "sale is no longer exist!!!"))
+        }
+
+        res.status(200).json({activeForSale, saleDiscount})
+
+        
+    } catch (error) {
+        console.log("get limited sale product m h error", error)
         next(error)
     }
 }

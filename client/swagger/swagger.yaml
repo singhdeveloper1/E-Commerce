@@ -2124,48 +2124,68 @@ paths:
 
   /api/common/getSaleProduct:
     get:
-      summary: Get products on sale
-      description: Retrieves all products currently marked for sale
       tags:
         - Common
+      summary: Get sale products
+      description: |
+        Retrieves all products currently on sale.
+        Checks if sale period has ended and updates product status.
+        Returns both sale products and current discount percentage.
       responses:
         '200':
-          description: List of sale products retrieved successfully
+          description: Successfully retrieved sale products
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: "507f1f77bcf86cd799439011"
-                    productName:
-                      type: string
-                      example: "Premium Smartphone"
-                    productImage:
-                      type: string
-                      example: "https://example.com/image.jpg"
-                    productPrice:
-                      type: number
-                      example: 599.99
-                    discountPercentage:
-                      type: number
-                      nullable: true
-                      example: 15
-                    sale:
-                      type: boolean
-                      example: true
-                    seller:
-                      type: string
-                      example: "507f191e810c19729de860ea"
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  activeForSale:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        productName:
+                          type: string
+                          example: "Premium Smartphone"
+                        productImage:
+                          type: string
+                          example: "https://example.com/image.jpg"
+                        productPrice:
+                          type: number
+                          example: 599.99
+                        sale:
+                          type: boolean
+                          example: true
+                        seller:
+                          type: string
+                          example: "507f191e810c19729de860ea"
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                  saleDiscount:
+                    type: number
+                    description: Current active discount percentage
+        '404':
+          description: |
+            Not found - Possible reasons:
+            - No products currently on sale
+            - Sale period has ended (products will be automatically updated)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "no products are there in sale"
+        '500':
+          description: Internal server error  
         '404':
           description: No active sale found
           content:
@@ -2177,7 +2197,64 @@ paths:
                     type: string
                     example: "sale is no longer exist!!!"
         '500':
-          description: Internal server error     
+          description: Internal server error  
+
+  /api/common/getLimitedSaleProduct:
+    get:
+      tags:
+        - Common
+      summary: Get limited sale products
+      description: |
+        Retrieves up to 6 products currently on sale.
+        Also checks if sale period has ended and updates product status accordingly.
+        Returns both sale products and current discount percentage.
+      responses:
+        '200':
+          description: Successfully retrieved sale products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeForSale:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        productName:
+                          type: string
+                          example: "Premium Smartphone"
+                        productImage:
+                          type: string
+                          example: "https://example.com/image.jpg"
+                        productPrice:
+                          type: number
+                          example: 599.99
+                        sale:
+                          type: boolean
+                          example: true
+                        seller:
+                          type: string
+                          example: "507f191e810c19729de860ea"
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                  saleDiscount:
+                    type: number
+                    description: Current discount percentage for the sale
+        '404':
+          description: |
+            Not found - Possible reasons:
+            - No products currently on sale
+            - Sale period has ended
+        '500':
+          description: Internal server error             
  
   /api/order/placeOrder:
     post:
@@ -2187,6 +2264,13 @@ paths:
         - Order
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -2461,6 +2545,19 @@ paths:
                   type: string
                   format: date-time
                   description: Expiration date of the coupon (will be converted to IST)
+                isForNewUser:
+                  type: boolean
+                  description: Whether coupon is exclusively for new users
+                validProducts:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of product IDs this coupon applies to
+                validCategories:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of category IDs this coupon applies to
       responses:
         '200':
           description: Coupon created successfully
@@ -2484,6 +2581,16 @@ paths:
                       expiresAt:
                         type: string
                         format: date-time
+                      isForNewUser:
+                        type: boolean
+                      validProducts:
+                        type: array
+                        items:
+                          type: string
+                      validCategories:
+                        type: array
+                        items:
+                          type: string
         '400':
           description: Bad request - Coupon already exists
         '500':
@@ -2494,7 +2601,9 @@ paths:
       tags:
         - Coupon
       summary: Apply a coupon to get discount
-      description: Applies a coupon code to calculate discounted price and marks it as used by the current user
+      description: |
+        Applies a coupon code to calculate discounted price and marks it as used by the current user.
+        Validates coupon restrictions including:
       security:
         - bearerAuth: []
       parameters:
@@ -2513,6 +2622,7 @@ paths:
               required:
                 - coupon
                 - totalPrice
+                - cartItems
               properties:
                 coupon:
                   type: string
@@ -2520,6 +2630,24 @@ paths:
                 totalPrice:
                   type: number
                   description: Original total price before discount
+                cartItems:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - productId
+                      - price
+                      - category
+                    properties:
+                      productId:
+                        type: string
+                        description: ID of the product in cart
+                      price:
+                        type: number
+                        description: Price of the product
+                      category:
+                        type: string
+                        description: Category of the product (required for category-specific coupons)
       responses:
         '200':
           description: Successfully applied coupon
@@ -2529,8 +2657,13 @@ paths:
                 type: number
                 description: The discounted price after applying coupon
         '400':
-          description: Bad request - Coupon expired or already used by this user
+          description: |
+            Bad request - Possible reasons:
+            - Coupon expired
+            - Already used by this user
+            - Not eligible for existing customers (new-user only coupon)
+            - Not valid for cart items (product/category restriction)
         '404':
           description: Coupon not found
         '500':
-          description: Internal server error                                                                                                                                    
+          description: Internal server error
