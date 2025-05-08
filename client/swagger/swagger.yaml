@@ -1124,10 +1124,11 @@ paths:
       description: |
         Marks a product as being on sale (seller-only).
         Requires an active sale period.
+        Sets discount percentage for the product.
       tags:
         - Seller
       security:
-        - bearerAuth: []  # JWT authentication required
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -1141,6 +1142,18 @@ paths:
           schema:
             type: string
           description: ID of the product to mark for sale
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - discountPercentage
+              properties:
+                discountPercentage:
+                  type: number
+                  description: Discount percentage to apply (0-100)
       responses:
         '200':
           description: Product successfully added to sale
@@ -2130,52 +2143,42 @@ paths:
       description: |
         Retrieves all products currently on sale.
         Checks if sale period has ended and updates product status.
-        Returns both sale products and current discount percentage.
+        Returns array of active sale products.
       responses:
         '200':
           description: Successfully retrieved sale products
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  activeForSale:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          example: "507f1f77bcf86cd799439011"
-                        productName:
-                          type: string
-                          example: "Premium Smartphone"
-                        productImage:
-                          type: string
-                          example: "https://example.com/image.jpg"
-                        productPrice:
-                          type: number
-                          example: 599.99
-                        sale:
-                          type: boolean
-                          example: true
-                        seller:
-                          type: string
-                          example: "507f191e810c19729de860ea"
-                        createdAt:
-                          type: string
-                          format: date-time
-                        updatedAt:
-                          type: string
-                          format: date-time
-                  saleDiscount:
-                    type: number
-                    description: Current active discount percentage
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    productName:
+                      type: string
+                    productImage:
+                      type: string
+                    productPrice:
+                      type: number
+                    sale:
+                      type: boolean
+                    discountPercentage:
+                      type: number
+                    seller:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
         '404':
           description: |
             Not found - Possible reasons:
-            - No products currently on sale
-            - Sale period has ended (products will be automatically updated)
+            - No products currently on sale ("no products are there in sale")
+            - Sale period has ended ("sale is no longer exist!!!")
           content:
             application/json:
               schema:
@@ -2183,19 +2186,6 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "no products are there in sale"
-        '500':
-          description: Internal server error  
-        '404':
-          description: No active sale found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "sale is no longer exist!!!"
         '500':
           description: Internal server error  
 
@@ -2206,53 +2196,57 @@ paths:
       summary: Get limited sale products
       description: |
         Retrieves up to 6 products currently on sale.
-        Also checks if sale period has ended and updates product status accordingly.
-        Returns both sale products and current discount percentage.
+        Checks if sale period has ended and updates product status.
+        Returns array of active sale products (max 6 items).
       responses:
         '200':
           description: Successfully retrieved sale products
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  activeForSale:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                          example: "507f1f77bcf86cd799439011"
-                        productName:
-                          type: string
-                          example: "Premium Smartphone"
-                        productImage:
-                          type: string
-                          example: "https://example.com/image.jpg"
-                        productPrice:
-                          type: number
-                          example: 599.99
-                        sale:
-                          type: boolean
-                          example: true
-                        seller:
-                          type: string
-                          example: "507f191e810c19729de860ea"
-                        createdAt:
-                          type: string
-                          format: date-time
-                        updatedAt:
-                          type: string
-                          format: date-time
-                  saleDiscount:
-                    type: number
-                    description: Current discount percentage for the sale
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      example: "507f1f77bcf86cd799439011"
+                    productName:
+                      type: string
+                      example: "Premium Smartphone"
+                    productImage:
+                      type: string
+                      example: "https://example.com/image.jpg"
+                    productPrice:
+                      type: number
+                      example: 599.99
+                    sale:
+                      type: boolean
+                      example: true
+                    discountPercentage:
+                      type: number
+                      example: 15
+                    seller:
+                      type: string
+                      example: "507f191e810c19729de860ea"
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
         '404':
           description: |
             Not found - Possible reasons:
-            - No products currently on sale
-            - Sale period has ended
+            - No products currently on sale ("no products are there in sale")
+            - Sale period has ended ("sale is no longer exist!!!")
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
         '500':
           description: Internal server error             
  

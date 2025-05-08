@@ -171,6 +171,8 @@ export const deleteAllProduct = async (req, res, next)=>{
 //! active for sale
 
 export const addForSale = async (req, res, next) =>{
+
+    const {discountPercentage} = req.body
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
@@ -179,6 +181,7 @@ export const addForSale = async (req, res, next) =>{
              if(activeSale) return next(errorHandler(404, "sale is no longer exist!!!"))
 
             await Product.findByIdAndUpdate(req.params.productId,{
+                discountPercentage,
                 sale : true
             },{new : true})
 
