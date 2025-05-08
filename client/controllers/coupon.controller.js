@@ -41,7 +41,7 @@ export const applyCoupon = async (req, res, next)=>{
     const {coupon, totalPrice,cartItems} = req.body
 
     try {
-        const existingCoupon = await Coupon.findOne({coupon})
+                const existingCoupon = await Coupon.findOne({coupon})
 
         if(!existingCoupon) return next(errorHandler(404, "Coupon does not exist"))
 
@@ -72,7 +72,10 @@ export const applyCoupon = async (req, res, next)=>{
                         }
 
                         let eligibleTotal = eligibleItems.reduce((sum, item)=>{
-                            return sum + item.price
+                            // return (sum + item.price )* item.quantity
+                            let add = sum + item.price
+                            // console.log(add*item)
+                            return add*item.quantity
                         },0)
 
 

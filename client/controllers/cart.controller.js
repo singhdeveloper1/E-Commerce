@@ -85,6 +85,7 @@ export const viewCart = async (req, res, next)=>{
             image : product.productImage,
             price : product.productPrice,
             quantity : item.quantity,
+            category : product.category
             // totalPrice : product.productPrice * item.quantity
    }})
 
