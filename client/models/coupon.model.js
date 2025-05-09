@@ -33,6 +33,16 @@ const couponSchema = new mongoose.Schema({
         ref : "User"
     }],
 
+    validProducts : [
+        {
+            type : String
+        }   
+    ],
+
+    validCategories : {
+        type : [String]
+    },
+
     isForNewUser :{
         type : Boolean,
         default : false

@@ -1,4 +1,5 @@
 import Product from "../models/product.model.js"
+import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 // import moment from "moment-timezone"
@@ -7,7 +8,8 @@ import { errorHandler } from "../utils/errorHandler.js"
 //! sale
 
 export const sale = async (req, res, next)=>{
-    const {startTime, endTime, discount} = req.body
+    // const {startTime, endTime, discount} = req.body
+    const {startTime, endTime} = req.body
 
     const activeSale = await Sale.findOne()
 
@@ -16,7 +18,7 @@ export const sale = async (req, res, next)=>{
                 const newSale = new Sale({
                     startTime,
                     endTime,
-                    discount
+                    // discount
                 })
 
                 await newSale.save()
@@ -116,11 +118,14 @@ export const getSaleProduct = async (req, res, next)=>{
         const activeForSale = await Product.find({sale : true})
         if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
         
+            // const discount = await Sale.findOne()
+            // const saleDiscount = discount.discount
         
         const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
         if(activeSale) {
             activeForSale.forEach(async (product)=>{
-                product.sale = false
+                product.sale = false,
+                product.discountPercentage = 0
 
                 await product.save()
             })
@@ -132,6 +137,53 @@ export const getSaleProduct = async (req, res, next)=>{
         
     } catch (error) {
         console.log("get sale product m h error", error)
+        next(error)
+    }
+}
+
+//! get limited sale product
+
+export const getLimitedSaleProduct = async (req, res, next)=>{
+    try {
+        const activeForSale = await Product.find({sale : true}).skip(0).limit(6)
+        if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
+
+        const ProductsWithRating = await Promise.all(activeForSale.map(async item=>{
+
+         const reviews = await Review.find({productId : item._id})
+         let ratedPerson = 0
+         let averageRating = 0
+         if(reviews.length && reviews.length > 0){
+                 const total = reviews.reduce((sum,item)=>{
+                    return sum + item.rating
+                },0)
+                averageRating = total/reviews.length
+
+                 ratedPerson = reviews.length
+            }
+
+            return {
+                ...item.toObject(), averageRating, ratedPerson
+            }
+        }))
+
+        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
+
+        if(activeSale){
+            activeForSale.forEach(async (product)=>{
+                product.sale = false,
+                product.discountPercentage = 0
+                await product.save()
+            })
+
+            return next(errorHandler(404, "sale is no longer exist!!!"))
+        }
+
+        res.status(200).json(ProductsWithRating)
+
+        
+    } catch (error) {
+        console.log("get limited sale product m h error", error)
         next(error)
     }
 }
