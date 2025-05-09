@@ -47,7 +47,7 @@ export const applyCoupon = async (req, res, next)=>{
 
             if(existingCoupon.expiresAt < new Date()) return next(errorHandler(400, "Coupon was expired..."))
 
-                if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
+                // if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
 
                     const previousOrder = await Order.find({userId : req.user._id})
                      
@@ -106,10 +106,12 @@ export const applyCoupon = async (req, res, next)=>{
                         discountType : existingCoupon.discountType,
                         discountValue : existingCoupon.discountValue,
                         productId : existingCoupon.validProducts,
-                        category : existingCoupon.validCategories
+                        category : existingCoupon.validCategories,
+                        discountedPrice : discountedPrice
                     }
 
-                    res.status(200).json({discountedPrice, couponDetail})
+                    // res.status(200).json({discountedPrice, couponDetail})
+                    res.status(200).json(couponDetail)
 
 
     } catch (error) {

@@ -2258,6 +2258,13 @@ paths:
         - Order
       security:
         - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
       requestBody:
         required: true
         content:
