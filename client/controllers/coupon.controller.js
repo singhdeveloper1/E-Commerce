@@ -47,7 +47,7 @@ export const applyCoupon = async (req, res, next)=>{
 
             if(existingCoupon.expiresAt < new Date()) return next(errorHandler(400, "Coupon was expired..."))
 
-                if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
+                // if(existingCoupon.usedBy.includes(req.user._id)) return next(errorHandler(400, "you already used this coupon"))
 
                     const previousOrder = await Order.find({userId : req.user._id})
                      
@@ -62,11 +62,15 @@ export const applyCoupon = async (req, res, next)=>{
                          
                         if(validProductAndCategory){
                             eligibleItems = cartItems.filter(item=>{
-                                const productMatch = existingCoupon.validProducts.some(list => list == item.productId)
-                                const categoryMatch = existingCoupon.validCategories.includes(item.category)
+                                // const productMatch = existingCoupon.validProducts.some(list => list == item.productId)
+                                // const categoryMatch = existingCoupon.validCategories.includes(item.category)
+                                
+                                const productMatch = existingCoupon.validProducts?.includes(item.productId)
+                                const categoryMatch = existingCoupon.validCategories?.includes(item.category)
 
                                 return productMatch || categoryMatch
                             })
+
 
                             if(eligibleItems.length == 0) return next(errorHandler(400, "this coupon is only valid for specifc products or sprcific category!!!"))
                         }
@@ -78,8 +82,6 @@ export const applyCoupon = async (req, res, next)=>{
                             return add*item.quantity
                         },0)
 
-
-
                     let discountedPrice = ""
 
                     if(existingCoupon.discountType === "Percentage"){
@@ -88,13 +90,28 @@ export const applyCoupon = async (req, res, next)=>{
                         discountedPrice = totalPrice - TotalDiscount
                     }
                     else{
-                        discountedPrice = totalPrice - existingCoupon.discountValue
+                        // discountedPrice = totalPrice - existingCoupon.discountValue
+                        let discountToApply = Math.min(existingCoupon.discountValue, eligibleTotal)
+                        let finalPrice = totalPrice - eligibleTotal
+                        // discountedPrice = totalPrice - discountToApply
+                        discountedPrice = (eligibleTotal - (discountToApply*eligibleItems.length))  + finalPrice
                     }
 
                     existingCoupon.usedBy.push(req.user._id)
                     await existingCoupon.save()
 
-                    res.status(200).json(discountedPrice)
+
+                    const couponDetail = {
+                        coupon : existingCoupon.coupon,
+                        discountType : existingCoupon.discountType,
+                        discountValue : existingCoupon.discountValue,
+                        productId : existingCoupon.validProducts,
+                        category : existingCoupon.validCategories,
+                        discountedPrice : discountedPrice
+                    }
+
+                    // res.status(200).json({discountedPrice, couponDetail})
+                    res.status(200).json(couponDetail)
 
 
     } catch (error) {

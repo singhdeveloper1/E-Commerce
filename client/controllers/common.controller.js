@@ -42,7 +42,28 @@ export const sale = async (req, res, next)=>{
 export const getAllProduct = async (req, res, next)=>{
     try {
         const products = await Product.find()
-        res.status(200).json(products)
+
+        const ProductsWithRating = await Promise.all(products.map(async item=>{
+
+            const reviews = await Review.find({productId : item._id})
+            let ratedPerson = 0
+            let averageRating = 0
+            if(reviews.length && reviews.length > 0){
+                    const total = reviews.reduce((sum,item)=>{
+                       return sum + item.rating
+                   },0)
+                   averageRating = total/reviews.length
+   
+                    ratedPerson = reviews.length
+               }
+   
+               return {
+                   ...item.toObject(), averageRating, ratedPerson
+               }
+           }))
+
+        // res.status(200).json(products)
+        res.status(200).json(ProductsWithRating)
     } catch (error) {
         console.log("get all product common m h error", error)
         next(error)
@@ -54,7 +75,21 @@ export const getAllProduct = async (req, res, next)=>{
 export const getSpecificProduct = async (req, res, next)=>{
     try {
         const product = await Product.findById(req.params.productId)
-        res.status(200).json(product)
+
+             const reviews = await Review.find({productId : product._id})
+            let ratedPerson = 0
+            let averageRating = 0
+            if(reviews.length && reviews.length > 0){
+                    const total = reviews.reduce((sum,item)=>{
+                       return sum + item.rating
+                   },0)
+                   averageRating = total/reviews.length
+   
+                    ratedPerson = reviews.length
+               }
+
+        // res.status(200).json(product)
+        res.status(200).json({...product.toObject(), averageRating, ratedPerson})
     } catch (error) {
         console.log("get specific product common m h error", error)
         next(error)
@@ -69,7 +104,27 @@ export const getProductByCategory = async (req, res, next)=>{
 
         if(!product) return next(errorHandler(404, "no product found for this sub category"))
 
-        res.status(200).json(product)
+            const ProductsWithRating = await Promise.all(product.map(async item=>{
+
+                const reviews = await Review.find({productId : item._id})
+                let ratedPerson = 0
+                let averageRating = 0
+                if(reviews.length && reviews.length > 0){
+                        const total = reviews.reduce((sum,item)=>{
+                           return sum + item.rating
+                       },0)
+                       averageRating = total/reviews.length
+       
+                        ratedPerson = reviews.length
+                   }
+       
+                   return {
+                       ...item.toObject(), averageRating, ratedPerson
+                   }
+               }))
+
+        // res.status(200).json(product)
+        res.status(200).json(ProductsWithRating)
     } catch (error) {
         console.log("get product by category m h error", error)
         next(error)
@@ -82,7 +137,28 @@ export const getProductBySubCategory = async (req, res, next)=>{
     try {
         const product = await Product.find({subCategory : req.params.subCategory})
         if(!product) return next(errorHandler(404, "no product found for this subCategory"))
-        res.status(200).json(product)
+
+            const ProductsWithRating = await Promise.all(product.map(async item=>{
+
+                const reviews = await Review.find({productId : item._id})
+                let ratedPerson = 0
+                let averageRating = 0
+                if(reviews.length && reviews.length > 0){
+                        const total = reviews.reduce((sum,item)=>{
+                           return sum + item.rating
+                       },0)
+                       averageRating = total/reviews.length
+       
+                        ratedPerson = reviews.length
+                   }
+       
+                   return {
+                       ...item.toObject(), averageRating, ratedPerson
+                   }
+               }))
+
+        // res.status(200).json(product)
+        res.status(200).json(ProductsWithRating)
     } catch (error) {
         console.log("get product by subcategory m h error", error)
         next(error)
@@ -120,6 +196,25 @@ export const getSaleProduct = async (req, res, next)=>{
         
             // const discount = await Sale.findOne()
             // const saleDiscount = discount.discount
+
+            const ProductsWithRating = await Promise.all(activeForSale.map(async item=>{
+
+                const reviews = await Review.find({productId : item._id})
+                let ratedPerson = 0
+                let averageRating = 0
+                if(reviews.length && reviews.length > 0){
+                        const total = reviews.reduce((sum,item)=>{
+                           return sum + item.rating
+                       },0)
+                       averageRating = total/reviews.length
+       
+                        ratedPerson = reviews.length
+                   }
+       
+                   return {
+                       ...item.toObject(), averageRating, ratedPerson
+                   }
+               }))
         
         const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
         if(activeSale) {
@@ -132,7 +227,8 @@ export const getSaleProduct = async (req, res, next)=>{
             return next(errorHandler(404, "sale is no longer exist!!!"))
         }
 
-            res.status(200).json(activeForSale)
+            // res.status(200).json(activeForSale)
+            res.status(200).json(ProductsWithRating)
        
         
     } catch (error) {

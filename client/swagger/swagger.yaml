@@ -2264,7 +2264,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
       requestBody:
         required: true
         content:
@@ -2274,11 +2274,7 @@ paths:
               required:
                 - products
                 - payment
-                - firstName
-                - street
-                - city
-                - phone
-                - email
+                - address
               properties:
                 products:
                   type: array
@@ -2291,15 +2287,6 @@ paths:
                       productId:
                         type: string
                         description: ID of the product to order
-                      name:
-                        type: string
-                        description: Name of the product
-                      image:
-                        type: string
-                        description: URL of the product image
-                      price:
-                        type: string
-                        description: Price of the product
                       size:
                         type: string
                         enum: ["XS", "S", "M", "L", "XL"]
@@ -2312,29 +2299,38 @@ paths:
                 payment:
                   type: string
                   enum: ["COD", "Bank"]
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                company:
-                  type: string
-                street:
-                  type: string
-                apartment:
-                  type: string
-                city:
-                  type: string
-                state:
-                  type: string
-                pinCode:
-                  type: string
-                phone:
-                  type: string
-                country:
-                  type: string
-                email:
-                  type: string
-                  format: email
+                address:
+                  type: object
+                  required:
+                    - firstName
+                    - street
+                    - city
+                    - phone
+                    - email
+                  properties:
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    company:
+                      type: string
+                    street:
+                      type: string
+                    apartment:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    pinCode:
+                      type: string
+                    phone:
+                      type: string
+                    country:
+                      type: string
+                    email:
+                      type: string
+                      format: email
       responses:
         '200':
           description: Order placed successfully
@@ -2354,7 +2350,7 @@ paths:
                       properties:
                         productId:
                           type: string
-                        name:
+                        title:
                           type: string
                         image:
                           type: string

@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
             },
 
             
-                name : {
+                title : {
                     type : String,
                     required : true
                 },
@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema({
                 },           
 
                 price : {
-                    type : String,
+                    type : Number,
                     required : true
                 },
 
@@ -88,6 +88,12 @@ const orderSchema = new mongoose.Schema({
         match : [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "invalid email"],
         }
      }
+
+    // address : {
+    //     type : Schema.Types.ObjectId,
+    //     ref : "Address",
+    //     required : true
+    // }
 })
 
 const Order = mongoose.model("Order", orderSchema)
