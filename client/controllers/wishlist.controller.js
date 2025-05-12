@@ -22,6 +22,10 @@ export const addToWishlist = async (req, res, next)=>{
         }
 
         else{
+             wishlist.products.map(product => {
+                        if(product.productId == req.params.productId) return next(errorHandler(400, "already added in wishlist"))
+                    })
+
             wishlist.products.push({
                 productId : req.params.productId
             })
@@ -38,10 +42,26 @@ export const addToWishlist = async (req, res, next)=>{
 
 export const getWishlist = async (req, res, next)=>{
     try {
-        const wishlist = await AddToWishlist.find({userId : req.user._id}).populate("products.productId")
-
+        const wishlist = await AddToWishlist.findOne({userId : req.user._id}).populate("products.productId")
+        
         if(wishlist.length == 0) return next(errorHandler(404, "no product added in the wishlist"))
-        res.status(200).json(wishlist)
+            const product = wishlist.products.map(item=>{
+                const product = item.productId
+                return {
+            productId : product._id,
+            title : product.productName,
+            image : product.productImage,
+            price : product.productPrice,
+            size : product.productSize,
+            color : product.productColor,
+            category : product.category,
+            subCategory : product.subCategory,
+            discountPercentage : product.discountPercentage
+                }
+            })
+
+        // res.status(200).json(wishlist)
+        res.status(200).json(product)
     } catch (error) {
         console.log("get wishlist m h error", error)
         next(error)
