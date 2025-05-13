@@ -11,12 +11,17 @@ import cors from "cors"
 import commonRouter from "./routes/common.route.js"
 import orderRoute from "./routes/order.route.js"
 import couponRoute from "./routes/coupon.route.js"
+import paymentRoute from "./routes/payment.route.js"
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
+
+app.get("/",()=>{
+    res.send("hello")
+})
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
@@ -30,6 +35,7 @@ app.use("/api/review", reviewRouter)
 app.use("/api/common", commonRouter)
 app.use("/api/order", orderRoute)
 app.use("/api/coupon", couponRoute)
+app.use("/api/payment", paymentRoute)
 
 //! for error
 app.use((err, req, res, next)=>{

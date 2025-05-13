@@ -848,7 +848,7 @@ paths:
                   description: Product image file
                 category:
                   type: string
-                  enum : ["Woman's Fashion", "Men's Fashiom", "Electronics", "Home and LifeStyle", "Medicine", "Sports & Outdoor", "Baby's & Toys", "Groceries & Pets", "Health & Beauty" ]
+                  enum : ["Woman's_Fashion", "Men's_Fashiom", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty" ]
                   description: category of the product
                   example: Electronics
                 subCategory:
@@ -1670,7 +1670,7 @@ paths:
         '500':
           description: Internal server error
 
-  /api/cart/addToWishlist/{productId}:
+  /api/wishlist/addToWishlist/{productId}:
     post:
       summary: Add product to wishlist
       description: |
@@ -1706,7 +1706,7 @@ paths:
         '500':
           description: Internal server error 
 
-  /api/cart/viewWishlist:
+  /api/wishlist/viewWishlist:
     get:
       summary: View user's wishlist
       description: Retrieves the authenticated user's wishlist with product details
@@ -1766,7 +1766,7 @@ paths:
         '500':
           description: Internal server error  
 
-  /api/cart/deleteOneWishlist/{productId}:
+  /api/wishlist/deleteOneWishlist/{productId}:
     delete:
       summary: Remove product from Wishlist
       description: |
@@ -1802,7 +1802,7 @@ paths:
         '500':
           description: Internal server error  
 
-  /api/cart/deleteFullWishlist:
+  /api/wishlist/deleteFullWishlist:
     delete:
       summary: Delete entire wishlist
       description: Completely removes the authenticated user's wishlist
