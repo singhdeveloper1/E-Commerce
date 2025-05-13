@@ -4,6 +4,8 @@ info:
   version: 1.0.0
   description: API for user registration, login, and other functionalities.
 servers:
+  - url: https://e-commerce-hao1.onrender.com
+    description: Deployed server  
   - url: http://localhost:1200
     description: Local server
 
