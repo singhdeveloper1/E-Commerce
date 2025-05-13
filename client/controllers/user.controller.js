@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs"
 import OTP from "../models/otp.model.js"
 import sendMail from "../mailsender/mailsender.js"
 import BlackListToken from "../models/blacklistToken.model.js"
+import AddToCart from "../models/addToCart.model.js"
 
 
 //! register
@@ -46,7 +47,7 @@ export const userRegister = async (req, res, next)=>{
 export const userLogin = async (req, res, next)=>{
 
     try {
-        const { phone, email, password} = req.body
+        const { phone, email, password, guestCart} = req.body
 
         const existingUser = await User.findOne({$or : [{email, phone}]})
 
@@ -59,6 +60,41 @@ export const userLogin = async (req, res, next)=>{
             const checkPassword = await existingUser.isPasswordCorrect(password)
 
             if(!checkPassword) return next(errorHandler(401, "Not a existing user"))
+
+
+                //! merging the cart item which was added without login
+
+                if(guestCart && guestCart.length > 0){
+
+                    let quantity = 1
+
+                const cart = await AddToCart.findOne({userId : existingUser._id})
+
+                if(!cart){
+                    const newCart = new AddToCart({
+                        userId : existingUser._id,
+                        products : guestCart
+                    })
+                    await newCart.save()
+                }
+                else{
+                    guestCart.forEach(item =>{
+                        const existingCart = cart.products.find(product=> product.productId == item.productId)
+
+                        if(existingCart){
+                            // existingCart.quantity += item.quantity
+                            existingCart.quantity += 1
+                        }
+                        else{
+                            cart.products.push({
+                                productId : item.productId,
+                                quantity
+                            })
+                        }
+                    })
+                    await cart.save()
+                }
+            }
 
 
                 await Token.findOneAndDelete({userId : existingUser._id})
