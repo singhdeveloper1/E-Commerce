@@ -19,7 +19,7 @@ app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 
-app.get("/",()=>{
+app.get("/",(req, res)=>{
     res.send("hello")
 })
 
