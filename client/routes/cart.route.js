@@ -4,8 +4,8 @@ import { authentication } from "../middlewares/auth.middleware.js"
 
 const router = express.Router()
 
-// router.post("/addToCart/:productId", authentication, addToCart)
-router.post("/addToCart/:productId", addToCart)
+router.post("/addToCart/:productId", authentication, addToCart)
+// router.post("/addToCart/:productId", addToCart)
 router.get("/viewCart", authentication, viewCart)
 router.post("/viewGuestCart", viewGuestCart)
 // router.patch("/updateCartQuantity/:productId" , authentication, updateCartQuantity)

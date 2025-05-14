@@ -29,19 +29,10 @@ import { errorHandler } from "../utils/errorHandler.js"
 export const addToCart = async (req, res, next)=>{
 
     let quantity = 1
-    const id = req.user?._id
-    console.log(id)
     
    try {
-
-    if(!req.user?._id){
-        return res.status(200).json("guest user!!, item stored in local storage")
-    }
-
-
     const cart = await AddToCart.findOne({userId : req.user?._id})
-
-    
+   
 
     if(!cart){
         const added = new AddToCart({

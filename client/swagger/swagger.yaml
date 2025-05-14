@@ -1486,13 +1486,18 @@ paths:
       summary: Add product to cart
       description: |
         Adds a product to the user's cart with default quantity of 1.
-        For guest users, returns instruction to store in local storage.
-        For authenticated users: creates new cart if none exists, or appends to existing cart.
+        creates new cart if none exists, or appends to existing cart.
       tags:
         - Cart
       security:
         - bearerAuth: []  # Optional for guest users
       parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
         - in: path
           name: productId
           required: true
@@ -1500,13 +1505,6 @@ paths:
             type: string
           description: ID of the product to add to cart
       responses:
-        '200':
-          description: Guest user - store item in local storage
-          content:
-            application/json:
-              schema:
-                type: string
-                example: "guest user!!, item stored in local storage"
         '201':
           description: Product added to cart successfully
           content:
