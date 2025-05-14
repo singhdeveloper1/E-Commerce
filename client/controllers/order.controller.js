@@ -5,6 +5,8 @@ import { errorHandler } from "../utils/errorHandler.js"
 
 //! place order
 export const placeOrder = async (req, res, next)=>{
+
+    const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
     try {
 
         const cartItems = req.body.products        
@@ -29,10 +31,40 @@ export const placeOrder = async (req, res, next)=>{
             })
         )
 
+        //! if payment method is Bank
+
+        let paymentVerified = false
+        let paymentStatus = pending
+
+        if(req.body.payment == "Bank"){
+                const body = razorpay_order_id + "|" + razorpay_payment_id
+            
+                const expectedSignature =  crypto.createHmac("sha256", "razorpay_key_secret")
+                                                 .update(body.toString())                           
+                                                 .digest("hex")
+            
+                    if(expectedSignature === razorpay_signature){
+            
+                        paymentStatus = "Paid",
+                        paymentVerified = true
+            
+                        res.json("payment verified successfull")
+                    }
+                    else{
+                        return next(errorHandler(400, "Payment Verification Failed!!!"))
+                    }
+        }
+
         const orderedProduct = new Order({
             userId : req.user._id,
             products : products,
-            payment : req.body.payment,
+            // payment : req.body.payment,
+            payment : {
+                method : req.body.payment,
+                status : paymentStatus,
+                paymentId : razorpay_payment_id,
+                orderId : razorpay_order_id
+            },
             // address : {
             //     firstName : req.body.firstName,
             //     lastName : req.body.lastName,

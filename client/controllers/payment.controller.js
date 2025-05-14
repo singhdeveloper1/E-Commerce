@@ -22,22 +22,22 @@ export const order = async (req, res, next)=>{
 
 //! payment verification
 
-export const paymentVerification = async (req, res , next)=>{
-    const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
+// export const paymentVerification = async (req, res , next)=>{
+//     const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
 
-    const body = razorpay_order_id + "|" + razorpay_payment_id
+//     const body = razorpay_order_id + "|" + razorpay_payment_id
 
-    const expectedSignature =  crypto.createHmac("sha256", "razorpay_key_secret")
-                                     .update(body.toString())                           
-                                     .digest("hex")
+//     const expectedSignature =  crypto.createHmac("sha256", "razorpay_key_secret")
+//                                      .update(body.toString())                           
+//                                      .digest("hex")
 
-        if(expectedSignature === razorpay_signature){
+//         if(expectedSignature === razorpay_signature){
 
-            //! store in db
+//             //! store in db
 
-            res.json("payment verified successfull")
-        }
-        else{
-            res.json("invalid signature")
-        }
-}
+//             res.json("payment verified successfull")
+//         }
+//         else{
+//             res.json("invalid signature")
+//         }
+// }
