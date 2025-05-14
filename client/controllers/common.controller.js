@@ -321,7 +321,30 @@ export const getBestSelling = async (req, res, next)=>{
             }
         ]) 
 
-        res.status(200).json(order)
+        //! for rating
+
+        const ProductsWithRating = await Promise.all(order.map(async item=>{
+
+         const reviews = await Review.find({productId : item._id})
+         let ratedPerson = 0
+         let averageRating = 0
+         if(reviews.length && reviews.length > 0){
+                 const total = reviews.reduce((sum,item)=>{
+                    return sum + item.rating
+                },0)
+                averageRating = total/reviews.length
+
+                 ratedPerson = reviews.length
+            }
+
+            return {
+                // ...item.toObject(), averageRating, ratedPerson
+                ...item, averageRating, ratedPerson
+            }
+        }))
+        console.log(ProductsWithRating)
+
+        res.status(200).json(ProductsWithRating)
 
     } catch (error) {
         console.log("get best selling m h error", error)
