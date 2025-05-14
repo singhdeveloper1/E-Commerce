@@ -1,3 +1,4 @@
+import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
@@ -280,6 +281,50 @@ export const getLimitedSaleProduct = async (req, res, next)=>{
         
     } catch (error) {
         console.log("get limited sale product m h error", error)
+        next(error)
+    }
+}
+
+//! get best selling
+
+export const getBestSelling = async (req, res, next)=>{
+    try {
+        const order = await Order.aggregate([
+            {
+                $unwind :"$products"
+            },
+            {
+                $group : {
+                    _id : "$products.productId",
+                    totalSold : {$sum : "$products.quantity"}
+                }
+            },
+            {
+                $sort : {totalSold : -1}
+            },
+            {
+                $limit : 20
+            },
+            {
+                $lookup : {
+                    from : "products",
+                    localField : "_id",
+                    foreignField : "_id",
+                    as : "product"
+                }
+            },
+            {
+                $unwind : "$product"
+            },
+            {
+                $project : {_id : 0, product : 1}
+            }
+        ]) 
+
+        res.status(200).json(order)
+
+    } catch (error) {
+        console.log("get best selling m h error", error)
         next(error)
     }
 }

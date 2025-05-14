@@ -2343,7 +2343,41 @@ paths:
                   message:
                     type: string
         '500':
-          description: Internal server error             
+          description: Internal server error  
+
+  /api/common/getBestSelling:
+    get:
+      tags:
+        - Common
+      summary: Get best selling products
+      description: |
+        Retrieves top 20 best selling products based on total quantity sold.
+        Returns product details.
+      responses:
+        '200':
+          description: Successfully retrieved best selling products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        productName:
+                          type: string
+                        productImage:
+                          type: string
+                        productPrice:
+                          type: number
+                        category:
+                          type: string
+        '500':
+          description: Internal server error                     
  
   /api/order/placeOrder:
     post:

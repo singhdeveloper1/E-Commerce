@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllProduct, getLimitedSaleProduct, getNewArrival, getProductByCategory, getProductBySubCategory, getSaleProduct, getSpecificProduct, sale } from "../controllers/common.controller.js"
+import { getAllProduct, getBestSelling, getLimitedSaleProduct, getNewArrival, getProductByCategory, getProductBySubCategory, getSaleProduct, getSpecificProduct, sale } from "../controllers/common.controller.js"
 
 const router = express.Router()
 
@@ -12,5 +12,6 @@ router.get("/getProductBySubCategory/:subCategory", getProductBySubCategory)
 router.get("/getNewArrival", getNewArrival)
 router.get("/getSaleProduct", getSaleProduct)
 router.get("/getLimitedSaleProduct", getLimitedSaleProduct)
+router.get("/getBestSelling", getBestSelling)
 
 export default router

@@ -114,7 +114,7 @@ const orderSchema = new mongoose.Schema({
     //     ref : "Address",
     //     required : true
     // }
-})
+},{timestamps : true})
 
 const Order = mongoose.model("Order", orderSchema)
 
