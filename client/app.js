@@ -12,6 +12,7 @@ import commonRouter from "./routes/common.route.js"
 import orderRoute from "./routes/order.route.js"
 import couponRoute from "./routes/coupon.route.js"
 import paymentRoute from "./routes/payment.route.js"
+import carouselRoute from "./routes/carousel.route.js"
 
 const app = express()
 
@@ -36,6 +37,7 @@ app.use("/api/common", commonRouter)
 app.use("/api/order", orderRoute)
 app.use("/api/coupon", couponRoute)
 app.use("/api/payment", paymentRoute)
+app.use("/api/carousel", carouselRoute)
 
 //! for error
 app.use((err, req, res, next)=>{
