@@ -1,4 +1,5 @@
 import AddToCart from "../models/addToCart.model.js"
+import Product from "../models/product.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 
 //! add to cart
@@ -28,19 +29,10 @@ import { errorHandler } from "../utils/errorHandler.js"
 export const addToCart = async (req, res, next)=>{
 
     let quantity = 1
-    const id = req.user?._id
-    console.log(id)
     
    try {
-
-    if(!req.user?._id){
-        return res.status(200).json("guest user!!, item stored in local storage")
-    }
-
-
     const cart = await AddToCart.findOne({userId : req.user?._id})
-
-    
+   
 
     if(!cart){
         const added = new AddToCart({
@@ -107,6 +99,37 @@ export const viewCart = async (req, res, next)=>{
     next(error)
    }
    
+}
+
+//! view guest Cart
+
+export const viewGuestCart = async (req, res, next)=>{
+    const {guestCart} = req.body
+
+    try {
+        const productId = guestCart.map(item => item.productId)
+
+        const product = await Product.find({_id : {$in: productId}})
+
+        if(product.length == 0) return next(errorHandler(404, "no product added in the cart!!"))
+
+        const cart = product.map(product =>{
+            return {
+                productId : product._id,
+                title : product.productName,
+                image : product.productImage,
+                price : product.productPrice,
+                quantity : 1,
+                category : product.category
+            }
+        })
+
+        res.status(200).json(cart)
+
+    } catch (error) {
+        console.log("view guest cart m h error", error)
+        next(error)
+    }
 }
 
 //! update cart product Quantity
