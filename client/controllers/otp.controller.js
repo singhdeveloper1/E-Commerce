@@ -8,9 +8,12 @@ export const getOTP = async (req, res, next) =>{
     const {email, phone} = req.body
 
     if(!phone && !email) return next(errorHandler(400,"email or phone is required to send otp"))
+
+        await OTP.findOneAndDelete({$or : [{email, phone}]})
         
 
-        const otp =  Math.floor(Math.random() * 10000)
+        // const otp =  Math.floor(Math.random() * 10000)
+        const otp = Math.floor(100000 + Math.random() * 900000);
 
         sendMail(email, "One Time Password!!" , `this is the OTP <h2>${otp}</h2 for your email and its only valid for <h3>5 Min</h3>`)
 
@@ -32,10 +35,8 @@ export const getOTP = async (req, res, next) =>{
 
 export const verifyOTP = async (req, res, next)=>{
     const {email, phone, otp} = req.body
-    console.log("from body", req.body.otp)
 
     const existingOTP = await OTP.findOne({$or : [{email, phone}]})
-    console.log("from db" , existingOTP.otp)
 
     if(!existingOTP) return next(errorHandler(404,"otp is not present"))
 
@@ -46,6 +47,8 @@ export const verifyOTP = async (req, res, next)=>{
         console.log(existingOTP.otp === otp)
 
       if(otp != DB_OTP) return next(errorHandler(401, "invalid otp"))
+
+        // await OTP.findOneAndDelete({$or : [{email, phone}]})
 
         try {
             await OTP.findByIdAndUpdate(existingOTP._id,{

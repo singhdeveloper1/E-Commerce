@@ -184,33 +184,36 @@ export const google = async (req, res,next)=>{
 
 //! forgot password 
 
-export const forgotPassword = async (req, res, next)=>{
+// export const forgotPassword = async (req, res, next)=>{
 
-    try {
-        const {email, phone} = req.body
-        if(!email && !phone) return next(errorHandler(400, "please provide email or phone first"))
+//     try {
+//         const {email, phone} = req.body
+//         if(!email && !phone) return next(errorHandler(400, "please provide email or phone first"))
 
-           const otp =  Math.floor(Math.random() * 1000000)
+//         //    const otp =  Math.floor(Math.random() * 1000000)
+//         //    const otp =  Math.floor(Math.random() * 900000)
+//         const otp = Math.floor(100000 + Math.random() * 900000);
+        
 
-           sendMail(email, "Use this Password to login!!", `Use this password ${otp} to login your account.. it is recommended to change password once you logged in successfully!!!` )
+//            sendMail(email, "Use this Password to login!!", `Use this password ${otp} to login your account.. it is recommended to change password once you logged in successfully!!!` )
 
-           const string = otp.toString()
+//            const string = otp.toString()
 
-           const hashed = await bcrypt.hash(string, 10)
+//            const hashed = await bcrypt.hash(string, 10)
 
-            await User.findOneAndUpdate({email},{
-            password : hashed
-           },{new : true})
+//             await User.findOneAndUpdate({email},{
+//             password : hashed
+//            },{new : true})
 
-           res.status(200).json("password sent successfull to you email address, use that password to login!!")
+//            res.status(200).json("password sent successfull to you email address, use that password to login!!")
            
-    } catch (error) {
-        console.log("forgot password m h error", error)
-        next(error)
-    }
+//     } catch (error) {
+//         console.log("forgot password m h error", error)
+//         next(error)
+//     }
 
 
-}
+// }
 
 //! get user data
 
@@ -391,6 +394,28 @@ export const userLogout = async (req, res)=>{
         res.status(200).json("logged out successfully!!!")
     } catch (error) {
         console.log("logout m h error", error)
+        next(error)
+    }
+}
+
+
+//! new password
+
+export const newPassword = async (req, res, next)=>{
+    const {email, newPassword, phone} = req.body
+    try {
+        const verification = await OTP.findOne({$or : [{email, phone}]})
+        if(!verification || !verification.verified) return next(errorHandler(401,"please verify your email or phone first"))
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+            await User.findOneAndUpdate({$or : [{email, phone}]},{
+                password : hashedPassword
+            }, {new : true})
+
+            res.status(200).json("password changed successfully")
+    } catch (error) {
+        console.log("new password m h error", error)
         next(error)
     }
 }

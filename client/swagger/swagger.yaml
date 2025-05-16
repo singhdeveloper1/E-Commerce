@@ -672,6 +672,54 @@ paths:
         '500':
           description: Internal server error
 
+  /api/user/newPassword:
+    patch:
+      tags:
+        - User
+      summary: Update user password
+      description: |
+        Updates user password after verification.
+        Requires either email or phone verification via OTP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - newPassword
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User's email address (either email or phone required)
+                phone:
+                  type: string
+                  description: User's phone number (either email or phone required)
+                newPassword:
+                  type: string
+                  description: New password to set
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "password changed successfully"
+        '401':
+          description: Unauthorized - Email/phone not verified
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "please verify your email or phone first"
+        '500':
+          description: Internal server error          
+
   /api/user/switchToSeller:
     patch:
       summary: Switch user to seller role
