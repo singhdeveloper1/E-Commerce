@@ -2375,7 +2375,44 @@ paths:
                         category:
                           type: string
         '500':
-          description: Internal server error                     
+          description: Internal server error  
+
+  /api/common/getCarousel:
+    get:
+      tags:
+        - Common
+      summary: Get all carousel items
+      description: Retrieves all active carousel items
+      responses:
+        '200':
+          description: Successfully retrieved carousel items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    image:
+                      type: string
+                    title:
+                      type: string
+                    subTitle:
+                      type: string
+                    link:
+                      type: string
+                    isActive:
+                      type: boolean
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error                             
  
   /api/order/placeOrder:
     post:
@@ -2784,3 +2821,242 @@ paths:
           description: Coupon not found
         '500':
           description: Internal server error
+
+  /api/carousel/addCarousel:
+    post:
+      tags:
+        - Carousel
+      summary: Add new carousel item (Seller only)
+      description: |
+        Creates a new carousel item with image upload.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - subTitle
+                - link
+                - image
+                - isActive
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Carousel image file
+                title:
+                  type: string
+                  description: Main title for the carousel
+                subTitle:
+                  type: string
+                  description: Subtitle for the carousel
+                link:
+                  type: string
+                  description: URL link for the carousel
+                isActive:
+                  type: boolean
+                  default: true
+                  description: Whether the carousel is active
+      responses:
+        '200':
+          description: Carousel added successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Carousel added successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!!"
+        '500':
+          description: Internal server error     
+
+  /api/carousel/updateCarousel/{carouselId}:
+    patch:
+      tags:
+        - Carousel
+      summary: Update carousel item (Seller only)
+      description: |
+        Updates an existing carousel item with optional image upload.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: carouselId
+          required: true
+          schema:
+            type: string
+          description: ID of the carousel to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: New carousel image file
+                title:
+                  type: string
+                  description: Updated title for the carousel
+                subTitle:
+                  type: string
+                  description: Updated subtitle for the carousel
+                link:
+                  type: string
+                  description: Updated URL link for the carousel
+                isActive:
+                  type: boolean
+                  description: Updated active status for the carousel
+      responses:
+        '200':
+          description: Carousel updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "carousel updated successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error    
+
+  /api/carousel/deleteCarousel/{carouselId}:
+    delete:
+      tags:
+        - Carousel
+      summary: Delete carousel item (Seller only)
+      description: |
+        Deletes an existing carousel item.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: carouselId
+          required: true
+          schema:
+            type: string
+          description: ID of the carousel to delete
+      responses:
+        '200':
+          description: Carousel deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "carousel deleted successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error      
+
+  /api/carousel/getSpecificCarousel/{carouselId}:
+    get:
+      tags:
+        - Carousel
+      summary: Get specific carousel item (Seller only)
+      description: Retrieves a specific carousel item by ID. Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: carouselId
+          required: true
+          schema:
+            type: string
+          description: ID of the carousel to retrieve
+      responses:
+        '200':
+          description: Successfully retrieved carousel item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  image:
+                    type: string
+                  title:
+                    type: string
+                  subTitle:
+                    type: string
+                  link:
+                    type: string
+                  isActive:
+                    type: boolean
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error                         

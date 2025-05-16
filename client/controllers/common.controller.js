@@ -1,3 +1,5 @@
+import Carousel from "../models/carousel.model.js"
+import Member from "../models/member.model.js"
 import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import Review from "../models/review.model.js"
@@ -342,12 +344,36 @@ export const getBestSelling = async (req, res, next)=>{
                 ...item, averageRating, ratedPerson
             }
         }))
-        console.log(ProductsWithRating)
-
         res.status(200).json(ProductsWithRating)
 
     } catch (error) {
         console.log("get best selling m h error", error)
+        next(error)
+    }
+}
+
+//! get carousel
+
+export const getCarousel = async (req, res, next)=>{
+    try {
+        const carousel = await Carousel.find()
+
+        res.status(200).json(carousel)
+       
+    } catch (error) {
+        console.log("get carousel m h error", error)
+        next(error)
+    }
+}
+
+//! get Member
+
+export const getMember = async (req, res, next)=>{
+    try {
+        const member = await Member.find()
+        res.status(200).json(member)
+    } catch (error) {
+        console.log("get member m h error", error)
         next(error)
     }
 }

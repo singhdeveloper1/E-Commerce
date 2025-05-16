@@ -74,7 +74,7 @@ export const viewCart = async (req, res, next)=>{
    try {
     const view = await AddToCart.findOne({userId : req.user._id}).populate("products.productId")
 
-    if(view.length == 0) return next(errorHandler(404, "No product added in the cart"))
+    if(!view || view.length == 0) return next(errorHandler(404, "No product added in the cart"))
 
 
         const cart = view.products.map(item=>{
