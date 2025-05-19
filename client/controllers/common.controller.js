@@ -190,16 +190,16 @@ export const getNewArrival = async (req, res, next)=>{
     try {
         const product = await Product.find().sort({createdAt : -1}).limit(5)
 
-        res.status(200).json(product)
+        // res.status(200).json(product)
 
-        // const groupByCategory = {}
-        // product.forEach((item)=>{
-        //     if(!groupByCategory[item.category]){
-        //         groupByCategory[item.category] = []
-        //     }
-        //     groupByCategory[item.category].push(item)
-        // })
-        // res.status(200).json(groupByCategory)
+        const groupByCategory = {}
+        product.forEach((item)=>{
+            if(!groupByCategory[item.category]){
+                groupByCategory[item.category] = []
+            }
+            groupByCategory[item.category].push(item)
+        })
+        res.status(200).json(groupByCategory)
     } catch (error) {
         console.log("get new Arrival m h error", error)
         next(error)

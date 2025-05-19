@@ -3433,4 +3433,60 @@ paths:
                     type: number
                     description: Total gross sales amount for the last year
         '500':
-          description: Internal server error                                                           
+          description: Internal server error
+
+  /api/dashboard/getDetails:
+    get:
+      tags:
+        - Dashboard
+      summary: Get comprehensive dashboard metrics
+      description: |
+        Retrieves key business metrics including:
+        - Sales totals (all-time, yearly, monthly)
+        - Order counts (all-time, yearly, monthly)
+        - User statistics (total users, new users)
+        - Payment method distribution
+      responses:
+        '200':
+          description: Successfully retrieved dashboard metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalSales:
+                    type: number
+                    description: All-time total sales amount
+                  yearlySales:
+                    type: number
+                    description: Total sales in last 12 months
+                  monthlySales:
+                    type: number
+                    description: Total sales in last 30 days
+                  totalOrders:
+                    type: number
+                    description: All-time total orders count
+                  yearlyOrders:
+                    type: number
+                    description: Orders in last 12 months
+                  monthlyOrders:
+                    type: number
+                    description: Orders in last 30 days
+                  totalUsers:
+                    type: number
+                    description: Total registered users
+                  monthNewUsers:
+                    type: number
+                    description: New users in last 30 days
+                  paymentMethods:
+                    type: object
+                    properties:
+                      Bank:
+                        type: number
+                        description: Count of Bank transfer Orders
+                      COD:
+                        type: number  
+                        description: Count of Cash on Deliveries Order
+                    description: Count of orders by payment method (e.g., {"COD": 25, "Bank": 10})
+        '500':
+          description: Internal server error                                                                     
