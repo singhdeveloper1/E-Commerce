@@ -2460,7 +2460,49 @@ paths:
                       type: string
                       format: date-time
         '500':
-          description: Internal server error                             
+          description: Internal server error  
+
+  /api/common/getMember:
+    get:
+      tags:
+        - Common
+      summary: Get all members
+      description: Retrieves a list of all members
+      responses:
+        '200':
+          description: Successfully retrieved members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    name:
+                      type: string
+                    designation:
+                      type: string
+                    image:
+                      type: string
+                    social:
+                      type: object
+                      properties:
+                        twitter:
+                          type: string
+                        instagram:
+                          type: string
+                        linkedin:
+                          type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '500':
+          description: Internal server error                                     
  
   /api/order/placeOrder:
     post:
@@ -3107,4 +3149,288 @@ paths:
                     type: string
                     example: "you are not a seller!!"
         '500':
-          description: Internal server error                         
+          description: Internal server error     
+          
+  /api/member/addMember:
+    post:
+      tags:
+        - Member
+      summary: Add new team member (Seller only)
+      description: |
+        Creates a new team member with image upload.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - name
+                - designation
+                - social
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Member profile image (required)
+                name:
+                  type: string
+                  description: Member's full name (required)
+                designation:
+                  type: string
+                  description: Member's position/role (required)
+                social:
+                  type: string
+                  description: |
+                    JSON string containing social links with defaults:
+                    {
+                      "twitter": "twitter.com",
+                      "instagram": "instagram.com",
+                      "linkedin": "linkedin.com"
+                    }
+                  example: '{"twitter":"","instagram":"","linkedin":""}'
+      responses:
+        '200':
+          description: Member added successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "member added successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error     
+          
+  /api/member/updateMember/{memberId}:
+    patch:
+      tags:
+        - Member
+      summary: Update team member (Seller only)
+      description: |
+        Updates an existing team member with optional image upload.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: string
+          description: ID of the member to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: New profile image (optional - retains current if not provided)
+                name:
+                  type: string
+                  description: Updated full name
+                designation:
+                  type: string
+                  description: Updated position/role
+                social:
+                  type: string
+                  description: |
+                    Updated JSON string of social links with defaults:
+                    {
+                      "twitter": "twitter.com",
+                      "instagram": "instagram.com", 
+                      "linkedin": "linkedin.com"
+                    }
+                  example: '{"twitter":"","instagram":"","linkedin":""}'
+      responses:
+        '200':
+          description: Member updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "member updated successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error
+
+  /api/member/deleteMember/{memberId}:
+    delete:
+      tags:
+        - Member
+      summary: Delete team member (Seller only)
+      description: |
+        Deletes an existing team member.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: string
+          description: ID of the member to delete
+      responses:
+        '200':
+          description: Member deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "member deleted successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!"
+        '500':
+          description: Internal server error
+
+  /api/member/getSpecificMember/{memberId}:
+    get:
+      tags:
+        - Member
+      summary: Get specific team member (Seller only)
+      description: Retrieves details of a specific team member by ID. Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: string
+          description: ID of the member to retrieve
+      responses:
+        '200':
+          description: Successfully retrieved member details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  image:
+                    type: string
+                  name:
+                    type: string
+                  designation:
+                    type: string
+                  social:
+                    type: object
+                    properties:
+                      twitter:
+                        type: string
+                      instagram:
+                        type: string
+                      linkedin:
+                        type: string
+                  createdAt:
+                    type: string
+                    format: date-time
+                  updatedAt:
+                    type: string
+                    format: date-time
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller"
+        '500':
+          description: Internal server error      
+
+  /api/common/getAnnualReport:
+    get:
+      tags:
+        - Common
+      summary: Get annual sales report
+      description: |
+        Retrieves comprehensive sales analytics including:
+        - Active users (last 30 days)
+        - Active sellers (last 30 days)
+        - Monthly product sales count
+        - Annual gross sales amount
+      responses:
+        '200':
+          description: Successfully retrieved annual report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeUsers:
+                    type: number
+                    description: Count of unique users who placed orders in last 30 days
+                  activeSellers:
+                    type: number
+                    description: Count of unique sellers with sales in last 30 days
+                  monthlyProductSale:
+                    type: number
+                    description: Total number of products sold in last 30 days
+                  annualGrossSale:
+                    type: number
+                    description: Total gross sales amount for the last year
+        '500':
+          description: Internal server error                                                           

@@ -10,6 +10,11 @@ export const placeOrder = async (req, res, next)=>{
     try {
 
         const cartItems = req.body.products        
+        // let cartItems = req.body.products        
+
+        // if(!Array.isArray(cartItems)){
+        //     cartItems = [cartItems]
+        // }
 
         const products = await Promise.all(
             cartItems.map(async (item)=>{
