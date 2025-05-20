@@ -1,3 +1,5 @@
+import mongoose from "mongoose"
+import Order from "../models/order.model.js"
 import Review from "../models/review.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 
@@ -5,9 +7,26 @@ import { errorHandler } from "../utils/errorHandler.js"
 export const writeReview = async (req, res, next)=>{
     const {rating, comment} = req.body
 
-    try {
-    if(!rating) return next(errorHandler(400, "please rate between 1 to 5"))
+     try {   
+    const result = await Order.aggregate([
+        {
+            $match : {userId : req.user._id}
+        },
+        {
+            $unwind : "$products"
+        },
+        {
+            $match : {"products.productId" :new mongoose.Types.ObjectId(String(req.params.productId))}
+        },
+        {
+            $limit : 1
+        }
+    ])
 
+    if(result.length == 0) return next(errorHandler(401, "You only allowed to review on purchased product"))
+
+
+    if(!rating) return next(errorHandler(400, "please rate between 1 to 5"))
         const review = await Review.findOne({userId : req.user._id, productId : req.params.productId})
 
         if(review){

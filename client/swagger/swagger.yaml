@@ -1423,7 +1423,9 @@ paths:
   /api/review/writeReview/{productId}:
     post:
       summary: Write or update a product review
-      description: Submit or update a review for a specific product
+      description: |
+        Submit or update a review for a specific product.
+        User must have purchased the product to review it.
       tags:
         - Review
       security:
@@ -1434,7 +1436,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
         - in: path
           name: productId
           required: true
@@ -1454,11 +1456,11 @@ paths:
                   type: number
                   minimum: 1
                   maximum: 5
-                  example: 5
+                  description: Rating between 1-5 stars
                 comment:
                   type: string
                   maxLength: 200
-                  example: "Great product!"
+                  description: Optional review comment
       responses:
         '200':
           description: Review submitted successfully
@@ -1515,7 +1517,7 @@ paths:
                             type: string
                             format: date-time
         '400':
-          description: Rating is required
+          description: Bad request
           content:
             application/json:
               schema:
@@ -1523,9 +1525,11 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "please rate between 1 to 5"
+                    examples:
+                      noRating: "please rate between 1 to 5"
+                      notPurchased: "You only allowed to review on purchased product"
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid token or not logged in
         '500':
           description: Internal server error  
           
