@@ -4,6 +4,7 @@ import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
+import User from "../models/user.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 // import moment from "moment-timezone"
 
@@ -91,8 +92,23 @@ export const getSpecificProduct = async (req, res, next)=>{
                     ratedPerson = reviews.length
                }
 
+                       const products = {
+                        productId : product._id,
+                        title : product.productName,
+                        image : product.productImage,
+                        price : product.productPrice,
+                        description : product.productDescription,
+                        size : product.productSize,
+                        color : product.productColor,
+                        category : product.category,
+                        subCategory : product.subCategory,
+                        averageRating,
+                        ratedPerson
+         // totalPrice : product.productPrice * item.quantity
+   }
         // res.status(200).json(product)
-        res.status(200).json({...product.toObject(), averageRating, ratedPerson})
+        // res.status(200).json({...product.toObject(), averageRating, ratedPerson})
+        res.status(200).json(products)
     } catch (error) {
         console.log("get specific product common m h error", error)
         next(error)
@@ -174,16 +190,16 @@ export const getNewArrival = async (req, res, next)=>{
     try {
         const product = await Product.find().sort({createdAt : -1}).limit(5)
 
-        res.status(200).json(product)
+        // res.status(200).json(product)
 
-        // const groupByCategory = {}
-        // product.forEach((item)=>{
-        //     if(!groupByCategory[item.category]){
-        //         groupByCategory[item.category] = []
-        //     }
-        //     groupByCategory[item.category].push(item)
-        // })
-        // res.status(200).json(groupByCategory)
+        const groupByCategory = {}
+        product.forEach((item)=>{
+            if(!groupByCategory[item.category]){
+                groupByCategory[item.category] = []
+            }
+            groupByCategory[item.category].push(item)
+        })
+        res.status(200).json(groupByCategory)
     } catch (error) {
         console.log("get new Arrival m h error", error)
         next(error)
@@ -374,6 +390,107 @@ export const getMember = async (req, res, next)=>{
         res.status(200).json(member)
     } catch (error) {
         console.log("get member m h error", error)
+        next(error)
+    }
+}
+
+//! get annual Report
+
+export const getAnnualReport = async (req, res, next)=>{
+    try {
+     const thirtyDayAgo = new Date()
+     thirtyDayAgo.setDate(thirtyDayAgo.getDate()-30)
+
+     const oneYearAgo = new Date()
+     oneYearAgo.setFullYear(oneYearAgo.getFullYear()-1)
+
+     const activeUser = await Order.aggregate([
+        {
+            $match : {createdAt : {$gte : thirtyDayAgo}}
+        },
+        {
+            $group : {
+                _id : "$userId"
+            }
+        },
+        {
+            $count : "activeUser"
+        }
+    ])
+
+    const activeSeller = await Order.aggregate([
+        {
+            $match : {createdAt : {$gte : thirtyDayAgo}}
+        },
+        {
+            $unwind : "$products"
+        },
+        {
+            $lookup : {
+                from : "products",
+                localField : "products.productId",
+                foreignField : "_id",
+                as : "productDetails"
+            }
+        },
+        {
+            $unwind : "$productDetails"
+        },
+        {
+            $group : {
+                _id : null,
+                activeSellers : {
+                    $addToSet : "$productDetails.seller",
+                },
+                monthlyProductSale : {
+                    $sum : 1
+                }
+            }
+        },
+        {
+            $project : {
+                _id : 0,
+                activeSellers : {$size : "$activeSellers"},
+                monthlyProductSale : 1
+            }
+        }
+    ])
+
+    const grossSale = await Order.aggregate([
+        {
+            $match : {createdAt : {$gte : oneYearAgo}}
+        },
+        {
+            $unwind : "$products"
+        },
+        {
+            $project : {
+                lineTotal : {
+                    $multiply : ["$products.price", "$products.quantity"]
+                }
+            }
+        },
+        {
+            $group : {
+                _id : null,
+                annualGross : {$sum : "$lineTotal"}
+            }
+        },
+        {
+            $project : {
+                _id : 0,
+                annualGross : 1
+            }
+        }
+    ])
+
+    const activeUsers = activeUser[0]?.activeUser || 0;
+    const {activeSellers = 0, monthlyProductSale = 0} = activeSeller[0]
+    const annualGrossSale = grossSale[0]?.annualGross || 0
+
+    res.status(200).json({activeSellers, monthlyProductSale, activeUsers, annualGrossSale})
+    } catch (error) {
+        console.log("get annual report m h error", error )
         next(error)
     }
 }

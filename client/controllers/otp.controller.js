@@ -1,5 +1,6 @@
 import sendMail from "../mailsender/mailsender.js"
 import OTP from "../models/otp.model.js"
+import User from "../models/user.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 
 //! get otp
@@ -8,6 +9,10 @@ export const getOTP = async (req, res, next) =>{
     const {email, phone} = req.body
 
     if(!phone && !email) return next(errorHandler(400,"email or phone is required to send otp"))
+
+        const existingAccount = await User.findOne({$or : [{email, phone}]})
+
+        if(!existingAccount) return next(errorHandler(401, "email or phone not exist!!"))
 
         await OTP.findOneAndDelete({$or : [{email, phone}]})
         
@@ -28,6 +33,7 @@ export const getOTP = async (req, res, next) =>{
             res.status(200).json("OTP send Successfullyy!!!")
         } catch (error) {
             console.log("get otp m h error", error)
+            next(error)
         }
 }
 
@@ -42,13 +48,7 @@ export const verifyOTP = async (req, res, next)=>{
 
         const DB_OTP = existingOTP.otp
 
-        // console.log(existingOTP.otp)
-
-        console.log(existingOTP.otp === otp)
-
       if(otp != DB_OTP) return next(errorHandler(401, "invalid otp"))
-
-        // await OTP.findOneAndDelete({$or : [{email, phone}]})
 
         try {
             await OTP.findByIdAndUpdate(existingOTP._id,{
