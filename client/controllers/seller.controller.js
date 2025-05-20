@@ -1,3 +1,4 @@
+import CategoryImage from "../models/categoryImage.model.js"
 import Product from "../models/product.model.js"
 import Sale from "../models/sale.model.js"
 import User from "../models/user.model.js"
@@ -163,6 +164,71 @@ export const deleteAllProduct = async (req, res, next)=>{
         
     } catch (error) {
         console.log("delete all product m h error", error)
+        next(error)
+    }
+}
+
+//! add category image
+
+export const addCategoryImage = async (req, res, next)=>{
+    const {category} = req.body
+
+    if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+
+        let imageUrl = ""
+
+        if(req.file){
+            const result = await uploadToClodinary(req, "Category_Image", next)
+            imageUrl = result.secure_url
+        }
+
+        const image = new CategoryImage({
+            category,
+            image : imageUrl
+        })
+        try {
+            await image.save()
+            res.status(200).json("category image added successfully!!")
+        } catch (error) {
+            console.log("category image m h error", error)
+            next(error)
+        }
+}
+
+
+//! get category image
+
+export const getCategoryImage = async (req, res, next)=>{
+    if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+    try {
+        const images = await CategoryImage.find()
+        res.status(200).json(images)
+    } catch (error) {
+        console.log("get category image m h error", error)
+        next(error)
+    }
+}
+
+//! update Category Image
+
+export const updateCategoryImage = async (req, res, next)=>{
+    if(!req.user.isSeller)  return next(errorHandler(401, "you are not a seller!!"))
+
+        let imageUrl = ""
+        if(req.file){
+            const result = await uploadToClodinary(req, "Category_Image", next )
+            imageUrl = result.secure_url
+        }
+
+    try {
+        await CategoryImage.findByIdAndUpdate(req.params.id,{
+            image : imageUrl
+        },{new : true})
+
+        res.status(200).json("category images changed successfully!!!")
+
+    } catch (error) {
+        console.log("update category image m h error", error)
         next(error)
     }
 }
