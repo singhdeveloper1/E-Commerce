@@ -1351,7 +1351,174 @@ paths:
                     type: string
                     example: "you are not a seller!!"
         '500':
-          description: Internal server error                                
+          description: Internal server error 
+
+  /api/seller/addVariant/{productId}:
+    post:
+      tags:
+        - Seller
+      summary: Add or update product variant (Seller only)
+      description: |
+        Adds a new variant or updates existing variant for a product.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to add variant to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - color
+                - size
+                - price
+              properties:
+                color:
+                  type: string
+                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                  description: Color of the variant
+                size:
+                  type: string
+                  enum: ["XS", "S", "M", "L", "XL"]
+                  description: Size of the variant
+                price:
+                  type: number
+                  description: Price for this specific variant
+      responses:
+        '200':
+          description: Variant added/updated successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: string
+                    example: "variant updated successfully"
+                  - type: string
+                    example: "variant added successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error
+
+  /api/seller/getVariants/{productId}:
+    get:
+      tags:
+        - Seller
+      summary: Get product variants (Seller only)
+      description: Retrieves all variants for a specific product. Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to get variants for
+      responses:
+        '200':
+          description: Successfully retrieved product variants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    productId:
+                      type: string
+                    color:
+                      type: string
+                      enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                    size:
+                      type: string
+                      enum: ["XS", "S", "M", "L", "XL"]
+                    price:
+                      type: number
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error
+
+  /api/seller/deleteVariant/{variantId}:
+    delete:
+      tags:
+        - Seller
+      summary: Delete product variant (Seller only)
+      description: Deletes a specific product variant. Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: variantId
+          required: true
+          schema:
+            type: string
+          description: ID of the variant to delete
+      responses:
+        '200':
+          description: Variant deleted successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "particular variant deleted successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error                                                             
 
   /api/seller/addForSale/{productId}:
     patch:
@@ -2701,7 +2868,93 @@ paths:
                       type: string
                       format: date-time
         '500':
-          description: Internal server error                                     
+          description: Internal server error   
+
+  /api/common/getAnnualReport:
+    get:
+      tags:
+        - Common
+      summary: Get annual sales report
+      description: |
+        Retrieves comprehensive sales analytics including:
+        - Active users (last 30 days)
+        - Active sellers (last 30 days)
+        - Monthly product sales count
+        - Annual gross sales amount
+      responses:
+        '200':
+          description: Successfully retrieved annual report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  activeUsers:
+                    type: number
+                    description: Count of unique users who placed orders in last 30 days
+                  activeSellers:
+                    type: number
+                    description: Count of unique sellers with sales in last 30 days
+                  monthlyProductSale:
+                    type: number
+                    description: Total number of products sold in last 30 days
+                  annualGrossSale:
+                    type: number
+                    description: Total gross sales amount for the last year
+        '500':
+          description: Internal server error          
+
+  /api/common/getVariant/{productId}:
+    get:
+      tags:
+        - Common
+      summary: Get specific product variant
+      description: Retrieves a specific variant by product ID, size, and color
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - size
+                - color
+              properties:
+                size:
+                  type: string
+                  enum: ["XS", "S", "M", "L", "XL"]
+                  description: Size of the variant
+                color:
+                  type: string
+                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                  description: Color of the variant
+      responses:
+        '200':
+          description: Successfully retrieved variant
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  productId:
+                    type: string
+                  color:
+                    type: string
+                  size:
+                    type: string
+                  price:
+                    type: number
+        '500':
+          description: Internal server error                                            
  
   /api/order/placeOrder:
     post:
@@ -3599,40 +3852,6 @@ paths:
                     example: "you are not a seller"
         '500':
           description: Internal server error      
-
-  /api/common/getAnnualReport:
-    get:
-      tags:
-        - Common
-      summary: Get annual sales report
-      description: |
-        Retrieves comprehensive sales analytics including:
-        - Active users (last 30 days)
-        - Active sellers (last 30 days)
-        - Monthly product sales count
-        - Annual gross sales amount
-      responses:
-        '200':
-          description: Successfully retrieved annual report
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  activeUsers:
-                    type: number
-                    description: Count of unique users who placed orders in last 30 days
-                  activeSellers:
-                    type: number
-                    description: Count of unique sellers with sales in last 30 days
-                  monthlyProductSale:
-                    type: number
-                    description: Total number of products sold in last 30 days
-                  annualGrossSale:
-                    type: number
-                    description: Total gross sales amount for the last year
-        '500':
-          description: Internal server error
 
   /api/dashboard/getDetails:
     get:
