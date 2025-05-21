@@ -1187,7 +1187,171 @@ paths:
                     type: string
                     example: "you are not a seller"
         '500':
-          description: Internal server error   
+          description: Internal server error 
+
+  /api/seller/addCategoryImage:
+    post:
+      tags:
+        - Seller
+      summary: Add category image (Seller only)
+      description: |
+        Uploads an image for a specific product category.
+        Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - category
+                - image
+              properties:
+                category:
+                  type: string
+                  enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
+                  description: Product category for the image
+                image:
+                  type: string
+                  format: binary
+                  description: Image file for the category
+      responses:
+        '200':
+          description: Category image added successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "category image added successfully!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error
+
+  /api/seller/getCategoryImage:
+    get:
+      tags:
+        - Seller
+      summary: Get all category images (Seller only)
+      description: Retrieves all uploaded category images. Requires seller authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: Successfully retrieved category images
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    category:
+                      type: string
+                      enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
+                    image:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                    updatedAt:
+                      type: string
+                      format: date-time
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error
+
+  /api/seller/updateCategoryImage/{id}:
+    patch:
+      tags:
+        - Seller
+      summary: Update category image (Seller only)
+      description: |
+        Updates a category image by ID.
+        Requires seller authentication and image upload.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the category image to update
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: New image file for the category
+      responses:
+        '200':
+          description: Category image updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "category images changed successfully!!!"
+        '401':
+          description: Unauthorized - User is not a seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "you are not a seller!!"
+        '500':
+          description: Internal server error                                
 
   /api/seller/addForSale/{productId}:
     patch:
@@ -1259,7 +1423,9 @@ paths:
   /api/review/writeReview/{productId}:
     post:
       summary: Write or update a product review
-      description: Submit or update a review for a specific product
+      description: |
+        Submit or update a review for a specific product.
+        User must have purchased the product to review it.
       tags:
         - Review
       security:
@@ -1270,7 +1436,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")  
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
         - in: path
           name: productId
           required: true
@@ -1290,11 +1456,11 @@ paths:
                   type: number
                   minimum: 1
                   maximum: 5
-                  example: 5
+                  description: Rating between 1-5 stars
                 comment:
                   type: string
                   maxLength: 200
-                  example: "Great product!"
+                  description: Optional review comment
       responses:
         '200':
           description: Review submitted successfully
@@ -1351,7 +1517,7 @@ paths:
                             type: string
                             format: date-time
         '400':
-          description: Rating is required
+          description: Bad request
           content:
             application/json:
               schema:
@@ -1359,9 +1525,11 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "please rate between 1 to 5"
+                    examples:
+                      noRating: "please rate between 1 to 5"
+                      notPurchased: "You only allowed to review on purchased product"
         '401':
-          description: Unauthorized
+          description: Unauthorized - Invalid token or not logged in
         '500':
           description: Internal server error  
           
@@ -2180,38 +2348,69 @@ paths:
 
   /api/common/getNewArrival:
     get:
-      summary: Get new arrival products
-      description: |
-        Retrieves the 5 most recently added products, sorted by creation date in descending order.
       tags:
         - Common
+      summary: Get new arrival products by category
+      description: |
+        Retrieves the 20 newest products from each category, 
+        grouped by category with category images.
+        Returns a maximum of 5 categories.
       responses:
         '200':
-          description: Successfully retrieved new arrival products
+          description: Successfully retrieved new arrivals by category
           content:
             application/json:
               schema:
-                type: array
-                items:
+                type: object
+                additionalProperties:
                   type: object
                   properties:
-                    _id:
+                    image:
                       type: string
-                      example: "507f1f77bcf86cd799439011"
-                    name:
-                      type: string
-                      example: "Premium Headphones"
-                    category:
-                      type: string
-                      example: "Electronics"
-                    price:
-                      type: number
-                      example: 199.99
-                    createdAt:
-                      type: string
-                      format: date-time
-                      example: "2023-05-15T10:00:00Z"
-                    # Add other product properties as needed
+                      description: Category image URL
+                    products:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          _id:
+                            type: string
+                          productName:
+                            type: string
+                          category:
+                            type: string
+                          productPrice:
+                            type: number
+                          productImage:
+                            type: string
+                          discountPercentage:
+                            type: number
+                          productDescription:
+                            type: string
+                          productSize:
+                            type: string
+                          productColor:
+                            type: string
+                          subcategory:
+                            type: string        
+                          createdAt:
+                            type: string
+                            format: date-time
+                example:
+                  Electronics:
+                    image: "https://example.com/electronics.jpg"
+                    products:
+                      - _id: "507f1f77bcf86cd799439011"
+                        productName: "Premium Headphones"
+                        category: "Electronics"
+                        productPrice: 199.99
+                        productImage: "https://example.com/electronics.jpg"
+                        discountPercentage: 10
+                        productDescription: "so beautiful so eligant just looking like a wow"
+                        productSize: M
+                        productColor: Red
+                        subCategory : Phones
+                        createdAt: "2023-05-15T10:00:00Z"
         '500':
           description: Internal server error
 

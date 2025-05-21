@@ -188,18 +188,49 @@ export const getProductBySubCategory = async (req, res, next)=>{
 
 export const getNewArrival = async (req, res, next)=>{
     try {
-        const product = await Product.find().sort({createdAt : -1}).limit(5)
-
-        // res.status(200).json(product)
-
-        const groupByCategory = {}
-        product.forEach((item)=>{
-            if(!groupByCategory[item.category]){
-                groupByCategory[item.category] = []
+        const product = await Product.aggregate([
+            {
+                $sort : {createdAt : -1}
+            },
+            {
+                $group : {
+                    _id : "$category",
+                    latestProducts : {$push : "$$ROOT"}
+                }
+            },
+            {
+                $lookup : {
+                    from : "categoryimages",
+                    localField : "_id",
+                    foreignField : "category",
+                    as : "categoryImage"
+                }
+            },
+            {
+                $unwind : "$categoryImage"
+            },
+            {
+                $project : {
+                    _id : 0,
+                    category : "$_id",
+                    image : "$categoryImage.image",
+                    products : {$slice : ["$latestProducts", 20]}
+                }
+            },
+            {
+                $limit : 5
             }
-            groupByCategory[item.category].push(item)
-        })
-        res.status(200).json(groupByCategory)
+        ])
+
+       const result = {};
+       product.forEach((item) => {
+         result[item.category] = {
+           image: item.image,
+           products: item.products,
+         };
+       });
+
+        res.status(200).json(result)
     } catch (error) {
         console.log("get new Arrival m h error", error)
         next(error)
