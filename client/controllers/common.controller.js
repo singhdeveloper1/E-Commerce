@@ -540,3 +540,44 @@ export const getVariant = async (req, res, next)=>{
         next(error)
     }
 }
+
+//! get filtered Products
+
+export const getFilteredProducts = async (req, res, next)=>{
+    const {search, category, subCategory, size,  color, minPrice, maxPrice, page=1, limit=3 }  = req.query
+    try {
+        const query = {};
+
+        if (search) {
+          query.$or = [
+            { productName: { $regex: search, $options: "i" } },
+            { category: { $regex: search, $options: "i" } },
+            { subCategory: { $regex: search, $options: "i" } },
+          ];
+        }
+
+        if (category) query.category = category;
+        if (subCategory) query.subCategory = subCategory;
+
+        if (maxPrice || minPrice) {
+          query.productPrice = {};
+          if (minPrice) query.productPrice.$gte = Number(minPrice);
+          if (maxPrice) query.productPrice.$lte = Number(maxPrice);
+        }
+
+        const skip = (page - 1) * limit;
+
+        const product = await Product.find(query).skip(skip).limit(limit);
+
+    if(product.length == 0){
+        res.status(404).json("no product is found for the selected page or filters!!")
+    }
+
+    // const total = await Product.countDocuments(query)
+
+    res.status(200).json(product)
+    } catch (error) {
+        console.log("get filtered product m h error", error)
+        next(error)
+    }
+}
