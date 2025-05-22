@@ -13,10 +13,13 @@ export const writeReview = async (req, res, next)=>{
             $match : {userId : req.user._id}
         },
         {
-            $unwind : "$products"
+            $unwind : "$orders"
         },
         {
-            $match : {"products.productId" :new mongoose.Types.ObjectId(String(req.params.productId))}
+            $unwind : "$orders.products"
+        },
+        {
+            $match : {"orders.products.productId" :new mongoose.Types.ObjectId(String(req.params.productId))}
         },
         {
             $limit : 1
