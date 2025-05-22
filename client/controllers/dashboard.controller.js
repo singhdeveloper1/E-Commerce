@@ -12,12 +12,15 @@ export const getDetails = async (req, res, next)=>{
         //! total sales
         const totalSale = await Order.aggregate([
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $project : {
                     lineTotal : {
-                       $multiply :  ["$products.price", "$products.quantity" ]
+                       $multiply :  ["$orders.products.price", "$orders.products.quantity" ]
                     }
                 }
             },
@@ -43,12 +46,15 @@ export const getDetails = async (req, res, next)=>{
                 $match : {createdAt : {$gte : oneYearAgo}}
             },
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $project : {
                     lineTotal : {
-                        $multiply : ["$products.price", "$products.quantity"]
+                        $multiply : ["$orders.products.price", "$orders.products.quantity"]
                     }
                 }
             },
@@ -74,12 +80,15 @@ export const getDetails = async (req, res, next)=>{
                 $match : {createdAt : {$gte : oneMonthAgo}}
             },
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $project : {
                     lineTotal : {
-                        $multiply : ["$products.price", "$products.quantity"]
+                        $multiply : ["$orders.products.price", "$orders.products.quantity"]
                     }
                 }
             },
@@ -102,7 +111,10 @@ export const getDetails = async (req, res, next)=>{
         //! total order
         const totalOrder = await Order.aggregate([
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $group : {
@@ -126,7 +138,10 @@ export const getDetails = async (req, res, next)=>{
                 $match : {createdAt : {$gte : oneMonthAgo}}
             },
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $group : {
@@ -150,7 +165,10 @@ export const getDetails = async (req, res, next)=>{
                 $match : {createdAt : {$gte : oneYearAgo}}
             },
             {
-                $unwind : "$products"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $group : {
@@ -210,8 +228,11 @@ export const getDetails = async (req, res, next)=>{
         //! payment method
         const paymentMethod = await Order.aggregate([
             {
+                $unwind : "$orders"
+            },
+            {
                 $group : {
-                    _id : "$payment",
+                    _id : "$orders.payment.method",
                     count : {$sum : 1}
                 }
             }

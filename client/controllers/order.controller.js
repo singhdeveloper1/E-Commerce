@@ -4,109 +4,163 @@ import { errorHandler } from "../utils/errorHandler.js"
 
 
 //! place order
-export const placeOrder = async (req, res, next)=>{
+export const placeOrder = async (req, res, next) => {
+  const {
+    razorpay_order_id = 0,
+    razorpay_payment_id = 0,
+    razorpay_signature,
+  } = req.body;
+  try {
+    const cartItems = req.body.products;
+    // let cartItems = req.body.products
 
-    const {razorpay_order_id, razorpay_payment_id, razorpay_signature} = req.body
-    try {
+    // if(!Array.isArray(cartItems)){
+    //     cartItems = [cartItems]
+    // }
 
-        const cartItems = req.body.products        
-        // let cartItems = req.body.products        
+    const products = await Promise.all(
+      cartItems.map(async (item) => {
+        const product = await Product.findById(item.productId);
 
-        // if(!Array.isArray(cartItems)){
-        //     cartItems = [cartItems]
-        // }
+        if (!product) return next(errorHandler(404, "product not found"));
 
-        const products = await Promise.all(
-            cartItems.map(async (item)=>{
-                const product = await Product.findById(item.productId)
+        return {
+          productId: product._id,
+          title: product.productName,
+          image: product.productImage,
+          price: item.price,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity,
+        };
+      })
+    );
 
-                if(!product) return next(errorHandler(404, "product not found"))
+    //! if payment method is Bank
 
-                    return {
-                        productId : product._id,
-                        title : product.productName,
-                        image : product.productImage,
-                        price : product.productPrice,
-                        variant :{
-                            size : item.size,
-                            color : item.color
-                        },
-                        quantity : item.quantity
-                    }
-            })
-        )
+    let paymentStatus = "Pending";
 
-        //! if payment method is Bank
+    if (req.body.payment == "Bank") {
+      const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-        let paymentVerified = false
-        let paymentStatus = pending
+      const expectedSignature = crypto
+        .createHmac("sha256", "razorpay_key_secret")
+        .update(body.toString())
+        .digest("hex");
 
-        if(req.body.payment == "Bank"){
-                const body = razorpay_order_id + "|" + razorpay_payment_id
-            
-                const expectedSignature =  crypto.createHmac("sha256", "razorpay_key_secret")
-                                                 .update(body.toString())                           
-                                                 .digest("hex")
-            
-                    if(expectedSignature === razorpay_signature){
-            
-                        paymentStatus = "Paid",
-                        paymentVerified = true
-            
-                        res.json("payment verified successfull")
-                    }
-                    else{
-                        return next(errorHandler(400, "Payment Verification Failed!!!"))
-                    }
-        }
+      if (expectedSignature != razorpay_signature)
+        return next(errorHandler(400, "payment verification failed"));
 
-        const orderedProduct = new Order({
-            userId : req.user._id,
-            products : products,
-            // payment : req.body.payment,
-            payment : {
-                method : req.body.payment,
-                status : paymentStatus,
-                paymentId : razorpay_payment_id,
-                orderId : razorpay_order_id
-            },
-            // address : {
-            //     firstName : req.body.firstName,
-            //     lastName : req.body.lastName,
-            //     company : req.body.company,
-            //     street : req.body.street,
-            //     apartment : req.body.apartment,
-            //     city : req.body.city,
-            //     phone : req.body.phone,
-            //     email : req.body.email,
-            //     country : req.body.country,
-            //     state : req.body.state,
-            //     pinCode : req.body.pinCode
-            // }
-
-            address : req.body.address
-        })
-
-        await orderedProduct.save()
-
-         res.status(200).json(orderedProduct)
-
-    } catch (error) {
-        console.log("place order m h error", error)
-        next(error)
+      paymentStatus = "Paid";
     }
-}
+
+    //! prepare order Object
+
+    const newOrder = {
+      products,
+      payment: {
+        method: req.body.payment,
+        status: paymentStatus,
+        paymentId: razorpay_payment_id,
+        orderId: razorpay_order_id,
+      },
+      address: req.body.address,
+    };
+
+    //! check if the order already exist or not
+
+    let order = await Order.findOne({ userId: req.user._id });
+
+    if (order) {
+      order.orders.push(newOrder);
+      await order.save();
+      return res.status(200).json("order placed successfully!!!");
+    } else {
+      order = new Order({
+        userId: req.user._id,
+        orders: [newOrder],
+      });
+      await order.save();
+      res.status(201).json("order placed successfully");
+    }
+  } catch (error) {
+    console.log("place order m h error", error);
+    next(error);
+  }
+};
 
 
 //! my order
 export const myOrder = async (req, res, next)=>{
     try {
-        const orders = await Order.find({userId : req.user._id})
-        if(!orders) return next(errorHandler(404, "nothing in cart"))
+        // const orders = await Order.find({userId : req.user._id})
+        // if(!orders) return next(errorHandler(404, "nothing in cart"))
 
-            res.status(200).json(orders)
+        //     res.status(200).json(orders)
+
+        const orders  = await Order.aggregate([
+            {
+                $match : {userId : req.user._id}
+            },
+            {
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
+            },
+            {
+                $project : {
+                    _id : 0,
+                    orderId : "$orders._id",
+                    product : "$orders.products",
+                    payment : "$orders.payment",
+                    address : "$orders.address"
+                }
+            }
+        ])
+
+
+        res.status(200).json(orders)
+
     } catch (error) {
         console.log("my order m h error", error)
+        next(error)
+    }
+}
+
+//! cancelled order
+
+export const cancelledOrder = async (req, res, next)=>{
+    try {
+        const cancelledOrder = await Order.aggregate([
+            {
+                $match : {userId : req.user._id}
+            },
+            {
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
+            },
+            {
+                $match : {
+                    "orders.products.isCancel" : true
+                }
+            },
+            {
+                $project : {
+                    _id : 0,
+                    orderId : "$orders._id",
+                    product : "$orders.products",
+                    payment : "$orders.payment",
+                    address : "$orders.address"
+                }
+            }
+        ])
+        if(cancelledOrder.length == 0) return next(errorHandler(400, "no product was cancelled yet!!"))
+        res.status(200).json(cancelledOrder)
+    } catch (error) {
+        console.log("cancelled order", error)
         next(error)
     }
 }

@@ -3045,10 +3045,13 @@ paths:
  
   /api/order/placeOrder:
     post:
-      summary: Place a new order
-      description: Creates a new order with products from cart
       tags:
         - Order
+      summary: Place a new order
+      description: |
+        Creates a new order with products from cart.
+        Handles both COD and Bank payment methods.
+        For Bank payments, requires Razorpay verification.
       security:
         - bearerAuth: []
       parameters:
@@ -3057,7 +3060,7 @@ paths:
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
       requestBody:
         required: true
         content:
@@ -3079,7 +3082,6 @@ paths:
                     properties:
                       productId:
                         type: string
-                        description: ID of the product to order
                       size:
                         type: string
                         enum: ["XS", "S", "M", "L", "XL"]
@@ -3089,6 +3091,8 @@ paths:
                       quantity:
                         type: integer
                         minimum: 1
+                      price:
+                        type: number
                 payment:
                   type: string
                   enum: ["COD", "Bank"]
@@ -3100,6 +3104,9 @@ paths:
                     - city
                     - phone
                     - email
+                    - country
+                    - state
+                    - pinCode
                   properties:
                     firstName:
                       type: string
@@ -3119,26 +3126,91 @@ paths:
                       type: string
                     phone:
                       type: string
-                    country:
-                      type: string
                     email:
                       type: string
                       format: email
+                    country:
+                      type: string
+                razorpay_order_id:
+                  type: string
+                  description: Required for Bank payments
+                razorpay_payment_id:
+                  type: string
+                  description: Required for Bank payments
+                razorpay_signature:
+                  type: string
+                  description: Required for Bank payments
       responses:
         '200':
           description: Order placed successfully
           content:
             application/json:
               schema:
+                type: string
+                example: "order placed successfully!!!"
+        '201':
+          description: First order placed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "order placed successfully"
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Payment verification failed (for Bank payments)
+            - Missing required fields
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  _id:
+                  message:
                     type: string
-                  userId:
+                    example: "payment verification failed"
+        '401':
+          description: Unauthorized (invalid token)
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
                     type: string
-                  products:
-                    type: array
-                    items:
+                    example: "product not found"
+        '500':
+          description: Internal server error     
+
+  /api/order/myOrder:
+    get:
+      summary: Get user's order details
+      description: Retrieves detailed order information for the authenticated user
+      tags:
+        - Order
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: Order details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId:
+                      type: string
+                    product:
                       type: object
                       properties:
                         productId:
@@ -3148,118 +3220,37 @@ paths:
                         image:
                           type: string
                         price:
+                          type: number
+                        size:
                           type: string
-                        variant:
-                          type: object
-                          properties:
-                            size:
-                              type: string
-                            color:
-                              type: string
+                          enum: ["XS", "S", "M", "L", "XL"]
+                        color:
+                          type: string
+                          enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
                         quantity:
-                          type: integer
-                  payment:
-                    type: string
-                  address:
-                    type: object
-                    properties:
-                      firstName:
-                        type: string
-                      lastName:
-                        type: string
-                      company:
-                        type: string
-                      street:
-                        type: string
-                      apartment:
-                        type: string
-                      city:
-                        type: string
-                      phone:
-                        type: string
-                      email:
-                        type: string
-                      state:
-                        type: string
-                      pinCode:
-                        type: string
-                      country:
-                        type: string
-                  createdAt:
-                    type: string
-                    format: date-time
-        '400':
-          description: Bad request (invalid data or missing required fields)
-        '401':
-          description: Unauthorized (invalid token)
-        '404':
-          description: Product not found
-        '500':
-          description: Internal server error     
-
-  /api/order/myOrder:
-    get:
-      summary: Get user's orders
-      description: Retrieves all orders for the authenticated user
-      tags:
-        - Order
-      security:
-        - bearerAuth: []  # JWT authentication required
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema:
-            type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")
-      responses:
-        '200':
-          description: Orders retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: "507f1f77bcf86cd799439011"
-                    userId:
-                      type: string
-                      example: "507f191e810c19729de860ea"
-                    products:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          productId:
-                            type: string
-                          name:
-                            type: string
-                          image:
-                            type: string
-                          price:
-                            type: string
-                          variant:
-                            type: object
-                            properties:
-                              size:
-                                type: string
-                              color:
-                                type: string
-                          quantity:
-                            type: number
+                          type: number
+                        isCancel:
+                          type: boolean
                     payment:
-                      type: string
-                      example: "COD"
+                      type: object
+                      properties:
+                        method:
+                          type: string
+                          enum: ["COD", "Bank"]
+                        status:
+                          type: string
+                          enum: ["Pending", "Paid"]
+                        paymentId:
+                          type: string
+                        orderId:
+                          type: string
                     address:
                       type: object
                       properties:
                         firstName:
                           type: string
                         lastName:
-                          type: string  
+                          type: string
                         company:
                           type: string
                         street:
@@ -3278,13 +3269,99 @@ paths:
                           type: string
                         pinCode:
                           type: string
-                    createdAt:
-                      type: string
-                      format: date-time
         '401':
           description: Unauthorized (invalid token)
-        '404':
-          description: No orders found
+        '500':
+          description: Internal server error    
+
+  /api/order/cancelledOrder:
+    get:
+      tags:
+        - Order
+      summary: Get user's cancelled orders
+      description: Retrieves all cancelled order items for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: Cancelled orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId:
+                      type: string
+                    product:
+                      type: object
+                      properties:
+                        productId:
+                          type: string
+                        title:
+                          type: string
+                        image:
+                          type: string
+                        price:
+                          type: number
+                        size:
+                          type: string
+                          enum: ["XS", "S", "M", "L", "XL"]
+                        color:
+                          type: string
+                          enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                        quantity:
+                          type: number
+                        isCancel:
+                          type: boolean
+                    payment:
+                      type: object
+                      properties:
+                        method:
+                          type: string
+                          enum: ["COD", "Bank"]
+                        status:
+                          type: string
+                          enum: ["Pending", "Paid"]
+                        paymentId:
+                          type: string
+                        orderId:
+                          type: string
+                    address:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                        lastName:
+                          type: string
+                        company:
+                          type: string
+                        street:
+                          type: string
+                        apartment:
+                          type: string
+                        city:
+                          type: string
+                        phone:
+                          type: string
+                        email:
+                          type: string
+                        country:
+                          type: string
+                        state:
+                          type: string
+                        pinCode:
+                          type: string
+        '400':
+          description: No cancelled orders found
           content:
             application/json:
               schema:
@@ -3292,9 +3369,11 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "nothing in cart"
+                    example: "no product was cancelled yet!!"
+        '401':
+          description: Unauthorized (invalid token)
         '500':
-          description: Internal server error    
+          description: Internal server error          
 
   /api/coupon/createCoupon:
     post:
