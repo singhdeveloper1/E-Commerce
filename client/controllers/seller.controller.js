@@ -2,6 +2,7 @@ import CategoryImage from "../models/categoryImage.model.js"
 import Product from "../models/product.model.js"
 import Sale from "../models/sale.model.js"
 import User from "../models/user.model.js"
+import Variant from "../models/variant.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import uploadToClodinary from "./clodinary.controller.js"
 
@@ -229,6 +230,65 @@ export const updateCategoryImage = async (req, res, next)=>{
 
     } catch (error) {
         console.log("update category image m h error", error)
+        next(error)
+    }
+}
+
+//! add variant
+
+export const addVariant = async (req, res, next)=>{
+    const {color, size, price} = req.body
+
+    if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+        
+        try {
+
+            const existing = await Variant.findOne({productId : req.params.productId, size, color})
+
+            if(existing){
+                existing.price = price
+                await existing.save()
+                res.status(200).json("variant updated successfully")
+            }
+            else{
+        const variant = new Variant({
+            productId : req.params.productId,
+            color,
+            size,
+            price
+        })
+            await variant.save()
+            res.status(200).json("variant added successfully!!!")
+    }
+        } catch (error) {
+            console.log("add variant m h error", error)
+            next(error)
+        }
+}
+
+//! get Variants
+
+export const getVariants = async (req, res, next)=>{
+
+    if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+    try {
+        const variants = await Variant.find({productId : req.params.productId})
+        res.status(200).json(variants)
+    } catch (error) {
+        console.log("get variants seller m h error", error)
+        next(error)
+    }
+}
+
+//! delete variant
+
+export const deleteVariant = async(req, res, next)=>{
+    if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+    try {
+        await Variant.findByIdAndDelete({_id : req.params.variantId})
+        res.status(200).json("particular variant deleted successfully!!")
+    } catch (error) {
+        console.log("delete variant m h error", error)
         next(error)
     }
 }

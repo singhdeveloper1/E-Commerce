@@ -22,12 +22,13 @@ app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 
-app.get("/",(req, res)=>{
-    res.send("hello")
-})
+// app.get("/",(req, res)=>{
+//     res.send("hello")
+// })
 
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.use("/api/user", userRouter)
 app.use("/api/otp", otpRouter)
