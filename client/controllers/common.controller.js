@@ -554,6 +554,11 @@ export const getVariant = async (req, res, next)=>{
 
 export const getFilteredProducts = async (req, res, next)=>{
     const {search, category, subCategory, size,  color, minPrice, maxPrice, page=1, limit=3 }  = req.query
+
+    if(!search && !category && !subCategory && !minPrice && !maxPrice){
+        return res.status(200).json("no filters were applied!!")
+    }
+
     try {
         const query = {};
 

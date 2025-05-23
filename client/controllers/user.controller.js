@@ -130,6 +130,39 @@ export const google = async (req, res,next)=>{
 
     try {
         const existingUser = await User.findOne({email})
+
+        //! merging the cart item which was added without login
+           if(guestCart && guestCart.length > 0){
+
+                    let quantity = 1
+
+                const cart = await AddToCart.findOne({userId : existingUser._id})
+
+                if(!cart){
+                    const newCart = new AddToCart({
+                        userId : existingUser._id,
+                        products : guestCart
+                    })
+                    await newCart.save()
+                }
+                else{
+                    guestCart.forEach(item =>{
+                        const existingCart = cart.products.find(product=> product.productId == item.productId)
+
+                        if(existingCart){
+                            // existingCart.quantity += item.quantity
+                            existingCart.quantity += 1
+                        }
+                        else{
+                            cart.products.push({
+                                productId : item.productId,
+                                quantity
+                            })
+                        }
+                    })
+                    await cart.save()
+                }
+            }
         
         if(existingUser){
             const token = await existingUser.generateToken()
@@ -144,7 +177,7 @@ export const google = async (req, res,next)=>{
             })
             await newToken.save()
             res.cookie("token", newToken)
-            res.status(200).json({existingUser, newToken})
+            res.status(200).json({existingUser, token})
 
         }
             else{
@@ -169,12 +202,8 @@ export const google = async (req, res,next)=>{
             })
             await newToken.save()
             res.cookie("token", newToken)
-            res.status(200).json({newUser, newToken})
-
-                // res.status(200).json(newUser)
+            res.status(200).json({newUser, token})
             }
-
-
     } catch (error) {
         console.log("google sign-up , login m h error", error)
         next(error)

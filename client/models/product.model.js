@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema({
 
     productImage : {
         type : String,
+        // type : [String],
         required : true,
         // default : "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
     },

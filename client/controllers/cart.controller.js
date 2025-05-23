@@ -105,6 +105,8 @@ export const viewCart = async (req, res, next)=>{
 
 export const viewGuestCart = async (req, res, next)=>{
     const {guestCart} = req.body
+    console.log(guestCart, "guest cart")
+    // const guestCart = req.body.guestCart.map(productId => ({productId}))
 
     try {
         const productId = guestCart.map(item => item.productId)
