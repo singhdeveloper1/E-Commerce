@@ -151,7 +151,7 @@ export const cancelOrder = async (req, res, next)=>{
     }
     res.status(200).json("no such product found for cancelletion!!")
   } catch (error) {
-    console.log("canel order m h error", error)
+    console.log("cancel order m h error", error)
     next(error)
   }  
 } 
