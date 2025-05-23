@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
@@ -119,7 +120,8 @@ export const myOrder = async (req, res, next)=>{
             }
         ])
 
-
+        if(orders.length == 0) return next(errorHandler(400, "no product is ordered yet!!"))
+          
         res.status(200).json(orders)
 
     } catch (error) {
@@ -128,9 +130,35 @@ export const myOrder = async (req, res, next)=>{
     }
 }
 
-//! cancelled order
+//! cancel Order
 
-export const cancelledOrder = async (req, res, next)=>{
+export const cancelOrder = async (req, res, next)=>{
+  try {
+    const orders = await Order.find({userId : req.user._id});
+    for (const order of orders) {
+      for (const subOrder of order.orders) {
+        if (subOrder._id.toString() == req.params.orderId) {
+          const product = subOrder.products.find(
+            (p) => p.productId.toString() == req.params.productId
+          );
+          if (product) {
+            product.isCancel = true;
+            await order.save();
+            return res.status(200).json("product cancelled successfully!!!!");
+          }
+        }
+      }
+    }
+    res.status(200).json("no such product found for cancelletion!!")
+  } catch (error) {
+    console.log("canel order m h error", error)
+    next(error)
+  }  
+} 
+
+//! view cancel order
+
+export const viewCancelOrder = async (req, res, next)=>{
     try {
         const cancelledOrder = await Order.aggregate([
             {
@@ -160,7 +188,7 @@ export const cancelledOrder = async (req, res, next)=>{
         if(cancelledOrder.length == 0) return next(errorHandler(400, "no product was cancelled yet!!"))
         res.status(200).json(cancelledOrder)
     } catch (error) {
-        console.log("cancelled order", error)
+        console.log("view cancel order", error)
         next(error)
     }
 }
