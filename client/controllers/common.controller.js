@@ -341,12 +341,15 @@ export const getBestSelling = async (req, res, next)=>{
     try {
         const order = await Order.aggregate([
             {
-                $unwind :"$products"
+                $unwind :"$orders"
+            },
+            {
+                $unwind : "$orders.products"
             },
             {
                 $group : {
-                    _id : "$products.productId",
-                    totalSold : {$sum : "$products.quantity"}
+                    _id : "$orders.products.productId",
+                    totalSold : {$sum : "$orders.products.quantity"}
                 }
             },
             {
@@ -455,12 +458,15 @@ export const getAnnualReport = async (req, res, next)=>{
             $match : {createdAt : {$gte : thirtyDayAgo}}
         },
         {
-            $unwind : "$products"
+            $unwind : "$orders"
+        },
+        {
+            $unwind : "$orders.products"
         },
         {
             $lookup : {
                 from : "products",
-                localField : "products.productId",
+                localField : "orders.products.productId",
                 foreignField : "_id",
                 as : "productDetails"
             }
@@ -475,7 +481,7 @@ export const getAnnualReport = async (req, res, next)=>{
                     $addToSet : "$productDetails.seller",
                 },
                 monthlyProductSale : {
-                    $sum : 1
+                    $sum : "$orders.products.quantity"
                 }
             }
         },
@@ -493,12 +499,15 @@ export const getAnnualReport = async (req, res, next)=>{
             $match : {createdAt : {$gte : oneYearAgo}}
         },
         {
-            $unwind : "$products"
+            $unwind : "$orders"
+        },
+        {
+            $unwind : "$orders.products"
         },
         {
             $project : {
                 lineTotal : {
-                    $multiply : ["$products.price", "$products.quantity"]
+                    $multiply : ["$orders.products.price", "$orders.products.quantity"]
                 }
             }
         },
