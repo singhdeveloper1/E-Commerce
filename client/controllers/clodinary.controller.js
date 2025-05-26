@@ -9,10 +9,14 @@ cloudinary.config({
 })
 
 // const uploadToClodinary = async (filePath, folder, next)=>{
-const uploadToClodinary = async (req, folder, next)=>{
-    if(!req.file) return next(errorHandler(400, "no file uploaded"))
+// const uploadToClodinary = async (req, folder, next)=>{
+const uploadToClodinary = async (filePath, folder, next)=>{
+    // if(!req.file) return next(errorHandler(400, "no file uploaded"))
+    if(!filePath) return next(errorHandler(400, "no file uploaded"))
 
-        const localPath = req.file.path
+        // const localPath = req.file.path
+        const localPath = filePath
+
 
         try {
             // const result = await cloudinary.uploader.upload(filePath,{
@@ -25,7 +29,7 @@ const uploadToClodinary = async (req, folder, next)=>{
 
         } catch (error) {
             console.log("cloudinar controller m h error",error)
-            next(error)
+           return next(error)
         }
 }
 

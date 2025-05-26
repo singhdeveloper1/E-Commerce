@@ -12,12 +12,12 @@ export const placeOrder = async (req, res, next) => {
     razorpay_signature,
   } = req.body;
   try {
-    const cartItems = req.body.products;
-    // let cartItems = req.body.products
+    // const cartItems = req.body.products;
+    let cartItems = req.body.products
 
-    // if(!Array.isArray(cartItems)){
-    //     cartItems = [cartItems]
-    // }
+    if(!Array.isArray(cartItems)){
+        cartItems = [cartItems]
+    }
 
     const products = await Promise.all(
       cartItems.map(async (item) => {
@@ -28,7 +28,7 @@ export const placeOrder = async (req, res, next) => {
         return {
           productId: product._id,
           title: product.productName,
-          image: product.productImage,
+          image: product.productImage[0],
           price: item.price,
           size: item.size,
           color: item.color,

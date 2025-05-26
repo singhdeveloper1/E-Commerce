@@ -4,7 +4,6 @@ import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
-import User from "../models/user.model.js"
 import Variant from "../models/variant.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 // import moment from "moment-timezone"
@@ -80,6 +79,14 @@ export const getAllProduct = async (req, res, next)=>{
 export const getSpecificProduct = async (req, res, next)=>{
     try {
         const product = await Product.findById(req.params.productId)
+        const variant = await Variant.find({productId : req.params.productId})
+        const colors = [...new Set(variant.map(v =>v.color))]
+
+        let sizes = []
+        if(colors.length > 0){
+            const color = variant.filter(v => v.color === colors[0])
+            sizes = [...new Set(color.map(v => v.size))]
+        }
 
              const reviews = await Review.find({productId : product._id})
             let ratedPerson = 0
@@ -104,12 +111,12 @@ export const getSpecificProduct = async (req, res, next)=>{
                         category : product.category,
                         subCategory : product.subCategory,
                         averageRating,
-                        ratedPerson
+                        ratedPerson,
+                        colors,
+                        sizes
          // totalPrice : product.productPrice * item.quantity
    }
-        // res.status(200).json(product)
-        // res.status(200).json({...product.toObject(), averageRating, ratedPerson})
-        res.status(200).json(products)
+        res.status(200).json(products )
     } catch (error) {
         console.log("get specific product common m h error", error)
         next(error)
@@ -120,7 +127,10 @@ export const getSpecificProduct = async (req, res, next)=>{
 
 export const getProductByCategory = async (req, res, next)=>{
     try {
-        const product = await Product.find({category : req.params.category})
+
+        const decodedCategory = decodeURIComponent(req.params.category).replace(/ /g, "_");
+        // const product = await Product.find({category : req.params.category})
+        const product = await Product.find({category : decodedCategory})
 
         if(!product) return next(errorHandler(404, "no product found for this sub category"))
 
@@ -539,11 +549,31 @@ export const getAnnualReport = async (req, res, next)=>{
 //! get variant
 
 export const getVariant = async (req, res, next)=>{
-    const {size, color} = req.body
+    const {size, color} = req.query
+    const productId = req.params.productId
 
     try {
-        const variant = await Variant.findOne({productId : req.params.productId, size, color})        
-        res.status(200).json(variant)
+
+        const product  = await Product.findOne({_id : productId})
+        // return res.status(200).json(product)
+
+        if(color && !size){
+            const variants = await Variant.find({productId, color})
+            const images = variants[0].image 
+            const title = variants[0].title
+            const description = variants[0].description
+            const sizes = [...new Set(variants.map(v => v.size))]
+            if(sizes.length === 0) return next(errorHandler(400, "no size found for the provided color.."))
+            return res.status(200).json({color, sizes, images,title,description})
+        }
+
+        if(color, size){
+        const variant = await Variant.findOne({productId, size, color})        
+        if(!variant ) return next(errorHandler(400, "no variant found for give size and color.."))
+         return res.status(200).json(variant)
+        }
+
+        if(!size && !color) return next(errorHandler(401, "no variant is selected.."))
     } catch (error) {
         console.log("get variant m h error", error)
         next(error)

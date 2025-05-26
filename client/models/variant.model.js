@@ -23,6 +23,21 @@ const variantSchema = new mongoose.Schema({
     price : {
         type : Number,
         required : true
+    },
+
+    image : {
+        type : [String],
+        required : true
+    },
+    title : {
+        type : String,
+        required : true
+    },
+
+    description : {
+         type : String,
+        maxlength : 200,
+        required : true
     }
 })
 
