@@ -7,6 +7,7 @@ const router = express.Router()
 
 router.patch("/switchToUser", authentication, switchToUser)
 router.post("/addproduct", authentication,uploadLocal.single("image"), addproduct)
+// router.post("/addproduct", authentication,uploadLocal.array("image",5), addproduct)
 router.get("/getProduct", authentication , getProduct)
 router.patch("/updateProduct/:productId", authentication, uploadLocal.single("image"), updateProduct)
 router.delete("/deleteProduct/:productId", authentication, deleteProduct)
