@@ -29,12 +29,20 @@ export const addproduct = async (req, res, next)=>{
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
-    let imageUrl = ""
+    // let imageUrl = ""
+       let imageUrl = []
 
-    if(req.file){
+    if(req.files){
         // const result = await uploadToClodinary(req.file.path, "Product_Image")
-        const result = await uploadToClodinary(req, "Product_Image",next)
-        imageUrl = result.secure_url
+        // const result = await uploadToClodinary(req, "Product_Image",next)
+        // imageUrl = result.secure_url
+
+        for( const file of req.files){
+            const result = await uploadToClodinary(file.path, "Product_Images",next)
+            // imageUrl = result.secure_url
+            imageUrl.push(result.secure_url)
+        }
+
     }
    
     if(imageUrl.length == 0){
@@ -99,11 +107,17 @@ export const updateProduct = async (req, res, next)=>{
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
 
-        let imageUrl = ""
+        // let imageUrl = ""
+        let imageUrl = []
 
-        if(req.file){
-            const result = await uploadToClodinary(req, "Product_Image", next)
-            imageUrl = result.secure_url
+        if(req.files){
+            // const result = await uploadToClodinary(req, "Product_Image", next)
+            // imageUrl = result.secure_url
+            for(const file of req.files){
+                const result = await uploadToClodinary(file.path, "Product_Images", next)
+                if(!result) return next(errorHandler(500, "image upload failed"))
+                imageUrl.push(result.secure_url)
+            }
 
             await Product.findByIdAndUpdate(req.params.productId,{
                 productName,
@@ -131,7 +145,7 @@ export const updateProduct = async (req, res, next)=>{
         },{new : true})
     }
 
-        res.status(200).json("product updated successfully!!!")
+        return res.status(200).json("product updated successfully!!!")
  
         } catch (error) {
             console.log("update product m h error", error)            
@@ -237,9 +251,11 @@ export const updateCategoryImage = async (req, res, next)=>{
 //! add variant
 
 export const addVariant = async (req, res, next)=>{
-    const {color, size, price} = req.body
+    const {color, size, price, title, description} = req.body
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
+
+        let imageUrl = []
         
         try {
 
@@ -248,27 +264,41 @@ export const addVariant = async (req, res, next)=>{
             if(existing){
                 existing.price = price
                 await existing.save()
-                res.status(200).json("variant updated successfully")
+                return res.status(200).json("variant updated successfully")
             }
-            else{
+
+            const sameColorVariant = await Variant.findOne({productId : req.params.productId, color})
+            if(sameColorVariant){
+                imageUrl = sameColorVariant.image
+            }
+            else if(req.files){
+            for(const file of req.files){
+            const result = await uploadToClodinary(file.path, "Variant_Images", next) 
+            imageUrl.push(result.secure_url)
+            }
+        }
+            
         const variant = new Variant({
             productId : req.params.productId,
             color,
             size,
-            price
+            price,
+            image : imageUrl,
+            title,
+            description
         })
             await variant.save()
             res.status(200).json("variant added successfully!!!")
-    }
+    
         } catch (error) {
             console.log("add variant m h error", error)
             next(error)
         }
 }
 
-//! get Variants
+//! get all Variants
 
-export const getVariants = async (req, res, next)=>{
+export const getAllVariants = async (req, res, next)=>{
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!"))
     try {

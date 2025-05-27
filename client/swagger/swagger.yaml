@@ -860,14 +860,14 @@ paths:
   
   /api/seller/addproduct:
     post:
-      summary: Add a new product
-      description: |
-        Seller-only endpoint to add new products with optional image upload.
-        Requires seller authentication.
       tags:
         - Seller
+      summary: Add a new product
+      description: |
+        Seller-only endpoint to add new products with multiple image uploads.
+        Requires seller authentication.
       security:
-        - bearerAuth: []  # JWT authentication required
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
@@ -885,48 +885,36 @@ paths:
                 - productName
                 - productPrice
                 - productDescription
+                - category
+                - subCategory
               properties:
                 productName:
                   type: string
-                  description: Name of the product
-                  example: "Premium Smartphone"
                 productPrice:
                   type: number
-                  description: Price of the product
-                  example: 599.99
                 discountPercentage:
                   type: number
-                  description: Optional discount percentage (0-100)
-                  example: 15
                 productDescription:
                   type: string
                   maxLength: 200
-                  description: Product description
-                  example: "High-quality smartphone with advanced features"
                 productSize:
                   type: string
                   enum: ["XS", "S", "M", "L", "XL"]
-                  description: Size of the product
-                  example: "M"
                 productColor:
                   type: string
                   enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
-                  description: Color of the product
-                  example: "Black"
                 image:
-                  type: string
-                  format: binary
-                  description: Product image file
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Multiple product image files
                 category:
                   type: string
-                  enum : ["Woman's_Fashion", "Men's_Fashiom", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty" ]
-                  description: category of the product
-                  example: Electronics
+                  enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
                 subCategory:
-                  type: String
-                  enum : ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone","Furniture", "Decor", "Cleaner","capsule", "syrup", "fitness", "Kit", "Skates", "Kites","Dairy", "Bread", "Meat","Makeup", "SkinCare" ]
-                  description: subCategory of the Product
-                  example: Camera  
+                  type: string
+                  enum: ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone", "Furniture", "Decor", "Cleaner", "capsule", "syrup", "fitness", "Kit", "Skates", "Kites", "Dairy", "Bread", "Meat", "Makeup", "SkinCare"]
       responses:
         '201':
           description: Product created successfully
@@ -937,18 +925,16 @@ paths:
                 properties:
                   _id:
                     type: string
-                    description: Product ID
-                    example: "507f1f77bcf86cd799439011"
                   productName:
                     type: string
                   productImage:
-                    type: string
-                    default: "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
+                    type: array
+                    items:
+                      type: string
                   productPrice:
                     type: number
                   discountPercentage:
                     type: number
-                    nullable: true
                   productDescription:
                     type: string
                   productSize:
@@ -958,10 +944,9 @@ paths:
                   category:
                     type: string
                   subCategory:
-                    type: string    
+                    type: string
                   seller:
                     type: string
-                    description: Seller's user ID
                   createdAt:
                     type: string
                     format: date-time
@@ -1023,29 +1008,29 @@ paths:
         '500':
           description: Internal server error
   
-  /api/seller/updateProduct/{id}:
+  /api/seller/updateProduct/{productId}:
     patch:
-      summary: Update a product
-      description: |
-        Seller-only endpoint to update product details.
-        Supports optional image update via file upload.
       tags:
         - Seller
+      summary: Update a product
+      description: |
+        Seller-only endpoint to update product details with optional multiple image uploads.
+        Requires seller authentication.
       security:
-        - bearerAuth: []  # Requires JWT authentication
+        - bearerAuth: []
       parameters:
         - in: header
           name: Authorization
           required: true
           schema:
             type: string
-          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}") 
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
         - in: path
-          name: id
+          name: productId
           required: true
           schema:
             type: string
-          description: The ID of the product to update
+          description: ID of the product to update
       requestBody:
         required: true
         content:
@@ -1055,41 +1040,31 @@ paths:
               properties:
                 productName:
                   type: string
-                  description: Updated product name
-                  example: "Premium Smartphone Pro"
                 productPrice:
                   type: number
-                  description: Updated product price
-                  example: 699.99
                 discountPercentage:
                   type: number
-                  nullable: true
-                  description: Updated discount percentage (0-100)
-                  example: 20
                 productDescription:
                   type: string
-                  description: update product description
-                  example : xyz
-                productColor:
-                  type: string
-                  description: update product color
-                  example: Red
+                  maxLength: 200
                 productSize:
                   type: string
-                  description: update product size
-                  example: XL
+                  enum: ["XS", "S", "M", "L", "XL"]
+                productColor:
+                  type: string
+                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                image:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Multiple product image files (optional)
                 category:
                   type: string
-                  description: update product category
-                  example: Electronics
+                  enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
                 subCategory:
                   type: string
-                  description: update product subcategory
-                  example: Skates          
-                image:
-                  type: string
-                  format: binary
-                  description: New product image (optional)
+                  enum: ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone", "Furniture", "Decor", "Cleaner", "capsule", "syrup", "fitness", "Kit", "Skates", "Kites", "Dairy", "Bread", "Meat", "Makeup", "SkinCare"]
       responses:
         '200':
           description: Product updated successfully
@@ -1360,6 +1335,7 @@ paths:
       summary: Add or update product variant (Seller only)
       description: |
         Adds a new variant or updates existing variant for a product.
+        Supports optional image upload for new color variants.
         Requires seller authentication.
       security:
         - bearerAuth: []
@@ -1379,7 +1355,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               required:
@@ -1390,17 +1366,24 @@ paths:
                 color:
                   type: string
                   enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
-                  description: Color of the variant
                 size:
                   type: string
                   enum: ["XS", "S", "M", "L", "XL"]
-                  description: Size of the variant
                 price:
                   type: number
-                  description: Price for this specific variant
+                title:
+                  type: string
+                description:
+                  type: string
+                image:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Variant images (required for new color variants)
       responses:
         '200':
-          description: Variant added/updated successfully
+          description: Variant operation successful
           content:
             application/json:
               schema:
@@ -1422,7 +1405,7 @@ paths:
         '500':
           description: Internal server error
 
-  /api/seller/getVariants/{productId}:
+  /api/seller/getAllVariants/{productId}:
     get:
       tags:
         - Seller
@@ -2352,10 +2335,14 @@ paths:
 
   /api/common/getSpecificProduct/{productId}:
     get:
-      summary: Get a specific product
-      description: Retrieves details of a single product by its ID
       tags:
         - Common
+      summary: Get detailed product information
+      description: |
+        Retrieves complete product details including:
+        - Product information
+        - Available colors and sizes
+        - Rating statistics
       parameters:
         - in: path
           name: productId
@@ -2371,31 +2358,40 @@ paths:
               schema:
                 type: object
                 properties:
-                  _id:
+                  productId:
                     type: string
-                    example: "507f1f77bcf86cd799439011"
-                  productName:
+                  title:
                     type: string
-                    example: "Premium Smartphone"
-                  productImage:
+                  image:
                     type: string
-                    example: "https://example.com/image.jpg"
-                  productPrice:
+                  price:
                     type: number
-                    example: 599.99
-                  discountPercentage:
+                  description:
+                    type: string
+                  size:
+                    type: string
+                    enum: ["XS", "S", "M", "L", "XL"]
+                  color:
+                    type: string
+                    enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                  category:
+                    type: string
+                    enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
+                  subCategory:
+                    type: string
+                    enum: ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone", "Furniture", "Decor", "Cleaner", "capsule", "syrup", "fitness", "Kit", "Skates", "Kites", "Dairy", "Bread", "Meat", "Makeup", "SkinCare"]
+                  averageRating:
                     type: number
-                    nullable: true
-                    example: 15
-                  seller:
-                    type: string
-                    example: "507f191e810c19729de860ea"
-                  createdAt:
-                    type: string
-                    format: date-time
-                  updatedAt:
-                    type: string
-                    format: date-time
+                  ratedPerson:
+                    type: integer
+                  colors:
+                    type: array
+                    items:
+                      type: string
+                  sizes:
+                    type: array
+                    items:
+                      type: string
         '500':
           description: Internal server error      
 
@@ -2908,8 +2904,12 @@ paths:
     get:
       tags:
         - Common
-      summary: Get specific product variant
-      description: Retrieves a specific variant by product ID, size, and color
+      summary: Get product variant information
+      description: |
+        Retrieves variant information by product ID.
+        Can return:
+        - All available sizes for a given color
+        - Specific variant details when both size and color are provided
       parameters:
         - in: path
           name: productId
@@ -2917,42 +2917,54 @@ paths:
           schema:
             type: string
           description: ID of the product
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - size
-                - color
-              properties:
-                size:
-                  type: string
-                  enum: ["XS", "S", "M", "L", "XL"]
-                  description: Size of the variant
-                color:
-                  type: string
-                  enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
-                  description: Color of the variant
+        - in: query
+          name: color
+          schema:
+            type: string
+            enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+          description: Color of the variant (required unless testing all colors)
+        - in: query
+          name: size
+          schema:
+            type: string
+            enum: ["XS", "S", "M", "L", "XL"]
+          description: Size of the variant (required with color for specific variant)
       responses:
         '200':
-          description: Successfully retrieved variant
+          description: Variant information retrieved successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  _id:
-                    type: string
-                  productId:
-                    type: string
-                  color:
-                    type: string
-                  size:
-                    type: string
-                  price:
-                    type: number
+                oneOf:
+                  - type: object
+                    properties:
+                      color:
+                        type: string
+                      sizes:
+                        type: array
+                        items:
+                          type: string
+                    description: Available sizes for given color
+                  - type: object
+                    properties:
+                      _id:
+                        type: string
+                      productId:
+                        type: string
+                      color:
+                        type: string
+                      size:
+                        type: string
+                      price:
+                        type: number
+                    description: Specific variant details
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - No size found for provided color
+            - No variant found for given size and color
+        '401':
+          description: No variant selected (missing both size and color)
         '500':
           description: Internal server error      
           
