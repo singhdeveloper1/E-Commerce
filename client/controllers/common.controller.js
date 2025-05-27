@@ -569,7 +569,7 @@ export const getVariant = async (req, res, next)=>{
             const sizes = [...new Set(variants.map(v => v.size))]
             const price = product.productPrice
             if(sizes.length === 0) return next(errorHandler(400, "no size found for the provided color.."))
-            return res.status(200).json({color, sizes, image,title,description,price})
+            return res.status(200).json({color, sizes, image,title,description,price,productId})
         }
 
         if(color, size){

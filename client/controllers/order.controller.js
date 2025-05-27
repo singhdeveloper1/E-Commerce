@@ -135,23 +135,22 @@ export const myOrder = async (req, res, next)=>{
 export const cancelOrder = async (req, res, next)=>{
   try {
     const orders = await Order.find({userId : req.user._id});
-    for (const order of orders) {
-      for (const subOrder of order.orders) {
-        if (subOrder._id.toString() == req.params.orderId) {
-          const product = subOrder.products.find(
-            (p) => p.productId.toString() == req.params.productId
-          );
-          if(product && product.isCancel == true){
-            return next(errorHandler(400, "this product was already cancelled"))
-          }
-          if (product) {
-            product.isCancel = true;
-            await order.save();
-            return res.status(200).json("product cancelled successfully!!!!");
+
+        for(const order of orders){
+          const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
+          if(subOrder){
+            const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
+            if(product && product.isCancel == true){
+              return next(errorHandler(400, "this product was already cancelled"))
+            }
+            if(product){
+              product.isCancel = true
+              await order.save()
+              return res.status(200).json("product cancelled successfully!!!!")
+            }
           }
         }
-      }
-    }
+
     res.status(404).json("no such product found for cancelletion!!")
   } catch (error) {
     console.log("cancel order m h error", error)
@@ -203,21 +202,20 @@ export const returnOrder = async (req, res, next)=>{
     const orders = await Order.find({userId : req.user._id})
 
     for(const order of orders){
-      for(const subOrder of order.orders){
-        if(subOrder._id.toString() == req.params.orderId){
-          const product = subOrder.products.find(p => p.productId.toString() == req.params.productId)
-          if(product && product.isReturn == true){
-            return next(errorHandler(400, "this product was already marked as return"))
-          }
-          if(product){
-            product.isReturn = true
-            await order.save()
-            return res.status(200).json("product marked as return and will collect soon!")
-          }
+      const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
+      if(subOrder){
+        const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
+        if(product && product.isReturn == true){
+          return next(errorHandler(400, "this product was already marked as return"))
+        }
+        if(product){
+          product.isReturn = true
+          await order.save()
+          return res.status(200).json("product marked as return and will collect soon!")
         }
       }
     }
-    
+
     res.status(404).json("no such products found for return")
   } catch (error) {
     console.log("return order m h error", error)
