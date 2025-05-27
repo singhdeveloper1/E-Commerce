@@ -252,6 +252,9 @@ export const getNewArrival = async (req, res, next)=>{
 
 export const getSaleProduct = async (req, res, next)=>{
     try {
+        // const sale = await Sale.findOne()
+        // const endTime = sale.endTime
+
         const activeForSale = await Product.find({sale : true})
         if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
         
@@ -290,6 +293,7 @@ export const getSaleProduct = async (req, res, next)=>{
 
             // res.status(200).json(activeForSale)
             res.status(200).json(ProductsWithRating)
+            // res.status(200).json({ProductsWithRating, endTime})
        
         
     } catch (error) {
@@ -559,12 +563,13 @@ export const getVariant = async (req, res, next)=>{
 
         if(color && !size){
             const variants = await Variant.find({productId, color})
-            const images = variants[0].image 
+            const image = variants[0].image 
             const title = variants[0].title
             const description = variants[0].description
             const sizes = [...new Set(variants.map(v => v.size))]
+            const price = product.productPrice
             if(sizes.length === 0) return next(errorHandler(400, "no size found for the provided color.."))
-            return res.status(200).json({color, sizes, images,title,description})
+            return res.status(200).json({color, sizes, image,title,description,price})
         }
 
         if(color, size){
