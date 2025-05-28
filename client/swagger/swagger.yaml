@@ -4343,4 +4343,134 @@ paths:
                         description: Count of Cash on Deliveries Order
                     description: Count of orders by payment method (e.g., {"COD": 25, "Bank": 10})
         '500':
-          description: Internal server error                                                                     
+          description: Internal server error     
+
+  /api/contact/makeContact:
+    post:
+      tags:
+        - Contact
+      summary: Submit a contact message
+      description: |
+        Submit a contact message from authenticated user.
+        Creates new contact record or appends to existing one.
+        Validates phone number length (exactly 10 digits).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - phone
+                - message
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                phone:
+                  type: integer
+                  example: 9876543210
+                message:
+                  type: string
+                  example: "I have a question about my order"
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "message send successfully!!"
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Phone number is not exactly 10 digits
+            - Missing required fields
+          content:
+            application/json:
+              schema:
+                type: string
+                examples:
+                  tooLong:
+                    value: "phone no. must not be greater than 10 digit"
+                  tooShort:
+                    value: "phone no. must not be less than 10 digit"
+        '401':
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal server error     
+
+  /api/contact/viewContact:
+    get:
+      tags:
+        - Contact
+      summary: View recent contact messages
+      description: |
+        Retrieves contact messages submitted by the authenticated user in the last 10 days.
+        Returns an array of contact messages with details.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: Successfully retrieved contact messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "John Doe"
+                    email:
+                      type: string
+                      format: email
+                      example: "john@example.com"
+                    phone:
+                      type: number
+                      example: 9876543210
+                    message:
+                      type: string
+                      example: "I have a question about my order"
+                    sentTime:
+                      type: string
+                      format: date-time
+                      example: "2023-05-15T10:00:00.000Z"
+                example:
+                  - name: "John Doe"
+                    email: "john@example.com"
+                    phone: 9876543210
+                    message: "I have a question about my order"
+                    sentTime: "2023-05-15T10:00:00.000Z"
+                  - name: "Jane Smith"
+                    email: "jane@example.com"
+                    phone: 9876543211
+                    message: "Regarding my recent purchase"
+                    sentTime: "2023-05-12T14:30:00.000Z"
+        '401':
+          description: Unauthorized - Authentication required
+        '500':
+          description: Internal server error                                                                               

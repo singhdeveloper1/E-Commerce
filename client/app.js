@@ -15,6 +15,7 @@ import paymentRoute from "./routes/payment.route.js"
 import carouselRoute from "./routes/carousel.route.js"
 import memberRoute from "./routes/member.route.js"
 import dashboardRoute from "./routes/dashboard.route.js"
+import contactRoute from "./routes/contact.route.js"
 
 const app = express()
 
@@ -47,6 +48,7 @@ app.use("/api/payment", paymentRoute)
 app.use("/api/carousel", carouselRoute)
 app.use("/api/member", memberRoute)
 app.use("/api/dashboard", dashboardRoute)
+app.use("/api/contact", contactRoute)
 
 //! for error
 app.use((err, req, res, next)=>{
