@@ -6,7 +6,6 @@ import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
 import Variant from "../models/variant.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
-// import moment from "moment-timezone"
 
 
 //! sale
@@ -31,7 +30,7 @@ export const sale = async (req, res, next)=>{
         else{
             activeSale.startTime = startTime,
             activeSale.endTime = endTime
-            activeSale.discount = discount
+            // activeSale.discount = discount
 
             await activeSale.save()
             res.status(200).json(activeSale)
@@ -618,13 +617,36 @@ export const getFilteredProducts = async (req, res, next)=>{
 
         const product = await Product.find(query).skip(skip).limit(limit);
 
-    if(product.length == 0){
-        res.status(404).json("no product is found for the selected page or filters!!")
-    }
+        if(product.length == 0){
+           return res.status(404).json("no product is found for the selected page or filters!!")
+        }
+
+        
+        const ProductsWithRating = await Promise.all(
+          product.map(async (item) => {
+            const reviews = await Review.find({ productId: item._id });
+            let ratedPerson = 0;
+            let averageRating = 0;
+            if (reviews.length && reviews.length > 0) {
+              const total = reviews.reduce((sum, item) => {
+                return sum + item.rating;
+              }, 0);
+              averageRating = total / reviews.length;
+
+              ratedPerson = reviews.length;
+            }
+            return {
+              ...item.toObject(),
+              averageRating,
+              ratedPerson,
+              // ...item, averageRating, ratedPerson
+            };
+          })
+        );
 
     // const total = await Product.countDocuments(query)
 
-    res.status(200).json(product)
+    res.status(200).json(ProductsWithRating)
     } catch (error) {
         console.log("get filtered product m h error", error)
         next(error)

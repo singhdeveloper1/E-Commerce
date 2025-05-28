@@ -140,6 +140,9 @@ export const cancelOrder = async (req, res, next)=>{
           const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
           if(subOrder){
             const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
+            if(product && product.isReturn == true){
+              return next(errorHandler(400, "this product is returned and cannot be cancelled"))
+            }
             if(product && product.isCancel == true){
               return next(errorHandler(400, "this product was already cancelled"))
             }
@@ -205,6 +208,9 @@ export const returnOrder = async (req, res, next)=>{
       const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
       if(subOrder){
         const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
+        if(product && product.isCancel == true){
+          return next(errorHandler(400, "this product is canceled and cannot be returned"))
+        }
         if(product && product.isReturn == true){
           return next(errorHandler(400, "this product was already marked as return"))
         }
