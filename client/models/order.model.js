@@ -44,6 +44,11 @@ const orderSchema = new mongoose.Schema({
                     isCancel : {
                         type : Boolean,
                         default : false
+                    },
+
+                    isReturn : {
+                        type : Boolean,
+                        default : false
                     }
                 },
             ],

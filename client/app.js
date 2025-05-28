@@ -29,6 +29,11 @@ app.get("/",(req, res)=>{
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerDocument);
+});
+
 app.use("/api/user", userRouter)
 app.use("/api/otp", otpRouter)
 app.use("/api/seller", sellerRouter)

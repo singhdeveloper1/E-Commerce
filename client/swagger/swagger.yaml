@@ -2908,7 +2908,7 @@ paths:
       description: |
         Retrieves variant information by product ID.
         Can return:
-        - All available sizes for a given color
+        - All available sizes, images, title and description for a given color
         - Specific variant details when both size and color are provided
       parameters:
         - in: path
@@ -2944,7 +2944,15 @@ paths:
                         type: array
                         items:
                           type: string
-                    description: Available sizes for given color
+                      images:
+                        type: array
+                        items:
+                          type: string
+                      title:
+                        type: string
+                      description:
+                        type: string
+                    description: Available sizes and product info for given color
                   - type: object
                     properties:
                       _id:
@@ -2957,6 +2965,14 @@ paths:
                         type: string
                       price:
                         type: number
+                      image:
+                        type: array
+                        items:
+                          type: string
+                      title:
+                        type: string
+                      description:
+                        type: string
                     description: Specific variant details
         '400':
           description: |
@@ -2966,7 +2982,7 @@ paths:
         '401':
           description: No variant selected (missing both size and color)
         '500':
-          description: Internal server error      
+          description: Internal server error        
           
   /api/common/getFilteredProducts:
     get:
@@ -3430,7 +3446,166 @@ paths:
         '401':
           description: Unauthorized (invalid token)
         '500':
-          description: Internal server error          
+          description: Internal server error  
+
+  /api/order/returnOrder/{orderId}/{productId}:
+    patch:
+      tags:
+        - Order
+      summary: Mark a product for return
+      description: |
+        Marks a specific product within an order as returnable.
+        Checks if the product belongs to the authenticated user and hasn't been already return.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")      
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+          description: ID of the sub-order containing the product
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          description: ID of the product to be returned
+      responses:
+        '200':
+          description: Product successfully marked for return
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "product marked as return and will collect soon!"
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Product was already marked as return
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "this product was already marked as return"
+        '401':
+          description: Unauthorized - Authentication required
+        '404':
+          description: No matching product found for return
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "no such products found for return"
+        '500':
+          description: Internal server error    
+          
+  /api/order/viewReturnOrder:
+    get:
+      tags:
+        - Order
+      summary: Get user's returned orders
+      description: Retrieves all returned order items for the authenticated user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: returned orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    orderId:
+                      type: string
+                    product:
+                      type: object
+                      properties:
+                        productId:
+                          type: string
+                        title:
+                          type: string
+                        image:
+                          type: string
+                        price:
+                          type: number
+                        size:
+                          type: string
+                          enum: ["XS", "S", "M", "L", "XL"]
+                        color:
+                          type: string
+                          enum: ["Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Pink", "Black", "White", "Gray", "Brown", "Gold", "Silver"]
+                        quantity:
+                          type: number
+                        isCancel:
+                          type: boolean
+                    payment:
+                      type: object
+                      properties:
+                        method:
+                          type: string
+                          enum: ["COD", "Bank"]
+                        status:
+                          type: string
+                          enum: ["Pending", "Paid"]
+                        paymentId:
+                          type: string
+                        orderId:
+                          type: string
+                    address:
+                      type: object
+                      properties:
+                        firstName:
+                          type: string
+                        lastName:
+                          type: string
+                        company:
+                          type: string
+                        street:
+                          type: string
+                        apartment:
+                          type: string
+                        city:
+                          type: string
+                        phone:
+                          type: string
+                        email:
+                          type: string
+                        country:
+                          type: string
+                        state:
+                          type: string
+                        pinCode:
+                          type: string
+        '400':
+          description: No returned orders found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "no product was returned yet!!"
+        '401':
+          description: Unauthorized (invalid token)
+        '500':
+          description: Internal server error                        
 
   /api/coupon/createCoupon:
     post:
