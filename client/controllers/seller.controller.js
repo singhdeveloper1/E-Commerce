@@ -258,6 +258,7 @@ export const addVariant = async (req, res, next)=>{
         let imageUrl = []
         
         try {
+            const product = await Product.findById({_id : req.params.productId})
 
             const existing = await Variant.findOne({productId : req.params.productId, size, color})
 
@@ -285,7 +286,8 @@ export const addVariant = async (req, res, next)=>{
             price,
             image : imageUrl,
             title,
-            description
+            description,
+            currency : product.currency
         })
             await variant.save()
             res.status(200).json("variant added successfully!!!")

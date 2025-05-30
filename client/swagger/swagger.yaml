@@ -1335,8 +1335,10 @@ paths:
       summary: Add or update product variant (Seller only)
       description: |
         Adds a new variant or updates existing variant for a product.
-        Supports optional image upload for new color variants.
-        Requires seller authentication.
+        - For existing variants (same color+size), updates the price
+        - For new variants with existing color, reuses existing images
+        - For new color variants, requires image upload
+        - Automatically inherits currency from parent product
       security:
         - bearerAuth: []
       parameters:
@@ -1393,7 +1395,9 @@ paths:
                   - type: string
                     example: "variant added successfully!!!"
         '401':
-          description: Unauthorized - User is not a seller
+          description: |
+            Unauthorized - Possible reasons:
+            - User is not a seller
           content:
             application/json:
               schema:
@@ -2379,12 +2383,13 @@ paths:
     get:
       tags:
         - Common
-      summary: Get detailed product information
+      summary: Get detailed product information with variants and ratings
       description: |
         Retrieves complete product details including:
         - Product information
         - Available colors and sizes
         - Rating statistics
+        - Currency conversion (if requested)
       parameters:
         - in: path
           name: productId
@@ -2392,6 +2397,11 @@ paths:
           schema:
             type: string
           description: ID of the product to retrieve
+        - in: query
+          name: currency
+          schema:
+            type: string
+          description: Target currency for price conversion (optional)
       responses:
         '200':
           description: Product details retrieved successfully
@@ -2408,6 +2418,8 @@ paths:
                     type: string
                   price:
                     type: number
+                  currency:
+                    type: string
                   description:
                     type: string
                   size:
@@ -3120,12 +3132,12 @@ paths:
     get:
       tags:
         - Common
-      summary: Get product variant information
+      summary: Get product variant information with currency conversion
       description: |
-        Retrieves variant information by product ID.
+        Retrieves variant information by product ID with optional currency conversion.
         Can return:
-        - All available sizes, images, title and description for a given color
-        - Specific variant details when both size and color are provided
+        - All available sizes, images, title, description, price and currency for a given color
+        - Specific variant details with converted price when both size and color are provided
       parameters:
         - in: path
           name: productId
@@ -3145,6 +3157,11 @@ paths:
             type: string
             enum: ["XS", "S", "M", "L", "XL"]
           description: Size of the variant (required with color for specific variant)
+        - in: query
+          name: currency
+          schema:
+            type: string
+          description: Target currency for price conversion (optional)
       responses:
         '200':
           description: Variant information retrieved successfully
@@ -3160,7 +3177,7 @@ paths:
                         type: array
                         items:
                           type: string
-                      images:
+                      image:
                         type: array
                         items:
                           type: string
@@ -3168,11 +3185,15 @@ paths:
                         type: string
                       description:
                         type: string
+                      price:
+                        type: number
+                      currency:
+                        type: string
+                      productId:
+                        type: string
                     description: Available sizes and product info for given color
                   - type: object
                     properties:
-                      _id:
-                        type: string
                       productId:
                         type: string
                       color:
@@ -3181,6 +3202,8 @@ paths:
                         type: string
                       price:
                         type: number
+                      currency:
+                        type: string
                       image:
                         type: array
                         items:
@@ -3195,8 +3218,22 @@ paths:
             Bad request - Possible reasons:
             - No size found for provided color
             - No variant found for given size and color
+          content:
+            application/json:
+              schema:
+                type: string
+                examples:
+                  noSize:
+                    value: "no size found for the provided color.."
+                  noVariant:
+                    value: "no variant found for give size and color.."
         '401':
           description: No variant selected (missing both size and color)
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "no variant is selected.."
         '500':
           description: Internal server error        
           

@@ -25,6 +25,10 @@ const variantSchema = new mongoose.Schema({
         required : true
     },
 
+    currency : {
+        type : String,
+    },
+
     image : {
         type : [String],
         required : true
