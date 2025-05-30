@@ -2291,45 +2291,87 @@ paths:
 
   /api/common/getAllProduct:
     get:
-      summary: Get all products
-      description: Retrieves a list of all products
+      summary: Get all products with pagination and ratings
+      description: |
+        Retrieves a paginated list of all products with calculated average ratings.
+        Includes pagination metadata in the response.
       tags:
         - Common
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
       responses:
         '200':
-          description: List of products retrieved successfully
+          description: Paginated list of products with ratings retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: "507f1f77bcf86cd799439011"
-                    productName:
-                      type: string
-                      example: "Premium Smartphone"
-                    productImage:
-                      type: string
-                      example: "https://example.com/image.jpg"
-                    productPrice:
-                      type: number
-                      example: 599.99
-                    discountPercentage:
-                      type: number
-                      nullable: true
-                      example: 15
-                    seller:
-                      type: string
-                      example: "507f191e810c19729de860ea"
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalProducts:
+                    type: integer
+                    example: 50
+                  Products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        productName:
+                          type: string
+                          example: "Premium Smartphone"
+                        productImage:
+                          type: string
+                          example: "https://example.com/image.jpg"
+                        productPrice:
+                          type: number
+                          example: 599.99
+                        discountPercentage:
+                          type: number
+                          nullable: true
+                          example: 15
+                        seller:
+                          type: string
+                          example: "507f191e810c19729de860ea"
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        averageRating:
+                          type: number
+                          example: 4.5
+                        ratedPerson:
+                          type: integer
+                          example: 10
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Requested page exceeds total pages
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "page 6 exceed totalPages 5"
         '500':
           description: Internal server error       
 
@@ -2397,8 +2439,11 @@ paths:
 
   /api/common/getProductByCategory/{category}:
     get:
-      summary: Get products by category
-      description: Retrieves all products belonging to a specific category
+      summary: Get paginated products by category with ratings
+      description: |
+        Retrieves paginated products belonging to a specific category with calculated average ratings.
+        Includes pagination metadata in the response.
+        The category parameter is URL decoded and spaces are replaced with underscores.
       tags:
         - Common
       parameters:
@@ -2407,55 +2452,103 @@ paths:
           required: true
           schema:
             type: string
-          description: Category name to filter products
+          description: Category name to filter products (URL encoded if contains spaces)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
       responses:
         '200':
-          description: List of products retrieved successfully
+          description: Paginated list of category products with ratings retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: "507f1f77bcf86cd799439011"
-                    productName:
-                      type: string
-                      example: "Premium Smartphone"
-                    productImage:
-                      type: string
-                      example: "https://example.com/image.jpg"
-                    productPrice:
-                      type: number
-                      example: 599.99
-                    discountPercentage:
-                      type: number
-                      nullable: true
-                      example: 15
-                    category:
-                      type: string
-                      example: "electronics"
-                    subCategory:
-                      type: string
-                      example: "Phones"  
-                    seller:
-                      type: string
-                      example: "507f191e810c19729de860ea"
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalProducts:
+                    type: integer
+                    example: 50
+                  Products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        productName:
+                          type: string
+                          example: "Premium Smartphone"
+                        productImage:
+                          type: string
+                          example: "https://example.com/image.jpg"
+                        productPrice:
+                          type: number
+                          example: 599.99
+                        discountPercentage:
+                          type: number
+                          nullable: true
+                          example: 15
+                        category:
+                          type: string
+                          example: "electronics"
+                        subCategory:
+                          type: string
+                          example: "Phones"
+                        seller:
+                          type: string
+                          example: "507f191e810c19729de860ea"
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        averageRating:
+                          type: number
+                          example: 4.5
+                        ratedPerson:
+                          type: integer
+                          example: 10
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Requested page exceeds total pages
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "page 6 exceeds totalPages 5"
+        '404':
+          description: No products found for this category
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "no product found for this sub category"
         '500':
           description: Internal server error 
 
-  /api/common/getProductBySubCategory/{SubCategory}:
+  /api/common/getProductBySubCategory/{subCategory}:
     get:
-      summary: Get products by sub category
-      description: Retrieves all products belonging to a specific sub category
+      summary: Get paginated products by sub-category with ratings
+      description: |
+        Retrieves paginated products belonging to a specific sub-category with calculated average ratings.
+        Includes pagination metadata in the response.
       tags:
         - Common
       parameters:
@@ -2464,48 +2557,94 @@ paths:
           required: true
           schema:
             type: string
-          description: SubCategory name to filter products
+          description: Sub-category name to filter products
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
       responses:
         '200':
-          description: List of products retrieved successfully
+          description: Paginated list of sub-category products with ratings retrieved successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                      example: "507f1f77bcf86cd799439011"
-                    productName:
-                      type: string
-                      example: "Premium Smartphone"
-                    productImage:
-                      type: string
-                      example: "https://example.com/image.jpg"
-                    productPrice:
-                      type: number
-                      example: 599.99
-                    discountPercentage:
-                      type: number
-                      nullable: true
-                      example: 15
-                    category:
-                      type: string
-                      example: "electronics"
-                    subCategory:
-                      type: string
-                      example: "Phones"  
-                    seller:
-                      type: string
-                      example: "507f191e810c19729de860ea"
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalProducts:
+                    type: integer
+                    example: 50
+                  Products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: "507f1f77bcf86cd799439011"
+                        productName:
+                          type: string
+                          example: "Premium Smartphone"
+                        productImage:
+                          type: string
+                          example: "https://example.com/image.jpg"
+                        productPrice:
+                          type: number
+                          example: 599.99
+                        discountPercentage:
+                          type: number
+                          nullable: true
+                          example: 15
+                        category:
+                          type: string
+                          example: "electronics"
+                        subCategory:
+                          type: string
+                          example: "Phones"
+                        seller:
+                          type: string
+                          example: "507f191e810c19729de860ea"
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        averageRating:
+                          type: number
+                          example: 4.5
+                        ratedPerson:
+                          type: integer
+                          example: 10
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Requested page exceeds total pages
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "pages 6 exceed totalPages 5"
+        '404':
+          description: No products found for this sub-category
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "no product found for this subCategory"
         '500':
           description: Internal server error   
 
@@ -2642,46 +2781,75 @@ paths:
     get:
       tags:
         - Common
-      summary: Get sale products
+      summary: Get paginated sale products with ratings
       description: |
-        Retrieves all products currently on sale.
-        Checks if sale period has ended and updates product status.
-        Returns array of active sale products.
+        Retrieves paginated products currently on sale with calculated average ratings.
+        Includes pagination metadata in the response.
+        Automatically updates product sale status if sale period has ended.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
       responses:
         '200':
           description: Successfully retrieved sale products
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    _id:
-                      type: string
-                    productName:
-                      type: string
-                    productImage:
-                      type: string
-                    productPrice:
-                      type: number
-                    sale:
-                      type: boolean
-                    discountPercentage:
-                      type: number
-                    seller:
-                      type: string
-                    createdAt:
-                      type: string
-                      format: date-time
-                    updatedAt:
-                      type: string
-                      format: date-time
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalProducts:
+                    type: integer
+                    example: 50
+                  Products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        productName:
+                          type: string
+                        productImage:
+                          type: string
+                        productPrice:
+                          type: number
+                        sale:
+                          type: boolean
+                        discountPercentage:
+                          type: number
+                        seller:
+                          type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+                        averageRating:
+                          type: number
+                        ratedPerson:
+                          type: integer
         '404':
           description: |
             Not found - Possible reasons:
-            - No products currently on sale ("no products are there in sale")
-            - Sale period has ended ("sale is no longer exist!!!")
+            - No products currently on sale
+            - Sale period has ended
           content:
             application/json:
               schema:
@@ -2689,9 +2857,14 @@ paths:
                 properties:
                   message:
                     type: string
+                examples:
+                  noProducts:
+                    value: { message: "no products are there in sale" }
+                  saleEnded:
+                    value: { message: "sale is no longer exist!!!" }
         '500':
-          description: Internal server error  
-
+          description: Internal server error
+  
   /api/common/getLimitedSaleProduct:
     get:
       tags:
@@ -2757,33 +2930,76 @@ paths:
     get:
       tags:
         - Common
-      summary: Get best selling products
+      summary: Get paginated best selling products with ratings
       description: |
-        Retrieves top 20 best selling products based on total quantity sold.
-        Returns product details.
+        Retrieves paginated best selling products based on total quantity sold,
+        including calculated average ratings and pagination metadata.
+        Returns top products sorted by sales quantity in descending order.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
       responses:
         '200':
           description: Successfully retrieved best selling products
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    product:
+                type: object
+                properties:
+                  currentPage:
+                    type: integer
+                    example: 1
+                  totalPages:
+                    type: integer
+                    example: 5
+                  totalProducts:
+                    type: integer
+                    example: 50
+                  products:
+                    type: array
+                    items:
                       type: object
                       properties:
-                        _id:
-                          type: string
-                        productName:
-                          type: string
-                        productImage:
-                          type: string
-                        productPrice:
+                        product:
+                          type: object
+                          properties:
+                            _id:
+                              type: string
+                            productName:
+                              type: string
+                            productImage:
+                              type: string
+                            productPrice:
+                              type: number
+                            category:
+                              type: string
+                            discountPercentage:
+                              type: number
+                            sale:
+                              type: boolean
+                        averageRating:
                           type: number
-                        category:
-                          type: string
+                        ratedPerson:
+                          type: integer
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Requested page exceeds total pages
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "page 6 exceed totalPages 5"
         '500':
           description: Internal server error  
 

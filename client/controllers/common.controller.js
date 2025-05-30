@@ -44,7 +44,17 @@ export const sale = async (req, res, next)=>{
 //! get All Product
 export const getAllProduct = async (req, res, next)=>{
     try {
-        const products = await Product.find()
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page-1)*10
+        const totalProducts = await Product.countDocuments()
+        const totalPages = Math.ceil(totalProducts/limit)
+
+        if(page > totalPages && totalPages !==0){
+            return next(errorHandler(400, `page ${page} exceed totalPages (${totalPages})`))
+        }
+
+        const products = await Product.find().skip(skip).limit(limit)
 
         const ProductsWithRating = await Promise.all(products.map(async item=>{
 
@@ -66,7 +76,13 @@ export const getAllProduct = async (req, res, next)=>{
            }))
 
         // res.status(200).json(products)
-        res.status(200).json(ProductsWithRating)
+        // res.status(200).json( ProductsWithRating )
+        res.status(200).json({
+            currentPage : page,
+            totalPages,
+            totalProducts,
+            products : ProductsWithRating
+        })
     } catch (error) {
         console.log("get all product common m h error", error)
         next(error)
@@ -82,10 +98,10 @@ export const getSpecificProduct = async (req, res, next)=>{
         const colors = [...new Set(variant.map(v =>v.color))]
 
         let sizes = []
-        if(colors.length > 0){
-            const color = variant.filter(v => v.color === colors[0])
-            sizes = [...new Set(color.map(v => v.size))]
-        }
+        // if(colors.length > 0){
+        //     const color = variant.filter(v => v.color === colors[0])
+        //     sizes = [...new Set(color.map(v => v.size))]
+        // }
 
              const reviews = await Review.find({productId : product._id})
             let ratedPerson = 0
@@ -98,6 +114,12 @@ export const getSpecificProduct = async (req, res, next)=>{
    
                     ratedPerson = reviews.length
                }
+               if(!product.productSize){
+                sizes = []
+               }
+               else{
+                sizes = [product.productSize]
+               }
 
                        const products = {
                         productId : product._id,
@@ -105,14 +127,14 @@ export const getSpecificProduct = async (req, res, next)=>{
                         image : product.productImage,
                         price : product.productPrice,
                         description : product.productDescription,
-                        size : product.productSize,
+                        sizes,
                         color : product.productColor,
                         category : product.category,
                         subCategory : product.subCategory,
                         averageRating,
                         ratedPerson,
                         colors,
-                        sizes
+                        // sizes
          // totalPrice : product.productPrice * item.quantity
    }
         res.status(200).json(products )
@@ -126,10 +148,20 @@ export const getSpecificProduct = async (req, res, next)=>{
 
 export const getProductByCategory = async (req, res, next)=>{
     try {
-
         const decodedCategory = decodeURIComponent(req.params.category).replace(/ /g, "_");
+
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page-1)*limit
+        const totalProducts = await Product.countDocuments({category : decodedCategory})
+        const totalPages = Math.ceil(totalProducts / limit)
+
+        if(page > totalPages && totalPages !== 0){
+            return next(errorHandler(400, `page ${page} exceeds totalPages (${totalPages})`))
+        }
+
         // const product = await Product.find({category : req.params.category})
-        const product = await Product.find({category : decodedCategory})
+        const product = await Product.find({category : decodedCategory}).skip(skip).limit(limit)
 
         if(!product) return next(errorHandler(404, "no product found for this sub category"))
 
@@ -153,7 +185,13 @@ export const getProductByCategory = async (req, res, next)=>{
                }))
 
         // res.status(200).json(product)
-        res.status(200).json(ProductsWithRating)
+        // res.status(200).json(ProductsWithRating)
+        res.status(200).json({
+            currentPage : page,
+            totalPages,
+            totalProducts,            
+            products : ProductsWithRating
+        })
     } catch (error) {
         console.log("get product by category m h error", error)
         next(error)
@@ -164,7 +202,17 @@ export const getProductByCategory = async (req, res, next)=>{
 
 export const getProductBySubCategory = async (req, res, next)=>{
     try {
-        const product = await Product.find({subCategory : req.params.subCategory})
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page-1)*10
+        const totalProducts = await Product.countDocuments({subCategory : req.params.subCategory})
+        const totalPages = Math.ceil(totalProducts / limit)
+
+        if(page > totalPages && totalPages !== 0){
+            return next(errorHandler(400, `pages ${page} exceed totalPages (${totalPages})`))
+        }
+
+        const product = await Product.find({subCategory : req.params.subCategory}).skip(skip).limit(limit)
         if(!product) return next(errorHandler(404, "no product found for this subCategory"))
 
             const ProductsWithRating = await Promise.all(product.map(async item=>{
@@ -187,7 +235,13 @@ export const getProductBySubCategory = async (req, res, next)=>{
                }))
 
         // res.status(200).json(product)
-        res.status(200).json(ProductsWithRating)
+        // res.status(200).json(ProductsWithRating)
+        res.status(200).json({
+            currentPage : page,
+            totalPages,
+            totalProducts,
+            products : ProductsWithRating
+        })
     } catch (error) {
         console.log("get product by subcategory m h error", error)
         next(error)
@@ -251,16 +305,37 @@ export const getNewArrival = async (req, res, next)=>{
 
 export const getSaleProduct = async (req, res, next)=>{
     try {
-        // const sale = await Sale.findOne()
-        // const endTime = sale.endTime
+        const sale = await Sale.findOne()
+        const endTime = sale.endTime
 
-        const activeForSale = await Product.find({sale : true})
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page - 1)* 10
+        const totalProducts = await Product.countDocuments({sale : true})
+        const totalPages = Math.ceil(totalProducts / limit)
+
+        if(page > totalPages && totalPages !== 0){
+            return next(errorHandler(400, `page ${page} exceed totalPages (${totalPages})`))
+        }
+
+        const activeForSale = await Product.find({sale : true}).skip(skip).limit(limit)
         if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
         
             // const discount = await Sale.findOne()
             // const saleDiscount = discount.discount
+        
+        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
+        if(activeSale) {
+            activeForSale.forEach(async (product)=>{
+                product.sale = false,
+                product.discountPercentage = 0
 
-            const ProductsWithRating = await Promise.all(activeForSale.map(async item=>{
+                await product.save()
+            })
+            return next(errorHandler(404, "sale is no longer exist!!!"))
+        }
+
+        const ProductsWithRating = await Promise.all(activeForSale.map(async item=>{
 
                 const reviews = await Review.find({productId : item._id})
                 let ratedPerson = 0
@@ -278,21 +353,17 @@ export const getSaleProduct = async (req, res, next)=>{
                        ...item.toObject(), averageRating, ratedPerson
                    }
                }))
-        
-        const activeSale = await Sale.findOne({endTime : {$lt : Date.now()}})
-        if(activeSale) {
-            activeForSale.forEach(async (product)=>{
-                product.sale = false,
-                product.discountPercentage = 0
-
-                await product.save()
-            })
-            return next(errorHandler(404, "sale is no longer exist!!!"))
-        }
 
             // res.status(200).json(activeForSale)
-            res.status(200).json(ProductsWithRating)
+            // res.status(200).json(ProductsWithRating)
             // res.status(200).json({ProductsWithRating, endTime})
+            res.status(200).json({
+                currentPage : page,
+                totalPages,
+                totalProducts,
+                endTime,
+                products : ProductsWithRating
+            })
        
         
     } catch (error) {
@@ -352,9 +423,48 @@ export const getLimitedSaleProduct = async (req, res, next)=>{
 
 export const getBestSelling = async (req, res, next)=>{
     try {
-        const order = await Order.aggregate([
+
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+        const skip = (page - 1) * limit
+
+
+        //!get total count of unique best Selling products
+        const totalCount = await Order.aggregate([
             {
-                $unwind :"$orders"
+                $unwind : "$orders"
+            },
+            {
+                $unwind : "$orders.products"
+            },
+            {
+                $group : {
+                    _id : "$orders.products.productId",
+                    totalSold : { $sum : "$orders.products.quantity"}
+                }
+            },
+            {
+                $sort : {totalSold :  - 1}
+            },
+            {
+                $group : {
+                    _id : null,
+                    count : {$sum : 1}
+                }
+            }
+        ])
+
+        const totalProducts = totalCount[0]?.count || 0
+        const totalPages = Math.ceil( totalProducts / limit)
+
+        if(page > totalPages && totalPages !==0){
+            return next(errorHandler(400, `page ${page} exceed totalPages ${totalPages}`))
+        }
+
+        //!get paginated best selling products
+        const orders = await Order.aggregate([
+            {
+                $unwind : "$orders"
             },
             {
                 $unwind : "$orders.products"
@@ -369,7 +479,10 @@ export const getBestSelling = async (req, res, next)=>{
                 $sort : {totalSold : -1}
             },
             {
-                $limit : 20
+                $skip : skip
+            },
+            {
+                $limit : limit
             },
             {
                 $lookup : {
@@ -383,13 +496,16 @@ export const getBestSelling = async (req, res, next)=>{
                 $unwind : "$product"
             },
             {
-                $project : {_id : 0, product : 1}
+                $project : {
+
+                    _id : 0,
+                    product : 1
+                }
             }
-        ]) 
+        ])
 
         //! for rating
-
-        const ProductsWithRating = await Promise.all(order.map(async item=>{
+        const ProductsWithRating = await Promise.all(orders.map(async item=>{
 
          const reviews = await Review.find({productId : item._id})
          let ratedPerson = 0
@@ -408,7 +524,13 @@ export const getBestSelling = async (req, res, next)=>{
                 ...item, averageRating, ratedPerson
             }
         }))
-        res.status(200).json(ProductsWithRating)
+        // res.status(200).json(ProductsWithRating)
+        res.status(200).json({
+            currentPage : page,
+            totalPages,
+            totalProducts,
+            products :ProductsWithRating
+        })
 
     } catch (error) {
         console.log("get best selling m h error", error)
