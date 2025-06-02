@@ -1,4 +1,5 @@
 import CategoryImage from "../models/categoryImage.model.js"
+import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import Sale from "../models/sale.model.js"
 import User from "../models/user.model.js"
@@ -25,7 +26,7 @@ export const switchToUser = async (req, res, next)=>{
 //! add product
 
 export const addproduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
+    const {productName, productPrice,currency, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
@@ -46,7 +47,7 @@ export const addproduct = async (req, res, next)=>{
     }
    
     if(imageUrl.length == 0){
-        imageUrl = "https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3"
+        imageUrl.push("https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3")
     }
     // let discountedPrice = ""
 
@@ -64,6 +65,7 @@ export const addproduct = async (req, res, next)=>{
         productName,
         productImage : imageUrl, 
         productPrice, 
+        currency,
         // discountedPrice,
         discountPercentage,
         productDescription,
@@ -74,8 +76,26 @@ export const addproduct = async (req, res, next)=>{
         seller : req.user._id
     })
 
+
+
+
     try {
         await newProduct.save()
+
+           if(productColor && productSize){
+            const variant = new Variant({
+                productId : newProduct._id,
+                color : productColor,
+                size : productSize,
+                price : productPrice,
+                title : productName,
+                description : productDescription,
+                image : imageUrl,
+                currency : newProduct.currency
+            })
+            await variant.save()
+        }    
+
         res.status(201).json(newProduct)
     } catch (error) {
         console.log("add product m h error", error)
@@ -102,7 +122,7 @@ export const getProduct = async (req, res, next)=>{
 //! updateProduct
 
 export const updateProduct = async (req, res, next)=>{
-    const {productName, productPrice, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
+    const {productName, productPrice,currency, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
 
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
@@ -122,6 +142,7 @@ export const updateProduct = async (req, res, next)=>{
             await Product.findByIdAndUpdate(req.params.productId,{
                 productName,
                 productPrice,
+                currency,
                 discountPercentage,
                 productColor,
                 productDescription,
@@ -136,6 +157,7 @@ export const updateProduct = async (req, res, next)=>{
         await Product.findByIdAndUpdate(req.params.productId,{
             productName,
             productPrice,
+            currency,
             discountPercentage,
             productDescription,
             productSize,
@@ -325,6 +347,33 @@ export const deleteVariant = async(req, res, next)=>{
     }
 }
 
+//! update delivery status
+
+// export const updateDeliveryStatus = async (req, res, next)=>{
+//     const {productId, orderId} = req.params
+//     console.log(productId)
+
+//     try {
+//         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+
+//             const product = await Product.findById({_id : productId})
+//             // if(product.seller !== req.user._id) return next(errorHandler(401, "you are not seller of this particular product!!"))
+
+
+//             const order = await Order.findById({_id : orderId})
+//             const subOrder = order.orders
+//             const id = subOrder.map(product =>product.products.map(a=>a.productId === productId ) )
+//             // const id = subOrder.map(product =>product.products)
+
+//             res.json(id)
+           
+
+
+//     } catch (error) {
+//         console.log("update delivery status m h error", error)
+//         next(error)
+//     }
+// }
 
 //! active for sale
 

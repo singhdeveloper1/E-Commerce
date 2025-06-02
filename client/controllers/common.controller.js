@@ -47,7 +47,7 @@ export const getAllProduct = async (req, res, next)=>{
     try {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const skip = (page-1)*10
+        const skip = (page-1)*limit
         const totalProducts = await Product.countDocuments()
         const totalPages = Math.ceil(totalProducts/limit)
 
@@ -99,10 +99,13 @@ export const getSpecificProduct = async (req, res, next)=>{
         const colors = [...new Set(variant.map(v =>v.color))]
 
         let sizes = []
-        // if(colors.length > 0){
-        //     const color = variant.filter(v => v.color === colors[0])
-        //     sizes = [...new Set(color.map(v => v.size))]
-        // }
+        if(colors.length > 0){
+            const color = variant.filter(v => v.color === product.productColor)
+            sizes = [...new Set(color.map(v => v.size))]
+        }
+        else{
+            sizes = [product.productSize]
+        }
 
         //! currecncy converter
         if(req.query.currency){
@@ -125,12 +128,12 @@ export const getSpecificProduct = async (req, res, next)=>{
    
                     ratedPerson = reviews.length
                }
-               if(!product.productSize){
-                sizes = []
-               }
-               else{
-                sizes = [product.productSize]
-               }
+            //    if(!product.productSize){
+            //     sizes = []
+            //    }
+            //    else{
+            //     sizes = [product.productSize]
+            //    }
 
                        const products = {
                         productId : product._id,
@@ -216,7 +219,7 @@ export const getProductBySubCategory = async (req, res, next)=>{
     try {
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const skip = (page-1)*10
+        const skip = (page-1)*limit
         const totalProducts = await Product.countDocuments({subCategory : req.params.subCategory})
         const totalPages = Math.ceil(totalProducts / limit)
 
@@ -322,7 +325,7 @@ export const getSaleProduct = async (req, res, next)=>{
 
         const page = parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 10
-        const skip = (page - 1)* 10
+        const skip = (page - 1)* limit
         const totalProducts = await Product.countDocuments({sale : true})
         const totalPages = Math.ceil(totalProducts / limit)
 
@@ -388,6 +391,10 @@ export const getSaleProduct = async (req, res, next)=>{
 
 export const getLimitedSaleProduct = async (req, res, next)=>{
     try {
+
+        const sale = await Sale.findOne()
+        const endTime = sale.endTime
+         
         const activeForSale = await Product.find({sale : true}).skip(0).limit(6)
         if(activeForSale.length == 0) return next(errorHandler(404, "no products are there in sale"))
 
@@ -406,7 +413,7 @@ export const getLimitedSaleProduct = async (req, res, next)=>{
             }
 
             return {
-                ...item.toObject(), averageRating, ratedPerson
+                ...item.toObject(), averageRating, ratedPerson, endTime
             }
         }))
 
