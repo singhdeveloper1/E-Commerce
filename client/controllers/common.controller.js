@@ -5,6 +5,7 @@ import Product from "../models/product.model.js"
 import Review from "../models/review.model.js"
 import Sale from "../models/sale.model.js"
 import Variant from "../models/variant.model.js"
+import { convertCurrency } from "../utils/currencyConverter.js"
 import { errorHandler } from "../utils/errorHandler.js"
 
 
@@ -103,6 +104,16 @@ export const getSpecificProduct = async (req, res, next)=>{
         //     sizes = [...new Set(color.map(v => v.size))]
         // }
 
+        //! currecncy converter
+        if(req.query.currency){
+            if(product.currency !== req.query.currency){
+            const result = await convertCurrency(product.productPrice, product.currency, req.query.currency)
+            product.productPrice = Math.floor(result.convertedAmount)
+            product.currency = req.query.currency
+            }
+        }
+
+        //! for rating
              const reviews = await Review.find({productId : product._id})
             let ratedPerson = 0
             let averageRating = 0
@@ -126,6 +137,7 @@ export const getSpecificProduct = async (req, res, next)=>{
                         title : product.productName,
                         image : product.productImage,
                         price : product.productPrice,
+                        currency : product.currency,
                         description : product.productDescription,
                         sizes,
                         color : product.productColor,
@@ -682,21 +694,43 @@ export const getVariant = async (req, res, next)=>{
         const product  = await Product.findOne({_id : productId})
         // return res.status(200).json(product)
 
+        if(req.query.currency){
+            if(product.currency !== req.query.currency){
+                const result = await convertCurrency(product.productPrice, product.currency, req.query.currency)
+                product.productPrice = result.convertedAmount
+                product.currency = req.query.currency
+            }
+        }
+
         if(color && !size){
             const variants = await Variant.find({productId, color})
             const image = variants[0].image 
             const title = variants[0].title
             const description = variants[0].description
             const sizes = [...new Set(variants.map(v => v.size))]
-            const price = product.productPrice
+            const price = Math.floor(product.productPrice)
+            const currency = product.currency
             if(sizes.length === 0) return next(errorHandler(400, "no size found for the provided color.."))
-            return res.status(200).json({color, sizes, image,title,description,price,productId})
+            return res.status(200).json({color, sizes, image,title,description,price,currency,productId})
         }
 
         if(color, size){
         const variant = await Variant.findOne({productId, size, color})        
+        if(req.query.currency){
+            if(variant.currency !== req.query.currency){
+                const result = await convertCurrency(variant.price, variant.currency, req.query.currency)
+                variant.price = Math.floor(result.convertedAmount)
+                variant.currency = req.query.currency
+            }
+        }
+        const price = variant.price
+        const currency = variant.currency
+        const image = variant.image
+        const title = variant.title
+        const description = variant.description
         if(!variant ) return next(errorHandler(400, "no variant found for give size and color.."))
-         return res.status(200).json(variant)
+        //  return res.status(200).json(variant)
+         return res.status(200).json({productId, color, size, price,currency, image, title, description})
         }
 
         if(!size && !color) return next(errorHandler(401, "no variant is selected.."))
@@ -718,12 +752,16 @@ export const getFilteredProducts = async (req, res, next)=>{
     try {
         const query = {};
 
-        if (search) {
-          query.$or = [
-            { productName: { $regex: search, $options: "i" } },
-            { category: { $regex: search, $options: "i" } },
-            { subCategory: { $regex: search, $options: "i" } },
-          ];
+        // if (search) {
+        //   query.$or = [
+        //     { productName: { $regex: search, $options: "i" } },
+        //     { category: { $regex: search, $options: "i" } },
+        //     { subCategory: { $regex: search, $options: "i" } },
+        //   ];
+        // }
+
+        if(search){
+            query.productName = {$regex : search, $options: "i"}
         }
 
         if (category) query.category = category;
