@@ -49,6 +49,22 @@ const orderSchema = new mongoose.Schema({
                     isReturn : {
                         type : Boolean,
                         default : false
+                    },
+
+                    orderTime : {
+                        type : Date,
+                        default : Date.now()
+                    },
+
+                    isDelivered : {
+                        type : Boolean,
+                        default : false
+                    },
+
+
+                    deliveredAt : {
+                        type : Date,
+                        default : null
                     }
                 },
             ],

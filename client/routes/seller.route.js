@@ -1,6 +1,6 @@
 import express from "express"
 import { authentication } from "../middlewares/auth.middleware.js"
-import { addCategoryImage, addForSale, addproduct, addVariant, deleteAllProduct, deleteProduct, deleteVariant, getAllVariants, getCategoryImage, getProduct, switchToUser, updateCategoryImage, updateProduct } from "../controllers/seller.controller.js"
+import { addCategoryImage, addForSale, addproduct, addVariant, deleteAllProduct, deleteProduct, deleteVariant, getAllVariants, getCategoryImage, getProduct, switchToUser, updateCategoryImage, updateDeliveryStatus, updateProduct } from "../controllers/seller.controller.js"
 import uploadLocal from "../middlewares/uploadLocal.middleware.js"
 
 const router = express.Router()
@@ -18,6 +18,8 @@ router.patch("/updateCategoryImage/:id", authentication, uploadLocal.single("ima
 router.post("/addVariant/:productId", authentication, uploadLocal.array("images", 5), addVariant)
 router.get("/getAllVariants/:productId", authentication, getAllVariants)
 router.delete("/deleteVariant/:variantId", authentication, deleteVariant)
+
+// router.patch("/updateDeliveryStatus/:orderId/:productId", authentication, updateDeliveryStatus)
 
 router.patch("/addForSale/:productId", authentication, addForSale)
 
