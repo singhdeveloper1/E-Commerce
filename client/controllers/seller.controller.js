@@ -349,31 +349,31 @@ export const deleteVariant = async(req, res, next)=>{
 
 //! update delivery status
 
-// export const updateDeliveryStatus = async (req, res, next)=>{
-//     const {productId, orderId} = req.params
-//     console.log(productId)
+export const updateDeliveryStatus = async (req, res, next)=>{
+    const {productId, orderId} = req.params
+    console.log(productId)
 
-//     try {
-//         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+    try {
+        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
 
-//             const product = await Product.findById({_id : productId})
-//             // if(product.seller !== req.user._id) return next(errorHandler(401, "you are not seller of this particular product!!"))
+            const product = await Product.findById({_id : productId})
+            // if(product.seller !== req.user._id) return next(errorHandler(401, "you are not seller of this particular product!!"))
 
 
-//             const order = await Order.findById({_id : orderId})
-//             const subOrder = order.orders
-//             const id = subOrder.map(product =>product.products.map(a=>a.productId === productId ) )
-//             // const id = subOrder.map(product =>product.products)
+            const order = await Order.findById({_id : orderId})
+            const subOrder = order.orders
+            const id = subOrder.map(product =>product.products.filter(a=>a.productId === productId ) )
+            // const id = subOrder.map(product =>product.products)
 
-//             res.json(id)
+            res.json(id)
            
 
 
-//     } catch (error) {
-//         console.log("update delivery status m h error", error)
-//         next(error)
-//     }
-// }
+    } catch (error) {
+        console.log("update delivery status m h error", error)
+        next(error)
+    }
+}
 
 //! active for sale
 
