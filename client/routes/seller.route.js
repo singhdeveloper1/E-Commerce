@@ -19,7 +19,7 @@ router.post("/addVariant/:productId", authentication, uploadLocal.array("images"
 router.get("/getAllVariants/:productId", authentication, getAllVariants)
 router.delete("/deleteVariant/:variantId", authentication, deleteVariant)
 
-// router.patch("/updateDeliveryStatus/:orderId/:productId", authentication, updateDeliveryStatus)
+router.patch("/updateDeliveryStatus/:orderId/:productId", authentication, updateDeliveryStatus)
 
 router.patch("/addForSale/:productId", authentication, addForSale)
 
