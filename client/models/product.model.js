@@ -26,6 +26,12 @@ const productSchema = new mongoose.Schema({
         required : true
     },
 
+    currencyStyle : {
+        type : String,
+        default : "en-US",
+        required : true
+    },
+
     // discountedPrice : {
     //     type : Number
     // },
