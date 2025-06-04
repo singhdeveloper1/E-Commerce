@@ -718,7 +718,82 @@ paths:
                     type: string
                     example: "please verify your email or phone first"
         '500':
-          description: Internal server error          
+          description: Internal server error 
+
+  /api/user/location:
+    post:
+      tags:
+        - User
+      summary: Get location details from coordinates
+      description: |
+        Retrieves detailed location information using latitude and longitude coordinates.
+        Uses OpenCage Geocoding API to return address components including:
+        - Street address
+        - City, state, and district
+        - Postal code
+        - Country information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - latitude
+                - longitude
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                  example: 28.6139
+                longitude:
+                  type: number
+                  format: float
+                  example: 77.2090
+      responses:
+        '200':
+          description: Location data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    nullable: true
+                  longitude:
+                    type: number
+                    nullable: true
+                  pinCode:
+                    type: string
+                    nullable: true
+                  street:
+                    type: string
+                  streetType:
+                    type: string
+                  city:
+                    type: string
+                  state:
+                    type: string
+                  district:
+                    type: string
+                  country:
+                    type: string
+                example:
+                  latitude: 28.6139
+                  longitude: 77.2090
+                  pinCode: "110001"
+                  street: "Rajpath"
+                  streetType: "road"
+                  city: "New Delhi"
+                  state: "Delhi"
+                  district: "New Delhi"
+                  country: "India"
+        '500':
+          description: |
+            Internal server error - Possible reasons:
+            - Geocoding API failure
+            - Invalid coordinates                   
 
   /api/user/switchToSeller:
     patch:
