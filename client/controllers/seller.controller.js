@@ -350,26 +350,31 @@ export const deleteVariant = async(req, res, next)=>{
 //! update delivery status
 
 export const updateDeliveryStatus = async (req, res, next)=>{
-    const {productId, orderId} = req.params
-    console.log(productId)
+    const {id, orderId} = req.params
 
     try {
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
 
-            const product = await Product.findById({_id : productId})
-            // if(product.seller !== req.user._id) return next(errorHandler(401, "you are not seller of this particular product!!"))
+            const order = await Order.findOne({"orders._id" : orderId})
+            const subOrder = order.orders.find(order=> order._id == orderId)
+            const singleOrder = subOrder.products.find(a => a._id == id)
 
+            if(singleOrder.isCancel || singleOrder.isReturn){
+                return next(errorHandler(401, "this order was either cancelled or returned!!"))
+            }
 
-            const order = await Order.findById({_id : orderId})
-            const subOrder = order.orders
-            const id = subOrder.map(product =>product.products.filter(a=>a.productId === productId ) )
-            // const id = subOrder.map(product =>product.products)
+            if(singleOrder.isDelivered){
+                return next(errorHandler(401, "already delivered!"))
+            }
+            
+            singleOrder.isDelivered = true
+            singleOrder.deliveredAt = Date.now()
 
-            res.json(id)
-           
+            await order.save()
 
+            res.status(200).json("delivery status updated successfully")         
 
-    } catch (error) {
+        } catch (error) {
         console.log("update delivery status m h error", error)
         next(error)
     }

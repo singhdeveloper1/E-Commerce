@@ -44,7 +44,8 @@ export const getWishlist = async (req, res, next)=>{
     try {
         const wishlist = await AddToWishlist.findOne({userId : req.user._id}).populate("products.productId")
         
-        if(!wishlist || wishlist.length == 0) return next(errorHandler(404, "no product added in the wishlist"))
+        // if(!wishlist || wishlist.length == 0) return next(errorHandler(404, "no product added in the wishlist"))
+        if(!wishlist || wishlist.length == 0) return res.status(200).json([])
             const product = wishlist.products.map(item=>{
                 const product = item.productId
                 return {

@@ -18,8 +18,7 @@ router.patch("/updateCategoryImage/:id", authentication, uploadLocal.single("ima
 router.post("/addVariant/:productId", authentication, uploadLocal.array("images", 5), addVariant)
 router.get("/getAllVariants/:productId", authentication, getAllVariants)
 router.delete("/deleteVariant/:variantId", authentication, deleteVariant)
-
-router.patch("/updateDeliveryStatus/:orderId/:productId", authentication, updateDeliveryStatus)
+router.patch("/updateDeliveryStatus/:orderId/:id", authentication, updateDeliveryStatus)
 
 router.patch("/addForSale/:productId", authentication, addForSale)
 
