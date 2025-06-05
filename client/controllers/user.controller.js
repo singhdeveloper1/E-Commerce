@@ -7,6 +7,7 @@ import OTP from "../models/otp.model.js"
 import sendMail from "../mailsender/mailsender.js"
 import BlackListToken from "../models/blacklistToken.model.js"
 import AddToCart from "../models/addToCart.model.js"
+import { getLocation } from "../utils/location.js"
 
 
 //! register
@@ -448,6 +449,19 @@ export const newPassword = async (req, res, next)=>{
         next(error)
     }
 }
+
+//! location
+
+export const location = async (req, res, next) => {
+  const { latitude, longitude } = req.body;
+  try {
+    const geoData = await getLocation(latitude, longitude)
+    res.status(200).json(geoData)
+  } catch (error) {
+    console.log("location m h error", error)
+    next(error);
+  }
+};
 
 
 //! switch to seller

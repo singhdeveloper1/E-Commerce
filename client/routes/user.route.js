@@ -1,5 +1,5 @@
 import express from "express"
-import {addUserAddress, deleteUserAddress, getSpecificAddress, getUserAddress, google, newPassword, switchToSeller, updateUserAddress, updateUserData, updateUserPassword, userData, userLogin, userLogout, userRegister} from "../controllers/user.controller.js"
+import {addUserAddress, deleteUserAddress, getSpecificAddress, getUserAddress, google, location, newPassword, switchToSeller, updateUserAddress, updateUserData, updateUserPassword, userData, userLogin, userLogout, userRegister} from "../controllers/user.controller.js"
 import { authentication } from "../middlewares/auth.middleware.js"
 
 const router = express.Router()
@@ -18,6 +18,7 @@ router.patch("/updateUserAddress/:id", authentication, updateUserAddress)
 router.delete("/deleteUserAddress/:id", authentication, deleteUserAddress)
 router.get("/logout", authentication, userLogout)
 router.patch("/newPassword", newPassword)
+router.post("/location", location)
 
 router.patch("/switchToSeller", authentication, switchToSeller)
 

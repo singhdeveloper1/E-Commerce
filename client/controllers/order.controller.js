@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Order from "../models/order.model.js"
 import Product from "../models/product.model.js"
 import { errorHandler } from "../utils/errorHandler.js"

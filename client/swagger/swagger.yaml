@@ -718,7 +718,82 @@ paths:
                     type: string
                     example: "please verify your email or phone first"
         '500':
-          description: Internal server error          
+          description: Internal server error 
+
+  /api/user/location:
+    post:
+      tags:
+        - User
+      summary: Get location details from coordinates
+      description: |
+        Retrieves detailed location information using latitude and longitude coordinates.
+        Uses OpenCage Geocoding API to return address components including:
+        - Street address
+        - City, state, and district
+        - Postal code
+        - Country information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - latitude
+                - longitude
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                  example: 28.6139
+                longitude:
+                  type: number
+                  format: float
+                  example: 77.2090
+      responses:
+        '200':
+          description: Location data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    nullable: true
+                  longitude:
+                    type: number
+                    nullable: true
+                  pinCode:
+                    type: string
+                    nullable: true
+                  street:
+                    type: string
+                  streetType:
+                    type: string
+                  city:
+                    type: string
+                  state:
+                    type: string
+                  district:
+                    type: string
+                  country:
+                    type: string
+                example:
+                  latitude: 28.6139
+                  longitude: 77.2090
+                  pinCode: "110001"
+                  street: "Rajpath"
+                  streetType: "road"
+                  city: "New Delhi"
+                  state: "Delhi"
+                  district: "New Delhi"
+                  country: "India"
+        '500':
+          description: |
+            Internal server error - Possible reasons:
+            - Geocoding API failure
+            - Invalid coordinates                   
 
   /api/user/switchToSeller:
     patch:
@@ -862,9 +937,12 @@ paths:
     post:
       tags:
         - Seller
-      summary: Add a new product
+      summary: Add a new product with variants
       description: |
-        Seller-only endpoint to add new products with multiple image uploads.
+        Seller-only endpoint to add new products with:
+        - Multiple image uploads
+        - Automatic variant creation when color and size are provided
+        - Currency and currency style handling
         Requires seller authentication.
       security:
         - bearerAuth: []
@@ -892,6 +970,8 @@ paths:
                   type: string
                 productPrice:
                   type: number
+                currency:
+                  type: string
                 discountPercentage:
                   type: number
                 productDescription:
@@ -917,7 +997,7 @@ paths:
                   enum: ["T-Shirts", "Jeans", "Shoes", "Jacket", "Phones", "Computers", "SmartWatch", "Camera", "HeadPhone", "Furniture", "Decor", "Cleaner", "capsule", "syrup", "fitness", "Kit", "Skates", "Kites", "Dairy", "Bread", "Meat", "Makeup", "SkinCare"]
       responses:
         '201':
-          description: Product created successfully
+          description: Product and variant (if applicable) created successfully
           content:
             application/json:
               schema:
@@ -933,6 +1013,10 @@ paths:
                       type: string
                   productPrice:
                     type: number
+                  currency:
+                    type: string
+                  currencyStyle:
+                    type: string
                   discountPercentage:
                     type: number
                   productDescription:
@@ -1012,9 +1096,12 @@ paths:
     patch:
       tags:
         - Seller
-      summary: Update a product
+      summary: Update a product with optional images and currency
       description: |
-        Seller-only endpoint to update product details with optional multiple image uploads.
+        Seller-only endpoint to update product details with:
+        - Optional multiple image uploads (replaces existing images when provided)
+        - Optional currency update (automatically sets currency style)
+        - Partial updates allowed for any field
         Requires seller authentication.
       security:
         - bearerAuth: []
@@ -1042,6 +1129,8 @@ paths:
                   type: string
                 productPrice:
                   type: number
+                currency:
+                  type: string
                 discountPercentage:
                   type: number
                 productDescription:
@@ -1058,7 +1147,7 @@ paths:
                   items:
                     type: string
                     format: binary
-                  description: Multiple product image files (optional)
+                  description: Multiple product image files (replaces all existing images when provided)
                 category:
                   type: string
                   enum: ["Woman's_Fashion", "Men's_Fashion", "Electronics", "Home_and_LifeStyle", "Medicine", "Sports_&_Outdoor", "Baby's_&_Toys", "Groceries_&_Pets", "Health_&_Beauty"]
@@ -1084,7 +1173,17 @@ paths:
                     type: string
                     example: "you are not a seller"
         '500':
-          description: Internal server error  
+          description: |
+            Internal server error - Possible reasons:
+            - Image upload failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "image upload failed"  
   
   /api/seller/deleteProduct/{id}:
     delete:

@@ -7,6 +7,11 @@ import Variant from "../models/variant.model.js"
 import { errorHandler } from "../utils/errorHandler.js"
 import uploadToClodinary from "./clodinary.controller.js"
 
+const currencyToLocaleMap = {
+      USD: 'en-US',
+        INR: 'en-IN',
+  }
+
 //! switch to user
 
 export const switchToUser = async (req, res, next)=>{
@@ -59,6 +64,8 @@ export const addproduct = async (req, res, next)=>{
     //     discountPercentage = undefined
     // }
 
+    const currencyStyle = currencyToLocaleMap[currency] || "en-US"
+
 
  
     const newProduct = new Product({
@@ -66,6 +73,7 @@ export const addproduct = async (req, res, next)=>{
         productImage : imageUrl, 
         productPrice, 
         currency,
+        currencyStyle,
         // discountedPrice,
         discountPercentage,
         productDescription,
@@ -91,7 +99,8 @@ export const addproduct = async (req, res, next)=>{
                 title : productName,
                 description : productDescription,
                 image : imageUrl,
-                currency : newProduct.currency
+                currency : newProduct.currency,
+                currencyStyle : newProduct.currencyStyle
             })
             await variant.save()
         }    
@@ -128,9 +137,26 @@ export const updateProduct = async (req, res, next)=>{
         if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
 
         // let imageUrl = ""
-        let imageUrl = []
+        
+
+        let updatedFields = {
+            productName,
+            productPrice,
+            discountPercentage,
+            productColor,
+            productDescription,
+            productSize,
+            category,
+            subCategory
+        }
+
+        if(currency){
+            updatedFields.currency = currency
+            updatedFields.currencyStyle = currencyToLocaleMap[currency] || "en-US"
+        }
 
         if(req.files){
+            let imageUrl = []
             // const result = await uploadToClodinary(req, "Product_Image", next)
             // imageUrl = result.secure_url
             for(const file of req.files){
@@ -139,32 +165,13 @@ export const updateProduct = async (req, res, next)=>{
                 imageUrl.push(result.secure_url)
             }
 
-            await Product.findByIdAndUpdate(req.params.productId,{
-                productName,
-                productPrice,
-                currency,
-                discountPercentage,
-                productColor,
-                productDescription,
-                productSize,
-                category,
-                subCategory,
-                productImage : imageUrl
-            },{new : true})
+            updatedFields.productImage = imageUrl
+
+            await Product.findByIdAndUpdate(req.params.productId, updatedFields, {new : true})
         }
 
         else{
-        await Product.findByIdAndUpdate(req.params.productId,{
-            productName,
-            productPrice,
-            currency,
-            discountPercentage,
-            productDescription,
-            productSize,
-            productColor,
-            category,
-            subCategory,
-        },{new : true})
+        await Product.findByIdAndUpdate(req.params.productId, updatedFields, {new : true})
     }
 
         return res.status(200).json("product updated successfully!!!")
@@ -309,7 +316,8 @@ export const addVariant = async (req, res, next)=>{
             image : imageUrl,
             title,
             description,
-            currency : product.currency
+            currency : product.currency,
+            currencyStyle : product.currencyStyle
         })
             await variant.save()
             res.status(200).json("variant added successfully!!!")
