@@ -45,36 +45,21 @@ export const addproduct = async (req, res, next)=>{
 
         for( const file of req.files){
             const result = await uploadToClodinary(file.path, "Product_Images",next)
-            // imageUrl = result.secure_url
             imageUrl.push(result.secure_url)
         }
-
     }
    
     if(imageUrl.length == 0){
         imageUrl.push("https://odoo-community.org/web/image/product.template/1844/image_1024?unique=1e911c3")
     }
-    // let discountedPrice = ""
-
-    // if(discountPercentage){
-    //     let TotalDiscount = actualPrice * (discount/100)
-    //     discountedPrice = actualPrice - TotalDiscount
-    // }
-    // if(!discountPercentage){
-    //     discountPercentage = undefined
-    // }
-
     const currencyStyle = currencyToLocaleMap[currency] || "en-US"
 
-
- 
     const newProduct = new Product({
         productName,
         productImage : imageUrl, 
         productPrice, 
         currency,
         currencyStyle,
-        // discountedPrice,
         discountPercentage,
         productDescription,
         productSize,
@@ -83,9 +68,6 @@ export const addproduct = async (req, res, next)=>{
         subCategory,
         seller : req.user._id
     })
-
-
-
 
     try {
         await newProduct.save()
@@ -130,57 +112,58 @@ export const getProduct = async (req, res, next)=>{
 
 //! updateProduct
 
-export const updateProduct = async (req, res, next)=>{
-    const {productName, productPrice,currency, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
+export const updateProduct = async (req, res, next) => {
+  const {productName, productPrice, currency, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body;
 
-    try {
-        if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller"))
+  try {
+    if (!req.user.isSeller)
+      return next(errorHandler(401, "you are not a seller"));
 
-        // let imageUrl = ""
-        
+    // let imageUrl = ""
 
-        let updatedFields = {
-            productName,
-            productPrice,
-            discountPercentage,
-            productColor,
-            productDescription,
-            productSize,
-            category,
-            subCategory
-        }
+    let updatedFields = {
+      productName,
+      productPrice,
+      discountPercentage,
+      productColor,
+      productDescription,
+      productSize,
+      category,
+      subCategory,
+    };
 
-        if(currency){
-            updatedFields.currency = currency
-            updatedFields.currencyStyle = currencyToLocaleMap[currency] || "en-US"
-        }
-
-        if(req.files){
-            let imageUrl = []
-            // const result = await uploadToClodinary(req, "Product_Image", next)
-            // imageUrl = result.secure_url
-            for(const file of req.files){
-                const result = await uploadToClodinary(file.path, "Product_Images", next)
-                if(!result) return next(errorHandler(500, "image upload failed"))
-                imageUrl.push(result.secure_url)
-            }
-
-            updatedFields.productImage = imageUrl
-
-            await Product.findByIdAndUpdate(req.params.productId, updatedFields, {new : true})
-        }
-
-        else{
-        await Product.findByIdAndUpdate(req.params.productId, updatedFields, {new : true})
+    if (currency) {
+      updatedFields.currency = currency;
+      updatedFields.currencyStyle = currencyToLocaleMap[currency] || "en-US";
     }
 
-        return res.status(200).json("product updated successfully!!!")
- 
-        } catch (error) {
-            console.log("update product m h error", error)            
-            next(error)
-        }
-}
+    if (req.files && req.files.length > 0) {
+      let imageUrl = [];
+      // const result = await uploadToClodinary(req, "Product_Image", next)
+      // imageUrl = result.secure_url
+      for (const file of req.files) {
+        const result = await uploadToClodinary(file.path, "Product_Images", next);
+        if (!result) return next(errorHandler(500, "image upload failed"));
+        imageUrl.push(result.secure_url);
+      }
+
+      updatedFields.productImage = imageUrl;
+
+      await Product.findByIdAndUpdate(req.params.productId, updatedFields, {
+        new: true,
+      });
+    } else {
+      await Product.findByIdAndUpdate(req.params.productId, updatedFields, {
+        new: true,
+      });
+    }
+
+    return res.status(200).json("product updated successfully!!!");
+  } catch (error) {
+    console.log("update product m h error", error);
+    next(error);
+  }
+};
 
 //! delete Product
 
