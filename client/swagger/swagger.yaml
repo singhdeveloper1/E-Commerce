@@ -724,23 +724,23 @@ paths:
     post:
       tags:
         - User
-      summary: Get location details from coordinates
+      summary: Get location details from coordinates or pin code
       description: |
-        Retrieves detailed location information using latitude and longitude coordinates.
+        Retrieves detailed location information using either:
+        - Latitude and longitude coordinates, or
+        - Postal pin code (India only)
         Uses OpenCage Geocoding API to return address components including:
-        - Street address
+        - Street address and type
         - City, state, and district
         - Postal code
         - Country information
+        - Google Maps link
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - latitude
-                - longitude
               properties:
                 latitude:
                   type: number
@@ -750,6 +750,12 @@ paths:
                   type: number
                   format: float
                   example: 77.2090
+                pinCode:
+                  type: string
+                  example: "110001"
+              anyOf:
+                - required: [latitude, longitude]
+                - required: [pinCode]
       responses:
         '200':
           description: Location data retrieved successfully
@@ -779,6 +785,8 @@ paths:
                     type: string
                   country:
                     type: string
+                  mapLink:
+                    type: string
                 example:
                   latitude: 28.6139
                   longitude: 77.2090
@@ -789,6 +797,30 @@ paths:
                   state: "Delhi"
                   district: "New Delhi"
                   country: "India"
+                  mapLink: "https://www.google.com/maps?q=28.6139,77.2090"
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - Neither coordinates nor pin code provided
+            - Invalid pin code format
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "please provide `latitude-longitude` or `pinCode` to get the location"
+        '404':
+          description: |
+            Not found - Possible reasons:
+            - No address found for provided coordinates
+            - Pin code not found in India
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: string
+                    example: "no address found for this pin code"
+                  - type: string
+                    example: "no address found"
         '500':
           description: |
             Internal server error - Possible reasons:

@@ -514,13 +514,27 @@ export const getBestSelling = async (req, res, next)=>{
             {
                 $unwind : "$product"
             },
-            {
-                $project : {
-
-                    _id : 0,
-                    product : 1
-                }
+        {
+            $project: {
+                _id: "$product._id",
+                productName: "$product.productName",
+                productImage: "$product.productImage",
+                productPrice: "$product.productPrice",
+                discountPercentage: "$product.discountPercentage",
+                productDescription: "$product.productDescription",
+                category: "$product.category",
+                subCategory: "$product.subCategory",
+                seller: "$product.seller",
+                createdAt: "$product.createdAt",
+                updatedAt: "$product.updatedAt",
+                sale: "$product.sale",
+                currency: "$product.currency",
+                currencyStyle: "$product.currencyStyle",
+                averageRating: "$product.averageRating",
+                ratedPerson: "$product.ratedPerson",
+                totalSold: 1
             }
+        }  
         ])
 
         //! for rating
