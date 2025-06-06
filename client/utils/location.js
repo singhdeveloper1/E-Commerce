@@ -1,5 +1,5 @@
 import node_geocoder from "node-geocoder";
-import axios from "axios"
+import axios from "axios";
 
 // const geoCoder = node_geocoder({
 //     provider : "opencage",
@@ -63,6 +63,6 @@ export const getLocation = async (latitude, longitude, pinCode) => {
     return location;
   } catch (error) {
     console.log("location util m h error", error);
-    throw error
+    throw error;
   }
 };

@@ -1,17 +1,17 @@
-import multer from "multer"
-import path from "path"
+import multer from "multer";
+import path from "path";
 
 const storage = multer.diskStorage({
-    destination : (req, file, cb)=>{
-        cb(null, "public/uploads/")
-    },
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/");
+  },
 
-    filename : (req, file, cb)=>{
-        const uniqueName = `${file.originalname}${Math.floor(Math.random()*10)}`
-        cb(null,uniqueName)
-    }
-})
+  filename: (req, file, cb) => {
+    const uniqueName = `${file.originalname}${Math.floor(Math.random() * 10)}`;
+    cb(null, uniqueName);
+  },
+});
 
-const uploadLocal = multer({storage})
+const uploadLocal = multer({ storage });
 
-export default uploadLocal
+export default uploadLocal;

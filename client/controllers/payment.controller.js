@@ -1,24 +1,22 @@
 import instance from "../utils/instance.razorpay.js"
 import crypto from "crypto"
 
-export const order = async (req, res, next)=>{
+export const order = async (req, res, next) => {
+  const { amount, currency, receipt } = req.body;
 
-    const {amount, currency, receipt} = req.body
+  try {
+    const order = await instance.orders.create({
+      amount: amount * 100,
+      currency,
+      receipt,
+    });
 
-   try {
-    const  order = await instance.orders.create({
-        amount : amount *100,
-        currency,
-        receipt
-    })
-
-    res.status(200).json(order)
-   } catch (error) {
-    console.log("checkout m h error", error)
-    next(error)
-   }
-
-}
+    res.status(200).json(order);
+  } catch (error) {
+    console.log("checkout m h error", error);
+    next(error);
+  }
+};
 
 //! payment verification
 
