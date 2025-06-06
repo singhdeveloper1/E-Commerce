@@ -12,10 +12,10 @@ export const placeOrder = async (req, res, next) => {
   } = req.body;
   try {
     // const cartItems = req.body.products;
-    let cartItems = req.body.products
+    let cartItems = req.body.products;
 
-    if(!Array.isArray(cartItems)){
-        cartItems = [cartItems]
+    if (!Array.isArray(cartItems)) {
+      cartItems = [cartItems];
     }
 
     const products = await Promise.all(
@@ -91,178 +91,199 @@ export const placeOrder = async (req, res, next) => {
 
 
 //! my order
-export const myOrder = async (req, res, next)=>{
-    try {
-        // const orders = await Order.find({userId : req.user._id})
-        // if(!orders) return next(errorHandler(404, "nothing in cart"))
+export const myOrder = async (req, res, next) => {
+  try {
+    // const orders = await Order.find({userId : req.user._id})
+    // if(!orders) return next(errorHandler(404, "nothing in cart"))
 
-        //     res.status(200).json(orders)
+    //     res.status(200).json(orders)
 
-        const orders  = await Order.aggregate([
-            {
-                $match : {userId : req.user._id}
-            },
-            {
-                $unwind : "$orders"
-            },
-            {
-                $unwind : "$orders.products"
-            },
-            {
-                $project : {
-                    _id : 0,
-                    orderId : "$orders._id",
-                    product : "$orders.products",
-                    payment : "$orders.payment",
-                    address : "$orders.address"
-                }
-            }
-        ])
+    const orders = await Order.aggregate([
+      {
+        $match: { userId: req.user._id },
+      },
+      {
+        $unwind: "$orders",
+      },
+      {
+        $unwind: "$orders.products",
+      },
+      {
+        $project: {
+          _id: 0,
+          orderId: "$orders._id",
+          product: "$orders.products",
+          payment: "$orders.payment",
+          address: "$orders.address",
+        },
+      },
+    ]);
 
-        if(orders.length == 0) return next(errorHandler(400, "no product is ordered yet!!"))
-          
-        res.status(200).json(orders)
+    if (orders.length == 0)
+      return next(errorHandler(400, "no product is ordered yet!!"));
 
-    } catch (error) {
-        console.log("my order m h error", error)
-        next(error)
-    }
-}
+    res.status(200).json(orders);
+  } catch (error) {
+    console.log("my order m h error", error);
+    next(error);
+  }
+};
 
 //! cancel Order
 
-export const cancelOrder = async (req, res, next)=>{
+export const cancelOrder = async (req, res, next) => {
   try {
-    const orders = await Order.find({userId : req.user._id});
+    const orders = await Order.find({ userId: req.user._id });
 
-        for(const order of orders){
-          const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
-          if(subOrder){
-            const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
-            if(product && product.isReturn == true){
-              return next(errorHandler(400, "this product is returned and cannot be cancelled"))
-            }
-            if(product && product.isCancel == true){
-              return next(errorHandler(400, "this product was already cancelled"))
-            }
-            if(product){
-              product.isCancel = true
-              await order.save()
-              return res.status(200).json("product cancelled successfully!!!!")
-            }
-          }
+    for (const order of orders) {
+      const subOrder = order.orders.find(
+        (o) => o._id.toString() == req.params.orderId
+      );
+      if (subOrder) {
+        const product = subOrder.products.find(
+          (p) => p.productId.toString() == req.params.productId
+        );
+        if (product && product.isReturn == true) {
+          return next(
+            errorHandler(
+              400,
+              "this product is returned and cannot be cancelled"
+            )
+          );
         }
-
-    res.status(404).json("no such product found for cancelletion!!")
-  } catch (error) {
-    console.log("cancel order m h error", error)
-    next(error)
-  }  
-} 
-
-//! view cancel order
-
-export const viewCancelOrder = async (req, res, next)=>{
-    try {
-        const cancelledOrder = await Order.aggregate([
-            {
-                $match : {userId : req.user._id}
-            },
-            {
-                $unwind : "$orders"
-            },
-            {
-                $unwind : "$orders.products"
-            },
-            {
-                $match : {
-                    "orders.products.isCancel" : true
-                }
-            },
-            {
-                $project : {
-                    _id : 0,
-                    orderId : "$orders._id",
-                    product : "$orders.products",
-                    payment : "$orders.payment",
-                    address : "$orders.address"
-                }
-            }
-        ])
-        if(cancelledOrder.length == 0) return next(errorHandler(400, "no product was cancelled yet!!"))
-        res.status(200).json(cancelledOrder)
-    } catch (error) {
-        console.log("view cancel order", error)
-        next(error)
-    }
-}
-
-//! return order
-
-export const returnOrder = async (req, res, next)=>{
-  try {
-    const orders = await Order.find({userId : req.user._id})
-
-    for(const order of orders){
-      const subOrder = order.orders.find(o=> o._id.toString() == req.params.orderId)
-      if(subOrder){
-        const product = subOrder.products.find(p=> p.productId.toString() == req.params.productId)
-        if(product && product.isCancel == true){
-          return next(errorHandler(400, "this product is canceled and cannot be returned"))
+        if (product && product.isCancel == true) {
+          return next(errorHandler(400, "this product was already cancelled"));
         }
-        if(product && product.isReturn == true){
-          return next(errorHandler(400, "this product was already marked as return"))
-        }
-        if(product){
-          product.isReturn = true
-          await order.save()
-          return res.status(200).json("product marked as return and will collect soon!")
+        if (product) {
+          product.isCancel = true;
+          await order.save();
+          return res.status(200).json("product cancelled successfully!!!!");
         }
       }
     }
 
-    res.status(404).json("no such products found for return")
+    res.status(404).json("no such product found for cancelletion!!");
   } catch (error) {
-    console.log("return order m h error", error)
-    next(error)
+    console.log("cancel order m h error", error);
+    next(error);
   }
-}
+}; 
+
+//! view cancel order
+
+export const viewCancelOrder = async (req, res, next) => {
+  try {
+    const cancelledOrder = await Order.aggregate([
+      {
+        $match: { userId: req.user._id },
+      },
+      {
+        $unwind: "$orders",
+      },
+      {
+        $unwind: "$orders.products",
+      },
+      {
+        $match: {
+          "orders.products.isCancel": true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          orderId: "$orders._id",
+          product: "$orders.products",
+          payment: "$orders.payment",
+          address: "$orders.address",
+        },
+      },
+    ]);
+    if (cancelledOrder.length == 0)
+      return next(errorHandler(400, "no product was cancelled yet!!"));
+    res.status(200).json(cancelledOrder);
+  } catch (error) {
+    console.log("view cancel order", error);
+    next(error);
+  }
+};
+
+//! return order
+
+export const returnOrder = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ userId: req.user._id });
+
+    for (const order of orders) {
+      const subOrder = order.orders.find(
+        (o) => o._id.toString() == req.params.orderId
+      );
+      if (subOrder) {
+        const product = subOrder.products.find(
+          (p) => p.productId.toString() == req.params.productId
+        );
+        if (product && product.isCancel == true) {
+          return next(
+            errorHandler(400, "this product is canceled and cannot be returned")
+          );
+        }
+        if (product && product.isReturn == true) {
+          return next(
+            errorHandler(400, "this product was already marked as return")
+          );
+        }
+        if (product) {
+          product.isReturn = true;
+          await order.save();
+          return res
+            .status(200)
+            .json("product marked as return and will collect soon!");
+        }
+      }
+    }
+
+    res.status(404).json("no such products found for return");
+  } catch (error) {
+    console.log("return order m h error", error);
+    next(error);
+  }
+};
 
 
 //! view return order
 
-export const viewReturnOrder = async (req, res, next)=>{
+export const viewReturnOrder = async (req, res, next) => {
   try {
     const returnedOrder = await Order.aggregate([
       {
-        $match : {userId : req.user._id}
+        $match: { userId: req.user._id },
       },
       {
-        $unwind : "$orders"
+        $unwind: "$orders",
       },
       {
-        $unwind : "$orders.products"
+        $unwind: "$orders.products",
       },
       {
-        $match : {
-          "orders.products.isReturn" : true
-        }
+        $match: {
+          "orders.products.isReturn": true,
+        },
       },
-        {
-          $project : {
-            _id : 0,
-            orderId : "$orders._id",
-            product : "$orders.products",
-            payment : "$orders.payment",
-            address : "$orders.address"
-          }
-      }
-    ])
+      {
+        $project: {
+          _id: 0,
+          orderId: "$orders._id",
+          product: "$orders.products",
+          payment: "$orders.payment",
+          address: "$orders.address",
+        },
+      },
+    ]);
 
-    if(returnedOrder.length == 0 ) return next(errorHandler(400, "no product was returned!!"))
-      res.status(200).json(returnedOrder)
+    if (returnedOrder.length == 0)
+      return next(errorHandler(400, "no product was returned!!"));
+    res.status(200).json(returnedOrder);
   } catch (error) {
-    console.log("view return order m h error", error)
-    next(error)
+    console.log("view return order m h error", error);
+    next(error);
   }
-}
+};

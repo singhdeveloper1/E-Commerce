@@ -32,6 +32,7 @@ export const switchToUser = async (req, res, next)=>{
 
 export const addproduct = async (req, res, next)=>{
     const {productName, productPrice,currency, discountPercentage, productDescription, productColor, productSize, category, subCategory} = req.body
+    try {
 
     if(!req.user.isSeller) return next(errorHandler(401, "you are not a seller!!!"))
 
@@ -69,7 +70,6 @@ export const addproduct = async (req, res, next)=>{
         seller : req.user._id
     })
 
-    try {
         await newProduct.save()
 
            if(productColor && productSize){
