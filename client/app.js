@@ -16,7 +16,7 @@ import carouselRoute from "./routes/carousel.route.js"
 import memberRoute from "./routes/member.route.js"
 import dashboardRoute from "./routes/dashboard.route.js"
 import contactRoute from "./routes/contact.route.js"
-
+import notificatioRoute from "./routes/notification.route.js"
 const app = express()
 
 app.use(cors())
@@ -49,6 +49,7 @@ app.use("/api/carousel", carouselRoute)
 app.use("/api/member", memberRoute)
 app.use("/api/dashboard", dashboardRoute)
 app.use("/api/contact", contactRoute)
+app.use("/api/notification", notificatioRoute)
 
 //! for error
 app.use((err, req, res, next)=>{
