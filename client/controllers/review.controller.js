@@ -88,10 +88,49 @@ export const myReviews = async (req, res, next) => {
     const myReviews = await Review.find({ userId: req.user._id }).populate(
       "productId"
     );
+    const reviewProductId = myReviews.map(review => review.productId._id)
+
+    const orderData = await Order.aggregate([
+      {
+        $match : {userId : req.user._id}
+      },
+      {
+        $unwind : "$orders"
+      },
+      {
+        $unwind : "$orders.products"
+      },
+      {
+        $match : {"orders.products.productId" : { $in : reviewProductId.map(id => new mongoose.Types.ObjectId(id))}}
+      },  
+      {
+        $project : {
+          _id : 0,
+          productId : "$orders.products.productId",
+          orderTime : "$orders.products.orderTime"
+        }
+      }
+    ])
+
+    const orderTime = orderData.reduce((map ,{productId, orderTime})=>{
+      const pid = productId.toString()
+      if(!map[pid]){
+        map[pid] = orderTime
+      }
+      return map
+    },{})
+
+    const ReviewsWithOrderTime = myReviews.map((review) => {
+      const obj = review.toObject();
+      const pid = obj.productId?._id?.toString();
+      obj.productId.orderTime = pid ? orderTime[pid] || null : null;
+      return obj;
+    });
 
     if (!myReviews) return next(errorHandler(400, "no reviews found!!"));
 
-    res.status(200).json(myReviews);
+    // res.status(200).json(myReviews);
+    res.status(200).json(ReviewsWithOrderTime)
   } catch (error) {
     console.log("my reviews m h error", error);
     next(error);

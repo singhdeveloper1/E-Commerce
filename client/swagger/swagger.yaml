@@ -4925,3 +4925,125 @@ paths:
           description: Unauthorized - Authentication required
         '500':
           description: Internal server error                                                                               
+
+  /api/notification/enableNotification:
+    patch:
+      tags:
+        - Notification
+      summary: Allow notifications and register FCM token
+      description: |
+        Updates the user's FCM token to enable push notifications.
+        Requires authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fcmToken
+              properties:
+                fcmToken:
+                  type: string
+                  description: Firebase Cloud Messaging token for push notifications
+      responses:
+        '200':
+          description: FCM token updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Notification marked as allowed"
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal server error 
+          
+  /api/notification/disableNotification:
+    patch:
+      tags:
+        - Notification
+      summary: Disable push notifications
+      description: |
+        Removes the user's FCM token to disable push notifications.
+        Requires authentication.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+          description: Bearer token for authentication (e.g., "{headers : {Authorization : `Bearer ${token}`}")        
+      responses:
+        '200':
+          description: Notifications disabled successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Notification marked as disabled"
+        '401':
+          description: Unauthorized - Missing or invalid authentication token
+        '500':
+          description: Internal server error                   
+
+  /api/notification/sendNotification:
+    post:
+      tags:
+        - Notification
+      summary: Send push notification to user
+      description: |
+        Sends a push notification to a specific user's device using FCM.
+        Requires the user to have notifications enabled (fcmToken registered).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - title
+                - body
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email of the recipient user
+                title:
+                  type: string
+                  description: Notification title
+                body:
+                  type: string
+                  description: Notification message body
+      responses:
+        '200':
+          description: Notification sent successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "notification send successfully!!!"
+        '400':
+          description: |
+            Bad request - Possible reasons:
+            - User has disabled notifications
+            - User not found
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "notification is disabled by user!!"
+        '500':
+          description: Internal server error          

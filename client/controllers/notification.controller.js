@@ -3,7 +3,7 @@ import { errorHandler } from "../utils/errorHandler.js"
 import admin from "../utils/firebasePushNotification.js"
 
 //! allow notification
-export const allowNotification = async (req, res, next)=>{
+export const enableNotification = async (req, res, next)=>{
     const {fcmToken} = req.body
 
     try {
@@ -19,12 +19,27 @@ export const allowNotification = async (req, res, next)=>{
     }
 }
 
+//! disable notification
+export const disableNotification = async (req, res, next)=>{
+    try {
+        const user = await User.findByIdAndUpdate(req.user._id,{
+            $unset : {
+                fcmToken : ""
+            }
+        },{new : true}) 
+        res.status(200).json("Notification marked as disabled")
+    } catch (error) {
+        console.log("disable notification m h error", error)        
+        next(error)
+    }
+}
+
 //! send notification
 export const sendNotification = async (req, res)=>{
     const {email, title, body} = req.body
     try {
         const user = await User.findOne({email})
-        if(user?.fcmToken) return next(errorHandler(400, "notification is disabled by user!!"))
+        if(!user?.fcmToken) return next(errorHandler(400, "notification is disabled by user!!"))
 
             const message = {
                 notification  : {title, body},
