@@ -5002,10 +5002,12 @@ paths:
     post:
       tags:
         - Notification
-      summary: Send push notification to user
+      summary: Send push notification to user(s)
       description: |
-        Sends a push notification to a specific user's device using FCM.
-        Requires the user to have notifications enabled (fcmToken registered).
+        Sends push notifications using FCM with two modes:
+        1. To specific user with notification enabled (when email provided)
+        2. Broadcast to all users with notifications enabled (when no email provided)
+        Requires valid FCM tokens to be registered.
       requestBody:
         required: true
         content:
@@ -5013,14 +5015,13 @@ paths:
             schema:
               type: object
               required:
-                - email
                 - title
                 - body
               properties:
                 email:
                   type: string
                   format: email
-                  description: Email of the recipient user
+                  description: Email of specific recipient (optional for broadcast)
                 title:
                   type: string
                   description: Notification title
@@ -5029,21 +5030,27 @@ paths:
                   description: Notification message body
       responses:
         '200':
-          description: Notification sent successfully
+          description: Notification(s) sent successfully
           content:
             application/json:
               schema:
-                type: string
-                example: "notification send successfully!!!"
+                oneOf:
+                  - type: string
+                    example: "notification send successfullyy"
+                  - type: string
+                    example: "notification send successfullyy!!!"
         '400':
           description: |
             Bad request - Possible reasons:
-            - User has disabled notifications
-            - User not found
+            - Notifications disabled by user
+            - No users with notifications enabled (for broadcast)
           content:
             application/json:
               schema:
-                type: string
-                example: "notification is disabled by user!!"
+                oneOf:
+                  - type: string
+                    example: "notification is disabled by user!!"
+                  - type: string
+                    example: "notification is disabled by all the Users!!"
         '500':
           description: Internal server error          
