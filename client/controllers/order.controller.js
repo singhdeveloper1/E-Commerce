@@ -199,7 +199,8 @@ export const viewCancelOrder = async (req, res, next) => {
       },
     ]);
     if (cancelledOrder.length == 0)
-      return next(errorHandler(400, "no product was cancelled yet!!"));
+      // return next(errorHandler(400, "no product was cancelled yet!!"));
+    return res.status(400).json("no product was cancelled yet!!")
     res.status(200).json(cancelledOrder);
   } catch (error) {
     console.log("view cancel order", error);
